@@ -12,6 +12,18 @@ namespace DotNetLisp
         public static void AddBuiltinFunctions(Scope globalScope)
         {
             globalScope.Variables["+"] = Add<long>();
+            globalScope.Variables["str"] = (Expression<Func<long, string>>)(obj => obj.ToString());
+            globalScope.Variables["bool"] = (Expression<Func<long, bool>>)(i => i != 0);
+            globalScope.Variables["true"] = Expression.Constant(true);
+            globalScope.Variables["false"] = Expression.Constant(false);
+            globalScope.Variables["not"] = (Expression<Func<bool, bool>>)(b => !b);
+            globalScope.Variables["print"] = (Expression<Func<string, string>>)(str => Print(str));
+        }
+
+        private static string Print(string str)
+        {
+            Console.WriteLine(str);
+            return str;
         }
 
         public static Expression Add<T>()

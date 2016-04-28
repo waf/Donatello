@@ -22,13 +22,14 @@ namespace DotNetLisp
 
         static void Main(string[] args)
         {
-
             if (args.Length > 2)
             {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("  DotNetLisp           open a repl");
                 Console.WriteLine("  DotNetLisp <file>    compile a file");
             }
+
+            BuiltInFunctions.AddBuiltinFunctions(GlobalScope);
 
             // compile file
             if (args.Length == 2)
@@ -85,7 +86,6 @@ namespace DotNetLisp
 
         private static Expression Evaluate(string input)
         {
-            BuiltInFunctions.AddBuiltinFunctions(GlobalScope);
             Expression programExpression;
             var visitor = new ParseExpressionVisitor();
 
