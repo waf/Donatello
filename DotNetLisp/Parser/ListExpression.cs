@@ -8,15 +8,18 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime.Tree;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotNetLisp.Parser
 {
-    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<Expression>
+    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<ExpressionSyntax>
     {
-        public override Expression VisitList([NotNull] DotNetLispParser.ListContext context)
+        public override ExpressionSyntax VisitList([NotNull] DotNetLispParser.ListContext context)
         {
             var children = context.forms().children;
 
+            /*
             if(children == null)
             {
                 return Expression.New(typeof(List<object>));
@@ -30,19 +33,25 @@ namespace DotNetLisp.Parser
             {
                 return DefineLet(children);
             }
+            */
 
-            Expression[] elements = children
+            ExpressionSyntax[] elements = children
                 .Select(child => this.Visit(child))
                 .ToArray();
 
+            /*
             if(elements[0].NodeType != ExpressionType.Lambda)
             {
                 throw new Exception("First element of a list must be a function");
             }
+            */
 
-            return Expression.Invoke(elements.First(), elements.Skip(1));
+            var arguments = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
+                elements.Skip(1).Select(element => SyntaxFactory.Argument(element))));
+            return SyntaxFactory.InvocationExpression(elements.First(), arguments);
         }
 
+        /*
         private Expression DefineLet(IList<IParseTree> children)
         {
             // (if condition then-statement else-statement)
@@ -60,5 +69,6 @@ namespace DotNetLisp.Parser
             Program.GlobalScope.Variables[name] = value;
             return value;
         }
+        */
     }
 }

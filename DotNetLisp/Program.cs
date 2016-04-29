@@ -12,6 +12,11 @@ using DotNetLisp.Parser;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Tree;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
+using System.Reflection;
 
 namespace DotNetLisp
 {
@@ -34,7 +39,7 @@ namespace DotNetLisp
             // compile file
             if (args.Length == 2)
             {
-                CompileToDll(args);
+                //CompileToDll(args);
                 return;
             }
 
@@ -53,16 +58,59 @@ namespace DotNetLisp
                 if (input == "exit") { break; }
 
                 //eval
-                string output;
+                string output = "";
                 try
                 {
-                    Expression programExpression = Evaluate(input);
-                    var wrapped = Expression.Convert(programExpression, typeof(object));
-                    var mainMethod = Expression.Lambda<Func<object>>(wrapped);
-                    var result = mainMethod.Compile().Invoke();
-                    output = JsonConvert.SerializeObject(result, Formatting.Indented);
+                    var programExpression = Evaluate(input);
+
+                    var unit = SyntaxFactory.CompilationUnit()
+                        .AddMembers(SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName("Repl"))
+                                .AddMembers(SyntaxFactory.ClassDeclaration("Program")
+                                        .AddMembers(SyntaxFactory.MethodDeclaration(SyntaxFactory.ParseTypeName("System.Object"), "Run")
+                                            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword))
+                                            .WithBody(SyntaxFactory.Block(SyntaxFactory.ReturnStatement(programExpression))))));
+
+
+                    var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
+                    MetadataReference[] references = new MetadataReference[]
+                    {
+                        MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                        MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
+                    };
+
+                    CSharpCompilation compilation = CSharpCompilation.Create(
+                        Path.GetRandomFileName(),
+                        syntaxTrees: new[] { CSharpSyntaxTree.Create(unit) },
+                        references: references,
+                        options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+                    
+                    using (var ms = new MemoryStream())
+                    {
+                        EmitResult emmitted = compilation.Emit(ms);
+
+                        if (!emmitted.Success)
+                        {
+                            IEnumerable<Diagnostic> failures = emmitted.Diagnostics.Where(diagnostic =>
+                                diagnostic.IsWarningAsError ||
+                                diagnostic.Severity == DiagnosticSeverity.Error);
+                            foreach (Diagnostic diagnostic in failures)
+                            {
+                                Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                            }
+                        }
+                        else
+                        {
+                            ms.Seek(0, SeekOrigin.Begin);
+                            Assembly assembly = Assembly.Load(ms.ToArray());
+                            Type type = assembly.GetType("Repl.Program");
+                            var result = type.InvokeMember("Run", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+                            output = JsonConvert.SerializeObject(result, Formatting.Indented);
+                            //TODO: unload assembly
+                        }
+                    }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     output = "Error: " + e.Message;
                 }
@@ -73,20 +121,21 @@ namespace DotNetLisp
             } // loop!
         }
 
+        /*
         private static void CompileToDll(string[] args)
         {
             var file = File.ReadAllText(args[1]);
 
-            Expression programExpression = Evaluate(file);
+            var programExpression = Evaluate(file);
             var param = Expression.Parameter(typeof(string));
             var mainMethod = Expression.Lambda<Action<string[]>>(programExpression, param);
             var compiled = mainMethod.Compile();
             //todo: create a program with the compiled method as the 'Main' method, output DLL.
         }
+        */
 
-        private static Expression Evaluate(string input)
+        private static ExpressionSyntax Evaluate(string input)
         {
-            Expression programExpression;
             var visitor = new ParseExpressionVisitor();
 
             using (var stream = new StringReader(input))

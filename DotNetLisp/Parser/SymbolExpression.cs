@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime.Misc;
 using DotNetLisp.Antlr.Generated;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace DotNetLisp.Parser
 {
-    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<Expression>
+    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<ExpressionSyntax>
     {
-        public override Expression VisitSymbol([NotNull] DotNetLispParser.SymbolContext context)
+        public override ExpressionSyntax VisitSymbol([NotNull] DotNetLispParser.SymbolContext context)
         {
             string name = context.SYMBOL().GetText();
 
             var scope = Program.ScopeAnnotations.Get(context) ?? Program.GlobalScope;
-            Expression value = null;
+            ExpressionSyntax value = null;
             bool found = scope.Variables.TryGetValue(name, out value);
             if(!found)
             {
