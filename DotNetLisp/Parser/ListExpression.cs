@@ -19,56 +19,19 @@ namespace DotNetLisp.Parser
         {
             var children = context.forms().children;
 
-            /*
-            if(children == null)
+            var builtIn = BuiltInFunctions.Run(this, children);
+            if(builtIn != null)
             {
-                return Expression.New(typeof(List<object>));
+                return builtIn;
             }
-
-            if(children[0].GetText() == "def")
-            {
-                return DefineVariable(children);
-            }
-            if (children[0].GetText() == "if")
-            {
-                return DefineLet(children);
-            }
-            */
 
             ExpressionSyntax[] elements = children
                 .Select(child => this.Visit(child))
                 .ToArray();
 
-            /*
-            if(elements[0].NodeType != ExpressionType.Lambda)
-            {
-                throw new Exception("First element of a list must be a function");
-            }
-            */
-
             var arguments = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
                 elements.Skip(1).Select(element => SyntaxFactory.Argument(element))));
             return SyntaxFactory.InvocationExpression(elements.First(), arguments);
         }
-
-        /*
-        private Expression DefineLet(IList<IParseTree> children)
-        {
-            // (if condition then-statement else-statement)
-            var condition = this.Visit(children[1]);
-            var thenStatement = this.Visit(children[2]);
-            var elseStatement = this.Visit(children[3]);
-            return Expression.Condition(condition, thenStatement, elseStatement);
-        }
-
-        private Expression DefineVariable(IList<IParseTree> children)
-        {
-            // (def a 5)
-            var name = children[1].GetText();
-            var value = this.Visit(children[2]);
-            Program.GlobalScope.Variables[name] = value;
-            return value;
-        }
-        */
     }
 }
