@@ -10,12 +10,13 @@ using System.Threading.Tasks;
 using Antlr4.Runtime.Tree;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetLisp.Parser
 {
-    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<ExpressionSyntax>
+    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<CSharpSyntaxNode>
     {
-        public override ExpressionSyntax VisitList([NotNull] DotNetLispParser.ListContext context)
+        public override CSharpSyntaxNode VisitList([NotNull] DotNetLispParser.ListContext context)
         {
             var children = context.forms().children;
 
@@ -25,13 +26,12 @@ namespace DotNetLisp.Parser
                 return builtIn;
             }
 
-            ExpressionSyntax[] elements = children
-                .Select(child => this.Visit(child))
+            var elements = children
+                .Select(child => this.Visit(child) as ExpressionSyntax)
                 .ToArray();
 
-            var arguments = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
-                elements.Skip(1).Select(element => SyntaxFactory.Argument(element))));
-            return SyntaxFactory.InvocationExpression(elements.First(), arguments);
+            var arguments = ArgumentList(SeparatedList(elements.Skip(1).Select(Argument)));
+            return InvocationExpression(elements.First(), arguments);
         }
     }
 }

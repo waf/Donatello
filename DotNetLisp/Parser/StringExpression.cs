@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace DotNetLisp.Parser
 {
-    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<ExpressionSyntax>
+    public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<CSharpSyntaxNode>
     {
-        public override ExpressionSyntax VisitString([NotNull] DotNetLispParser.StringContext context)
+        public override CSharpSyntaxNode VisitString([NotNull] DotNetLispParser.StringContext context)
         {
             var str = context.GetText();
             str = str.Substring(1, str.Length - 2); //strip quotes

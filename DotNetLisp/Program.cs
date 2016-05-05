@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -31,14 +32,35 @@ namespace DotNetLisp
 
             BuiltInFunctions.AddBuiltInVariables(GlobalScope);
 
+            if(args.Length > 0)
+            {
+                CompileFile(args);
+                return;
+            }
+
             ReadEvalPrintLoop();
+        }
+
+        private static void CompileFile(string[] files)
+        {
+            var file = files[0];
+            var namespaceName = Directory.GetParent(file).Name;
+            var className = Path.GetFileNameWithoutExtension(file);
+            var result = Evaluate(File.ReadAllText(file), namespaceName, className);
+            var assembly = Compiler.Compile(result);
+
+            assembly.Match(
+                Ok: bytes => File.WriteAllBytes(file.Replace("dnl", "dll"), bytes),
+                Error: errors => Console.WriteLine(string.Join(Environment.NewLine, errors)));
         }
 
         private static void ReadEvalPrintLoop()
         {
+            const string namespaceName = "Repl";
+            const string className = "Program";
             // there's a slight delay when we load up roslyn and run a program for the first time. Do an
-            // initial run to warm things up, so the user doesn't experience the delay for the first evaluation.
-            Task.Run(() => Compiler.Compile(LiteralExpression(SyntaxKind.StringLiteralExpression)));
+            // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
+            Task.Run(() => Compiler.CompileForRepl(Evaluate("(+ 1 1)", "DotNetLisp", "Warmup")));
 
             while (true)
             {
@@ -53,8 +75,8 @@ namespace DotNetLisp
                 string output = "";
                 try
                 {
-                    var ast = Evaluate(input);
-                    var assembly = Compiler.Compile(ast);
+                    var ast = Evaluate(input, namespaceName, className);
+                    var assembly = Compiler.CompileForRepl(ast);
                     // either run the compiled output or handle the errors
                     output = assembly.Match(
                         Ok: bytes => FormatProgramOutput(DynamicInvoke(bytes)),
@@ -86,9 +108,9 @@ namespace DotNetLisp
         /// <summary>
         /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST
         /// </summary>
-        private static ExpressionSyntax Evaluate(string input)
+        private static CSharpSyntaxNode Evaluate(string input, string namespaceName, string className)
         {
-            var visitor = new ParseExpressionVisitor();
+            var visitor = new ParseExpressionVisitor(namespaceName, className);
 
             using (var stream = new StringReader(input))
             {

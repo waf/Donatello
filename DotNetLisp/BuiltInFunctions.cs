@@ -20,13 +20,14 @@ namespace DotNetLisp
             globalScope.Variables["false"] = LiteralExpression(SyntaxKind.FalseLiteralExpression);
         }
 
-        internal static ExpressionSyntax Run(
-            IParseTreeVisitor<ExpressionSyntax> visitor,
+        internal static CSharpSyntaxNode Run(
+            IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {
             switch (children[0].GetText())
             {
                 case "def": return Def(visitor, children);
+                case "fun": return Fun(visitor, children);
                 case "if": return If(visitor, children);
                 case "+": return Add(visitor, children);
                 default:
@@ -34,19 +35,30 @@ namespace DotNetLisp
             }
         }
 
-        private static ExpressionSyntax If(
-            IParseTreeVisitor<ExpressionSyntax> visitor,
+        private static CSharpSyntaxNode Fun(
+            IParseTreeVisitor<CSharpSyntaxNode> visitor,
+            IList<IParseTree> children)
+        {
+            var methodName = children[1].GetText();
+            var returnType = children[4].GetText();
+            var body = visitor.Visit(children[5]);
+            return MethodDeclaration(ParseTypeName(returnType), methodName)
+                        .WithBody(Block(ReturnStatement(body as ExpressionSyntax)));
+        }
+
+        private static CSharpSyntaxNode If(
+            IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {
             // (if condition then-statement else-statement)
-            var condition = visitor.Visit(children[1]);
-            var thenStatement = visitor.Visit(children[2]);
-            var elseStatement = visitor.Visit(children[3]);
+            var condition = visitor.Visit(children[1]) as ExpressionSyntax;
+            var thenStatement = visitor.Visit(children[2]) as ExpressionSyntax;
+            var elseStatement = visitor.Visit(children[3]) as ExpressionSyntax;
             return ConditionalExpression(condition, thenStatement, elseStatement);
         }
 
-        private static ExpressionSyntax Def(
-            IParseTreeVisitor<ExpressionSyntax> visitor,
+        private static CSharpSyntaxNode Def(
+            IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {
             // (def a 5)
@@ -56,12 +68,12 @@ namespace DotNetLisp
             return value;
         }
 
-        private static ExpressionSyntax Add(
-            IParseTreeVisitor<ExpressionSyntax> visitor,
+        private static CSharpSyntaxNode Add(
+            IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {
             // (+ a b c ...)
-            var values = children.Skip(1).Select(child => visitor.Visit(child));
+            var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
             return values.Aggregate((a, b) => BinaryExpression(SyntaxKind.AddExpression, a, b));
         }
     }

@@ -12,25 +12,34 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
 using DotNetLisp.Util;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace DotNetLisp.Compilation
 {
     public static class Compiler
     {
+        public static Result<byte[], string[]> Compile(CSharpSyntaxNode programExpression)
+        {
+            var cw = new AdhocWorkspace();
+            cw.Options.WithChangedOption(CSharpFormattingOptions.IndentBraces, true);
+            var formattedCode = Formatter.Format(programExpression, cw);
+
+            return CompileCore(programExpression as CompilationUnitSyntax);
+        }
+
+        public static Result<byte[], string[]> CompileForRepl(CSharpSyntaxNode programExpression)
+        {
+            // make a Program class that has a "Run" method, and embed our program expression inside it.
+            return CompileCore(programExpression as CompilationUnitSyntax);
+        }
+
         /// <summary>
         /// Compile the roslyn AST
         /// </summary>
         /// <returns>Either the compiled bytes of the program, or a list of error messages</returns>
-        public static Result<byte[], string[]> Compile(ExpressionSyntax programExpression)
+        private static Result<byte[], string[]> CompileCore(CompilationUnitSyntax program)
         {
-            // make a Program class that has a "Run" method, and embed our program expression inside it.
-            var program = CompilationUnit()
-                .AddMembers(NamespaceDeclaration(IdentifierName("Repl"))
-                    .AddMembers(ClassDeclaration("Program")
-                        .AddMembers(MethodDeclaration(ParseTypeName("System.Object"), "Run")
-                           .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
-                           .WithBody(Block(ReturnStatement(programExpression))))));
-
             MetadataReference[] references = {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
