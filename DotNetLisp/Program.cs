@@ -18,7 +18,6 @@ namespace DotNetLisp
 {
     static class Program
     {
-        internal readonly static ParseTreeProperty<Scope> ScopeAnnotations = new ParseTreeProperty<Scope>();
         internal readonly static Scope GlobalScope = new Scope();
 
         static void Main(string[] args)
@@ -29,8 +28,6 @@ namespace DotNetLisp
                 Console.WriteLine("  DotNetLisp           open a repl");
                 Console.WriteLine("  DotNetLisp <file>    compile a file");
             }
-
-            BuiltInFunctions.AddBuiltInVariables(GlobalScope);
 
             if(args.Length > 0)
             {
@@ -46,7 +43,8 @@ namespace DotNetLisp
             var file = files[0];
             var namespaceName = Directory.GetParent(file).Name;
             var className = Path.GetFileNameWithoutExtension(file);
-            var result = Evaluate(File.ReadAllText(file), namespaceName, className);
+            var result = AntlrParser.Parse(File.ReadAllText(file), namespaceName, className);
+            Compiler.TranslateToCSharp(result);
             var assembly = Compiler.Compile(result);
 
             assembly.Match(
@@ -60,7 +58,7 @@ namespace DotNetLisp
             const string className = "Program";
             // there's a slight delay when we load up roslyn and run a program for the first time. Do an
             // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
-            Task.Run(() => Compiler.CompileForRepl(Evaluate("(+ 1 1)", "DotNetLisp", "Warmup")));
+            Task.Run(() => Compiler.CompileForRepl(AntlrParser.Parse("(+ 1 1)", "DotNetLisp", "Warmup")));
 
             while (true)
             {
@@ -75,7 +73,7 @@ namespace DotNetLisp
                 string output = "";
                 try
                 {
-                    var ast = Evaluate(input, namespaceName, className);
+                    var ast = AntlrParser.Parse(input, namespaceName, className);
                     var assembly = Compiler.CompileForRepl(ast);
                     // either run the compiled output or handle the errors
                     output = assembly.Match(
@@ -103,26 +101,6 @@ namespace DotNetLisp
             Type type = assembly.GetType("Repl.Program");
             var result = type.InvokeMember("Run", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
             return result;
-        }
-
-        /// <summary>
-        /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST
-        /// </summary>
-        private static CSharpSyntaxNode Evaluate(string input, string namespaceName, string className)
-        {
-            var visitor = new ParseExpressionVisitor(namespaceName, className);
-
-            using (var stream = new StringReader(input))
-            {
-                AntlrInputStream inputStream = new AntlrInputStream(stream);
-
-                DotNetLispLexer lexer = new DotNetLispLexer(inputStream);
-                CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-                DotNetLispParser parser = new DotNetLispParser(commonTokenStream);
-                var file = parser.file();
-
-                return visitor.Visit(file);
-            }
         }
     }
 }

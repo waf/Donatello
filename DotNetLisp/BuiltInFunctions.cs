@@ -14,12 +14,6 @@ namespace DotNetLisp
 {
     internal static class BuiltInFunctions
     {
-        public static void AddBuiltInVariables(Scope globalScope)
-        {
-            globalScope.Variables["true"] = LiteralExpression(SyntaxKind.TrueLiteralExpression);
-            globalScope.Variables["false"] = LiteralExpression(SyntaxKind.FalseLiteralExpression);
-        }
-
         internal static CSharpSyntaxNode Run(
             IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
@@ -71,11 +65,13 @@ namespace DotNetLisp
             IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {
-            // (def a 5)
+            // (def a:int 5)
             var name = children[1].GetText();
-            var value = visitor.Visit(children[2]);
-            Program.GlobalScope.Variables[name] = value;
-            return value;
+            var type = visitor.Visit(children[2]) as TypeSyntax;
+            var value = visitor.Visit(children[3]) as ExpressionSyntax;
+            return FieldDeclaration(
+                VariableDeclaration(type, SingletonSeparatedList(
+                    VariableDeclarator(name).WithInitializer(EqualsValueClause(value)))));
         }
 
         private static CSharpSyntaxNode Add(

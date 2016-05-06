@@ -14,17 +14,21 @@ using System.Reflection;
 using DotNetLisp.Util;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Diagnostics;
 
 namespace DotNetLisp.Compilation
 {
     public static class Compiler
     {
-        public static string TranslateToCSharp(CSharpSyntaxNode programExpression)
+        [Conditional("DEBUG")]
+        public static void TranslateToCSharp(CSharpSyntaxNode programExpression)
         {
             var cw = new AdhocWorkspace();
             cw.Options.WithChangedOption(CSharpFormattingOptions.IndentBraces, true);
-            return Formatter.Format(programExpression, cw).ToString();
+            string formatted = Formatter.Format(programExpression, cw).ToString();
+            return;
         }
+
         public static Result<byte[], string[]> Compile(CSharpSyntaxNode programExpression)
         {
             MetadataReference[] references = {

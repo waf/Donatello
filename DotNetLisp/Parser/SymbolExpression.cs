@@ -14,18 +14,23 @@ namespace DotNetLisp.Parser
 {
     public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<CSharpSyntaxNode>
     {
+        static IDictionary<string, CSharpSyntaxNode> BuiltIns = new Dictionary<string, CSharpSyntaxNode>
+        {
+            { "true", LiteralExpression(SyntaxKind.TrueLiteralExpression) },
+            { "false", LiteralExpression(SyntaxKind.FalseLiteralExpression) }
+        };
+
         public override CSharpSyntaxNode VisitSymbol([NotNull] DotNetLispParser.SymbolContext context)
         {
             string name = context.SYMBOL().GetText();
+
+            CSharpSyntaxNode builtIn = null;
+            if(BuiltIns.TryGetValue(name, out builtIn))
+            {
+                return builtIn;
+            }
+
             return IdentifierName(name);
-            //var scope = Program.ScopeAnnotations.Get(context) ?? Program.GlobalScope;
-            //CSharpSyntaxNode value = null;
-            //bool found = scope.Variables.TryGetValue(name, out value);
-            //if(!found)
-            //{
-            //    throw new Exception("Unknown symbol: " + name);
-            //}
-            //return value;
         }
     }
 }

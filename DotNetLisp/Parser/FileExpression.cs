@@ -29,7 +29,7 @@ namespace DotNetLisp.Parser
         public override CSharpSyntaxNode VisitFile([NotNull] DotNetLispParser.FileContext context)
         {
             var children = context.form().Select(f => this.Visit(f)).ToArray();
-            var methods = children.OfType<MethodDeclarationSyntax>().ToList();
+            var members = children.OfType<MemberDeclarationSyntax>().ToList();
             var expressions = children.OfType<ExpressionSyntax>().ToArray();
 
             if(expressions.Any())
@@ -42,7 +42,7 @@ namespace DotNetLisp.Parser
                                 ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
                     .ToArray();
                 // make a Program class that has a "Run" method, and embed our program expression inside it.
-                methods.Add(
+                members.Add(
                     MethodDeclaration(ParseTypeName("System.Object"), "Run")
                            .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
                            .WithBody(Block(statements))
@@ -52,7 +52,7 @@ namespace DotNetLisp.Parser
             var @class = CompilationUnit()
                 .AddMembers(NamespaceDeclaration(IdentifierName(NamespaceName))
                     .AddMembers(ClassDeclaration(ClassName)
-                        .AddMembers(methods.ToArray())));
+                        .AddMembers(members.ToArray())));
 
             return @class;
         }
