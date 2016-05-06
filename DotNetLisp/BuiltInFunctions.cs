@@ -40,10 +40,20 @@ namespace DotNetLisp
             IList<IParseTree> children)
         {
             var methodName = children[1].GetText();
-            var returnType = children[4].GetText();
-            var body = visitor.Visit(children[5]);
-            return MethodDeclaration(ParseTypeName(returnType), methodName)
-                        .WithBody(Block(ReturnStatement(body as ExpressionSyntax)));
+            var parameters = children[2].GetChild(0);
+            var parameterList = new List<ParameterSyntax>();
+            for(int i = 1; i < parameters.ChildCount - 1; i += 2) //select every two pairs, skipping "[" and "]"
+            {
+                parameterList.Add(
+                    Parameter(Identifier(parameters.GetChild(i).GetText()))
+                        .WithType(visitor.Visit(parameters.GetChild(i + 1)) as TypeSyntax));
+            }
+            var returnType = visitor.Visit(children[3]) as TypeSyntax;
+            var body = visitor.Visit(children[4]);
+            return MethodDeclaration(returnType, methodName)
+                    .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+                    .WithParameterList(ParameterList(SeparatedList(parameterList)))
+                    .WithBody(Block(ReturnStatement(body as ExpressionSyntax)));
         }
 
         private static CSharpSyntaxNode If(

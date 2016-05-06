@@ -42,16 +42,6 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitFile([NotNull] DotNetLispParser.FileContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="DotNetLispParser.form"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterForm([NotNull] DotNetLispParser.FormContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="DotNetLispParser.form"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitForm([NotNull] DotNetLispParser.FormContext context);
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.forms"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -62,6 +52,16 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitForms([NotNull] DotNetLispParser.FormsContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.form"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterForm([NotNull] DotNetLispParser.FormContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.form"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitForm([NotNull] DotNetLispParser.FormContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.list"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -71,6 +71,16 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitList([NotNull] DotNetLispParser.ListContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.vector"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterVector([NotNull] DotNetLispParser.VectorContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.vector"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitVector([NotNull] DotNetLispParser.VectorContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.literal"/>.
 	/// </summary>
@@ -111,5 +121,15 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitSymbol([NotNull] DotNetLispParser.SymbolContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.type"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterType([NotNull] DotNetLispParser.TypeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.type"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitType([NotNull] DotNetLispParser.TypeContext context);
 }
 } // namespace DotNetLisp.Antlr.Generated

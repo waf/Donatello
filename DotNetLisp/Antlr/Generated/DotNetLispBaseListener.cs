@@ -48,18 +48,6 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitFile([NotNull] DotNetLispParser.FileContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="DotNetLispParser.form"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterForm([NotNull] DotNetLispParser.FormContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="DotNetLispParser.form"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitForm([NotNull] DotNetLispParser.FormContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.forms"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -72,6 +60,18 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitForms([NotNull] DotNetLispParser.FormsContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.form"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterForm([NotNull] DotNetLispParser.FormContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.form"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitForm([NotNull] DotNetLispParser.FormContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.list"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -83,6 +83,18 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitList([NotNull] DotNetLispParser.ListContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.vector"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterVector([NotNull] DotNetLispParser.VectorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.vector"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitVector([NotNull] DotNetLispParser.VectorContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -131,6 +143,18 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitSymbol([NotNull] DotNetLispParser.SymbolContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.type"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterType([NotNull] DotNetLispParser.TypeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.type"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitType([NotNull] DotNetLispParser.TypeContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

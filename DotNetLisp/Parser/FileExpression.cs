@@ -11,6 +11,7 @@ using Antlr4.Runtime.Tree;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
 
 namespace DotNetLisp.Parser
 {
@@ -28,23 +29,30 @@ namespace DotNetLisp.Parser
         public override CSharpSyntaxNode VisitFile([NotNull] DotNetLispParser.FileContext context)
         {
             var children = context.form().Select(f => this.Visit(f)).ToArray();
-            var methods = children.OfType<MethodDeclarationSyntax>().ToArray();
+            var methods = children.OfType<MethodDeclarationSyntax>().ToList();
+            var expressions = children.OfType<ExpressionSyntax>().ToArray();
 
-            if(!methods.Any())
+            if(expressions.Any())
             {
+                int finalElement = expressions.Length - 1;
+                var statements = expressions
+                    .Select((expression, index) =>
+                                index == finalElement ?
+                                ReturnStatement(expression as ExpressionSyntax) :
+                                ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
+                    .ToArray();
                 // make a Program class that has a "Run" method, and embed our program expression inside it.
-                methods = new[]
-                {
+                methods.Add(
                     MethodDeclaration(ParseTypeName("System.Object"), "Run")
                            .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
-                           .WithBody(Block(ReturnStatement(children.First() as ExpressionSyntax)))
-                };
+                           .WithBody(Block(statements))
+                );
             }
 
             var @class = CompilationUnit()
                 .AddMembers(NamespaceDeclaration(IdentifierName(NamespaceName))
                     .AddMembers(ClassDeclaration(ClassName)
-                        .AddMembers(methods)));
+                        .AddMembers(methods.ToArray())));
 
             return @class;
         }

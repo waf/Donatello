@@ -2,23 +2,28 @@ grammar DotNetLisp;
 
 file: form *;
 
-form: literal
-    | list
-    ;
-
 forms: form* ;
 
+form: literal
+    | list
+	| vector
+    ;
+
 list: '(' forms ')' ;
+
+vector: '[' form * ']' ;
 
 literal
     : string
     | number
     | symbol
+	| type
     ;
 
 string: STRING;
 number: LONG;
 symbol: SYMBOL;
+type: ':' symbol;
 
 // Lexers
 //--------------------------------------------------------------------

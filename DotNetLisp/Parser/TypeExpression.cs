@@ -14,11 +14,10 @@ namespace DotNetLisp.Parser
 {
     public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<CSharpSyntaxNode>
     {
-        public override CSharpSyntaxNode VisitString([NotNull] DotNetLispParser.StringContext context)
+        public override CSharpSyntaxNode VisitType([NotNull] DotNetLispParser.TypeContext context)
         {
-            var str = context.GetText();
-            str = str.Substring(1, str.Length - 2); //strip quotes
-            return LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(str));
+            var type = context.GetText().Substring(1); // given `:int`, we want `int`
+            return ParseTypeName(type);
         }
     }
 }

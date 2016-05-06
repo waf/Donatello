@@ -39,23 +39,29 @@ public interface IDotNetLispVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFile([NotNull] DotNetLispParser.FileContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="DotNetLispParser.form"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitForm([NotNull] DotNetLispParser.FormContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="DotNetLispParser.forms"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitForms([NotNull] DotNetLispParser.FormsContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.form"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitForm([NotNull] DotNetLispParser.FormContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="DotNetLispParser.list"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitList([NotNull] DotNetLispParser.ListContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.vector"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitVector([NotNull] DotNetLispParser.VectorContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="DotNetLispParser.literal"/>.
 	/// </summary>
@@ -80,5 +86,11 @@ public interface IDotNetLispVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitSymbol([NotNull] DotNetLispParser.SymbolContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.type"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitType([NotNull] DotNetLispParser.TypeContext context);
 }
 } // namespace DotNetLisp.Antlr.Generated

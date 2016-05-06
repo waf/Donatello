@@ -19,26 +19,13 @@ namespace DotNetLisp.Compilation
 {
     public static class Compiler
     {
-        public static Result<byte[], string[]> Compile(CSharpSyntaxNode programExpression)
+        public static string TranslateToCSharp(CSharpSyntaxNode programExpression)
         {
             var cw = new AdhocWorkspace();
             cw.Options.WithChangedOption(CSharpFormattingOptions.IndentBraces, true);
-            var formattedCode = Formatter.Format(programExpression, cw);
-
-            return CompileCore(programExpression as CompilationUnitSyntax);
+            return Formatter.Format(programExpression, cw).ToString();
         }
-
-        public static Result<byte[], string[]> CompileForRepl(CSharpSyntaxNode programExpression)
-        {
-            // make a Program class that has a "Run" method, and embed our program expression inside it.
-            return CompileCore(programExpression as CompilationUnitSyntax);
-        }
-
-        /// <summary>
-        /// Compile the roslyn AST
-        /// </summary>
-        /// <returns>Either the compiled bytes of the program, or a list of error messages</returns>
-        private static Result<byte[], string[]> CompileCore(CompilationUnitSyntax program)
+        public static Result<byte[], string[]> Compile(CSharpSyntaxNode programExpression)
         {
             MetadataReference[] references = {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
@@ -47,10 +34,35 @@ namespace DotNetLisp.Compilation
 
             CSharpCompilation compilation = CSharpCompilation.Create(
                 Path.GetRandomFileName(),
-                syntaxTrees: new[] { CSharpSyntaxTree.Create(program) },
+                syntaxTrees: new[] { CSharpSyntaxTree.Create(programExpression as CompilationUnitSyntax) },
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
+            return CreateAssembly(compilation);
+        }
+
+        public static Result<byte[], string[]> CompileForRepl(CSharpSyntaxNode programExpression)
+        {
+            MetadataReference[] references = {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
+            };
+
+            CSharpCompilation compilation = CSharpCompilation.CreateScriptCompilation(
+                Path.GetRandomFileName(),
+                syntaxTree: CSharpSyntaxTree.Create(programExpression as CompilationUnitSyntax, new CSharpParseOptions(kind: SourceCodeKind.Script)),
+                references: references,
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            return CreateAssembly(compilation);
+        }
+
+        /// <summary>
+        /// Compile the roslyn AST
+        /// </summary>
+        /// <returns>Either the compiled bytes of the program, or a list of error messages</returns>
+        private static Result<byte[], string[]> CreateAssembly(CSharpCompilation compilation)
+        {
             using (var ms = new MemoryStream())
             {
                 EmitResult emmitted = compilation.Emit(ms);
