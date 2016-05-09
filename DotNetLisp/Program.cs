@@ -44,7 +44,6 @@ namespace DotNetLisp
             var namespaceName = Directory.GetParent(file).Name;
             var className = Path.GetFileNameWithoutExtension(file);
             var result = AntlrParser.Parse(File.ReadAllText(file), namespaceName, className);
-            Compiler.TranslateToCSharp(result);
             var assembly = Compiler.Compile(result);
 
             assembly.Match(

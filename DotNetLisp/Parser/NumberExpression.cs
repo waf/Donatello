@@ -17,7 +17,7 @@ namespace DotNetLisp.Parser
         public override CSharpSyntaxNode VisitNumber([NotNull] DotNetLispParser.NumberContext context)
         {
             var numberText = context.GetText();
-            var number = long.Parse(numberText);
+            var number = int.Parse(numberText);
             return LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(number));
         }
     }

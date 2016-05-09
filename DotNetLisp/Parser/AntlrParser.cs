@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime;
 using DotNetLisp.Antlr.Generated;
-using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +14,7 @@ namespace DotNetLisp.Parser
         /// <summary>
         /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST
         /// </summary>
-        public static CSharpSyntaxNode Parse(string input, string namespaceName, string className)
+        public static CompilationUnitSyntax Parse(string input, string namespaceName, string className)
         {
             var visitor = new ParseExpressionVisitor(namespaceName, className);
 
@@ -27,7 +27,7 @@ namespace DotNetLisp.Parser
                 DotNetLispParser parser = new DotNetLispParser(commonTokenStream);
                 var file = parser.file();
 
-                return visitor.Visit(file);
+                return visitor.Visit(file) as CompilationUnitSyntax;
             }
         }
     }

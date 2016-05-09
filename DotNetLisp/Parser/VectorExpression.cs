@@ -1,16 +1,13 @@
 ﻿using Antlr4.Runtime.Misc;
 using DotNetLisp.Antlr.Generated;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime.Tree;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Newtonsoft.Json;
 
 namespace DotNetLisp.Parser
 {
@@ -20,11 +17,16 @@ namespace DotNetLisp.Parser
         {
             var children = context.form();
 
-            var elements = children
-                .Select(child => this.Visit(child) as ExpressionSyntax)
+            var arguments = children
+                .Select(child => Argument(Visit(child) as ExpressionSyntax))
                 .ToArray();
 
-            return ImplicitArrayCreationExpression(InitializerExpression(SyntaxKind.ArrayInitializerExpression, SeparatedList(elements)));
+            return InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(nameof(ImmutableArray)),
+                        IdentifierName(nameof(ImmutableArray.Create))))
+                    .WithArgumentList(ArgumentList(SeparatedList(arguments)));
         }
     }
 }

@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Microsoft.CodeAnalysis.Emit;
 using System.IO;
-using Newtonsoft.Json;
-using System.Reflection;
 using DotNetLisp.Util;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Diagnostics;
+using System.Collections.Immutable;
+using Newtonsoft.Json;
 
 namespace DotNetLisp.Compilation
 {
@@ -29,32 +28,28 @@ namespace DotNetLisp.Compilation
             return;
         }
 
-        public static Result<byte[], string[]> Compile(CSharpSyntaxNode programExpression)
+        public static Result<byte[], string[]> Compile(CompilationUnitSyntax program)
         {
-            MetadataReference[] references = {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
-            };
+            MetadataReference[] references = AddDefaultReferences(ref program);
+            Compiler.TranslateToCSharp(program);
 
             CSharpCompilation compilation = CSharpCompilation.Create(
                 Path.GetRandomFileName(),
-                syntaxTrees: new[] { CSharpSyntaxTree.Create(programExpression as CompilationUnitSyntax) },
+                syntaxTrees: new[] { CSharpSyntaxTree.Create(program) },
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             return CreateAssembly(compilation);
         }
 
-        public static Result<byte[], string[]> CompileForRepl(CSharpSyntaxNode programExpression)
+        public static Result<byte[], string[]> CompileForRepl(CompilationUnitSyntax program)
         {
-            MetadataReference[] references = {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location)
-            };
+            MetadataReference[] references = AddDefaultReferences(ref program);
+            Compiler.TranslateToCSharp(program);
 
             CSharpCompilation compilation = CSharpCompilation.CreateScriptCompilation(
                 Path.GetRandomFileName(),
-                syntaxTree: CSharpSyntaxTree.Create(programExpression as CompilationUnitSyntax, new CSharpParseOptions(kind: SourceCodeKind.Script)),
+                syntaxTree: CSharpSyntaxTree.Create(program, new CSharpParseOptions(kind: SourceCodeKind.Script)),
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
@@ -86,6 +81,55 @@ namespace DotNetLisp.Compilation
                 ms.Seek(0, SeekOrigin.Begin);
                 return ms.ToArray();
             }
+        }
+
+        private static MetadataReference[] AddDefaultReferences(ref CompilationUnitSyntax program)
+        {
+            var defaultImports = new[]
+            {
+                // TODO: maybe this project should be a PCL so we can reference our own System.Object?
+                //new { Namespace = "System", DllFile = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETPortable\v4.6\Profile\Profile151\System.Runtime.dll" }, // we can't use our own system.object here, since it won't work if we reference PCLs
+                new { Namespace = "System", DllFile = typeof(object).Assembly.Location },
+                new { Namespace = "System.Linq", DllFile = typeof(Enumerable).Assembly.Location },
+                new { Namespace = "System.Collections.Immutable", DllFile = typeof(ImmutableArray).Assembly.Location },
+            };
+
+            // add facade references for PCL support (like immutable collections)
+            var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\Facades", "*.dll")
+                .Select(file => MetadataReference.CreateFromFile(file))
+                .ToArray();
+
+            var usings = defaultImports
+                .Select(import => CreateUsingDirective(import.Namespace))
+                .ToArray();
+            program = program.WithUsings(List(usings));
+
+            MetadataReference[] references = defaultImports
+                .Select(import => MetadataReference.CreateFromFile(import.DllFile))
+                .Union(facades)
+                .ToArray();
+            return references;
+        }
+
+        private static UsingDirectiveSyntax CreateUsingDirective(string usingName)
+        {
+            NameSyntax qualifiedName = null;
+
+            foreach (var identifier in usingName.Split('.'))
+            {
+                var name = SyntaxFactory.IdentifierName(identifier);
+
+                if (qualifiedName != null)
+                {
+                    qualifiedName = SyntaxFactory.QualifiedName(qualifiedName, name);
+                }
+                else
+                {
+                    qualifiedName = name;
+                }
+            }
+
+            return SyntaxFactory.UsingDirective(qualifiedName);
         }
     }
 }

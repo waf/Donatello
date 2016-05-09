@@ -34,7 +34,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 [System.CLSCompliant(false)]
 public partial class DotNetLispParser : Parser {
 	public const int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, STRING=6, LONG=7, SYMBOL=8, TRASH=9;
+		T__0=1, T__1=2, T__2=3, T__3=4, STRING=5, LONG=6, SYMBOL=7, TYPE=8, TRASH=9;
 	public const int
 		RULE_file = 0, RULE_forms = 1, RULE_form = 2, RULE_list = 3, RULE_vector = 4, 
 		RULE_literal = 5, RULE_string = 6, RULE_number = 7, RULE_symbol = 8, RULE_type = 9;
@@ -44,10 +44,10 @@ public partial class DotNetLispParser : Parser {
 	};
 
 	private static readonly string[] _LiteralNames = {
-		null, "'('", "')'", "'['", "']'", "':'"
+		null, "'('", "')'", "'['", "']'"
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, null, null, null, null, null, "STRING", "LONG", "SYMBOL", "TRASH"
+		null, null, null, null, null, "STRING", "LONG", "SYMBOL", "TYPE", "TRASH"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -109,7 +109,7 @@ public partial class DotNetLispParser : Parser {
 			State = 23;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << T__4) | (1L << STRING) | (1L << LONG) | (1L << SYMBOL))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << STRING) | (1L << LONG) | (1L << SYMBOL) | (1L << TYPE))) != 0)) {
 				{
 				{
 				State = 20; form();
@@ -170,7 +170,7 @@ public partial class DotNetLispParser : Parser {
 			State = 29;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << T__4) | (1L << STRING) | (1L << LONG) | (1L << SYMBOL))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << STRING) | (1L << LONG) | (1L << SYMBOL) | (1L << TYPE))) != 0)) {
 				{
 				{
 				State = 26; form();
@@ -230,10 +230,10 @@ public partial class DotNetLispParser : Parser {
 		try {
 			State = 35;
 			switch (TokenStream.La(1)) {
-			case T__4:
 			case STRING:
 			case LONG:
 			case SYMBOL:
+			case TYPE:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 32; literal();
@@ -352,7 +352,7 @@ public partial class DotNetLispParser : Parser {
 			State = 45;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.La(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << T__4) | (1L << STRING) | (1L << LONG) | (1L << SYMBOL))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__2) | (1L << STRING) | (1L << LONG) | (1L << SYMBOL) | (1L << TYPE))) != 0)) {
 				{
 				{
 				State = 42; form();
@@ -434,7 +434,7 @@ public partial class DotNetLispParser : Parser {
 				State = 52; symbol();
 				}
 				break;
-			case T__4:
+			case TYPE:
 				EnterOuterAlt(_localctx, 4);
 				{
 				State = 53; type();
@@ -585,9 +585,7 @@ public partial class DotNetLispParser : Parser {
 	}
 
 	public partial class TypeContext : ParserRuleContext {
-		public SymbolContext symbol() {
-			return GetRuleContext<SymbolContext>(0);
-		}
+		public ITerminalNode TYPE() { return GetToken(DotNetLispParser.TYPE, 0); }
 		public TypeContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -615,8 +613,7 @@ public partial class DotNetLispParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 62; Match(T__4);
-			State = 63; symbol();
+			State = 62; Match(TYPE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -634,33 +631,32 @@ public partial class DotNetLispParser : Parser {
 	private static string _serializeATN()
 	{
 	    StringBuilder sb = new StringBuilder();
-	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\v\x44");
+	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\v\x43");
 		sb.Append("\x4\x2\t\x2\x4\x3\t\x3\x4\x4\t\x4\x4\x5\t\x5\x4\x6\t\x6\x4\a");
 		sb.Append("\t\a\x4\b\t\b\x4\t\t\t\x4\n\t\n\x4\v\t\v\x3\x2\a\x2\x18\n\x2");
 		sb.Append("\f\x2\xE\x2\x1B\v\x2\x3\x3\a\x3\x1E\n\x3\f\x3\xE\x3!\v\x3\x3");
 		sb.Append("\x4\x3\x4\x3\x4\x5\x4&\n\x4\x3\x5\x3\x5\x3\x5\x3\x5\x3\x6\x3");
 		sb.Append("\x6\a\x6.\n\x6\f\x6\xE\x6\x31\v\x6\x3\x6\x3\x6\x3\a\x3\a\x3");
 		sb.Append("\a\x3\a\x5\a\x39\n\a\x3\b\x3\b\x3\t\x3\t\x3\n\x3\n\x3\v\x3\v");
-		sb.Append("\x3\v\x3\v\x2\x2\f\x2\x4\x6\b\n\f\xE\x10\x12\x14\x2\x2\x41\x2");
-		sb.Append("\x19\x3\x2\x2\x2\x4\x1F\x3\x2\x2\x2\x6%\x3\x2\x2\x2\b\'\x3\x2");
-		sb.Append("\x2\x2\n+\x3\x2\x2\x2\f\x38\x3\x2\x2\x2\xE:\x3\x2\x2\x2\x10");
-		sb.Append("<\x3\x2\x2\x2\x12>\x3\x2\x2\x2\x14@\x3\x2\x2\x2\x16\x18\x5\x6");
-		sb.Append("\x4\x2\x17\x16\x3\x2\x2\x2\x18\x1B\x3\x2\x2\x2\x19\x17\x3\x2");
-		sb.Append("\x2\x2\x19\x1A\x3\x2\x2\x2\x1A\x3\x3\x2\x2\x2\x1B\x19\x3\x2");
-		sb.Append("\x2\x2\x1C\x1E\x5\x6\x4\x2\x1D\x1C\x3\x2\x2\x2\x1E!\x3\x2\x2");
-		sb.Append("\x2\x1F\x1D\x3\x2\x2\x2\x1F \x3\x2\x2\x2 \x5\x3\x2\x2\x2!\x1F");
-		sb.Append("\x3\x2\x2\x2\"&\x5\f\a\x2#&\x5\b\x5\x2$&\x5\n\x6\x2%\"\x3\x2");
-		sb.Append("\x2\x2%#\x3\x2\x2\x2%$\x3\x2\x2\x2&\a\x3\x2\x2\x2\'(\a\x3\x2");
-		sb.Append("\x2()\x5\x4\x3\x2)*\a\x4\x2\x2*\t\x3\x2\x2\x2+/\a\x5\x2\x2,");
-		sb.Append(".\x5\x6\x4\x2-,\x3\x2\x2\x2.\x31\x3\x2\x2\x2/-\x3\x2\x2\x2/");
-		sb.Append("\x30\x3\x2\x2\x2\x30\x32\x3\x2\x2\x2\x31/\x3\x2\x2\x2\x32\x33");
-		sb.Append("\a\x6\x2\x2\x33\v\x3\x2\x2\x2\x34\x39\x5\xE\b\x2\x35\x39\x5");
-		sb.Append("\x10\t\x2\x36\x39\x5\x12\n\x2\x37\x39\x5\x14\v\x2\x38\x34\x3");
-		sb.Append("\x2\x2\x2\x38\x35\x3\x2\x2\x2\x38\x36\x3\x2\x2\x2\x38\x37\x3");
-		sb.Append("\x2\x2\x2\x39\r\x3\x2\x2\x2:;\a\b\x2\x2;\xF\x3\x2\x2\x2<=\a");
-		sb.Append("\t\x2\x2=\x11\x3\x2\x2\x2>?\a\n\x2\x2?\x13\x3\x2\x2\x2@\x41");
-		sb.Append("\a\a\x2\x2\x41\x42\x5\x12\n\x2\x42\x15\x3\x2\x2\x2\a\x19\x1F");
-		sb.Append("%/\x38");
+		sb.Append("\x3\v\x2\x2\f\x2\x4\x6\b\n\f\xE\x10\x12\x14\x2\x2@\x2\x19\x3");
+		sb.Append("\x2\x2\x2\x4\x1F\x3\x2\x2\x2\x6%\x3\x2\x2\x2\b\'\x3\x2\x2\x2");
+		sb.Append("\n+\x3\x2\x2\x2\f\x38\x3\x2\x2\x2\xE:\x3\x2\x2\x2\x10<\x3\x2");
+		sb.Append("\x2\x2\x12>\x3\x2\x2\x2\x14@\x3\x2\x2\x2\x16\x18\x5\x6\x4\x2");
+		sb.Append("\x17\x16\x3\x2\x2\x2\x18\x1B\x3\x2\x2\x2\x19\x17\x3\x2\x2\x2");
+		sb.Append("\x19\x1A\x3\x2\x2\x2\x1A\x3\x3\x2\x2\x2\x1B\x19\x3\x2\x2\x2");
+		sb.Append("\x1C\x1E\x5\x6\x4\x2\x1D\x1C\x3\x2\x2\x2\x1E!\x3\x2\x2\x2\x1F");
+		sb.Append("\x1D\x3\x2\x2\x2\x1F \x3\x2\x2\x2 \x5\x3\x2\x2\x2!\x1F\x3\x2");
+		sb.Append("\x2\x2\"&\x5\f\a\x2#&\x5\b\x5\x2$&\x5\n\x6\x2%\"\x3\x2\x2\x2");
+		sb.Append("%#\x3\x2\x2\x2%$\x3\x2\x2\x2&\a\x3\x2\x2\x2\'(\a\x3\x2\x2()");
+		sb.Append("\x5\x4\x3\x2)*\a\x4\x2\x2*\t\x3\x2\x2\x2+/\a\x5\x2\x2,.\x5\x6");
+		sb.Append("\x4\x2-,\x3\x2\x2\x2.\x31\x3\x2\x2\x2/-\x3\x2\x2\x2/\x30\x3");
+		sb.Append("\x2\x2\x2\x30\x32\x3\x2\x2\x2\x31/\x3\x2\x2\x2\x32\x33\a\x6");
+		sb.Append("\x2\x2\x33\v\x3\x2\x2\x2\x34\x39\x5\xE\b\x2\x35\x39\x5\x10\t");
+		sb.Append("\x2\x36\x39\x5\x12\n\x2\x37\x39\x5\x14\v\x2\x38\x34\x3\x2\x2");
+		sb.Append("\x2\x38\x35\x3\x2\x2\x2\x38\x36\x3\x2\x2\x2\x38\x37\x3\x2\x2");
+		sb.Append("\x2\x39\r\x3\x2\x2\x2:;\a\a\x2\x2;\xF\x3\x2\x2\x2<=\a\b\x2\x2");
+		sb.Append("=\x11\x3\x2\x2\x2>?\a\t\x2\x2?\x13\x3\x2\x2\x2@\x41\a\n\x2\x2");
+		sb.Append("\x41\x15\x3\x2\x2\x2\a\x19\x1F%/\x38");
 	    return sb.ToString();
 	}
 
