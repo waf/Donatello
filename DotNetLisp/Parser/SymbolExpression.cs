@@ -30,6 +30,15 @@ namespace DotNetLisp.Parser
                 return builtIn;
             }
 
+            if(name.Contains("."))
+            {
+                var index = name.LastIndexOf('.');
+                return MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(name.Substring(0, index)),
+                    IdentifierName(name.Substring(index + 1)));
+            }
+
             return IdentifierName(name);
         }
     }

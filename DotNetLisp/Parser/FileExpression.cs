@@ -20,16 +20,19 @@ namespace DotNetLisp.Parser
         private readonly string ClassName;
         private readonly string NamespaceName;
 
-        public ParseExpressionVisitor(string namespaceName, string className) :base()
+        public ParseExpressionVisitor(string namespaceName, string className) : base()
         {
             this.NamespaceName = namespaceName;
             this.ClassName = className;
         }
 
+        public readonly SyntaxToken[] PublicStatic = { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) };
+
         public override CSharpSyntaxNode VisitFile([NotNull] DotNetLispParser.FileContext context)
         {
             var children = context.form().Select(f => this.Visit(f)).ToArray();
-            var members = children.OfType<MemberDeclarationSyntax>().ToList();
+            var fields = children.OfType<FieldDeclarationSyntax>().Select(field => field.AddModifiers(PublicStatic)).ToList();
+            var methods = children.OfType<MethodDeclarationSyntax>().Select(field => field.AddModifiers(PublicStatic)).ToList();
             var expressions = children.OfType<ExpressionSyntax>().ToArray();
 
             if(expressions.Any())
@@ -42,7 +45,7 @@ namespace DotNetLisp.Parser
                                 ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
                     .ToArray();
                 // make a Program class that has a "Run" method, and embed our program expression inside it.
-                members.Add(
+                methods.Add(
                     MethodDeclaration(ParseTypeName("System.Object"), "Run")
                            .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
                            .WithBody(Block(statements))
@@ -52,7 +55,9 @@ namespace DotNetLisp.Parser
             var @class = CompilationUnit()
                 .AddMembers(NamespaceDeclaration(IdentifierName(NamespaceName))
                     .AddMembers(ClassDeclaration(ClassName)
-                        .AddMembers(members.ToArray())));
+                        .AddMembers(fields.ToArray())
+                        .AddMembers(methods.ToArray())
+                        .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))));
 
             return @class;
         }
