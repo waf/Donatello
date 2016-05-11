@@ -47,7 +47,7 @@ namespace DotNetLisp.Parser
                 // make a Program class that has a "Run" method, and embed our program expression inside it.
                 methods.Add(
                     MethodDeclaration(ParseTypeName("System.Object"), "Run")
-                           .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
+                           .AddModifiers(PublicStatic)
                            .WithBody(Block(statements))
                 );
             }

@@ -57,7 +57,7 @@ namespace DotNetLisp
             const string className = "Program";
             // there's a slight delay when we load up roslyn and run a program for the first time. Do an
             // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
-            Task.Run(() => Compiler.CompileForRepl(AntlrParser.Parse("(+ 1 1)", "DotNetLisp", "Warmup")));
+            Task.Run(() => Compiler.CompileForRepl(AntlrParser.Parse("(+ 1 1)", namespaceName, className)));
 
             while (true)
             {
@@ -85,21 +85,30 @@ namespace DotNetLisp
                 }
 
                 // print
-                Console.WriteLine(output);
+                if(output != null)
+                {
+                    Console.WriteLine(output);
+                }
             } // loop!
         }
 
         private static string FormatProgramOutput(object output)
         {
-            return JsonConvert.SerializeObject(output, Formatting.Indented);
+            return output == null ? null : JsonConvert.SerializeObject(output, Formatting.Indented);
         }
 
         private static object DynamicInvoke(byte[] bytes)
         {
             Assembly assembly = Assembly.Load(bytes);
             Type type = assembly.GetType("Repl.Program");
-            var result = type.InvokeMember("Run", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
-            return result;
+            try
+            {
+                return type.InvokeMember("Run", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+            }
+            catch(MissingMethodException e) when (e.Message == "Method 'Repl.Program.Run' not found.")
+            {
+                return null;
+            }
         }
     }
 }

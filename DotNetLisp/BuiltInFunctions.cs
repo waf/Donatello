@@ -45,7 +45,6 @@ namespace DotNetLisp
             var returnType = visitor.Visit(children[3]) as TypeSyntax;
             var body = visitor.Visit(children[4]);
             return MethodDeclaration(returnType, methodName)
-                    .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword))
                     .WithParameterList(ParameterList(SeparatedList(parameterList)))
                     .WithBody(Block(ReturnStatement(body as ExpressionSyntax)));
         }
