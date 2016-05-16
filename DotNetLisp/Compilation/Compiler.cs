@@ -42,69 +42,6 @@ namespace DotNetLisp.Compilation
             return CreateAssembly(compilation);
         }
 
-        private static CompilationUnitSyntax previousCompilation;
-
-        public static Result<byte[], string[]> CompileForRepl(CompilationUnitSyntax program)
-        {
-            MetadataReference[] references = AddDefaultReferences(ref program);
-
-            CompilationUnitSyntax next = null;
-            if(previousCompilation == null)
-            {
-                next = program;
-            }
-            else
-            {
-                var oldMainMethod = previousCompilation
-                    .DescendantNodes()
-                    .OfType<MethodDeclarationSyntax>()
-                    .SingleOrDefault(m => m.Identifier.Text == "Run");
-
-                if(oldMainMethod != null)
-                {
-                    previousCompilation = previousCompilation.RemoveNode(oldMainMethod, SyntaxRemoveOptions.KeepNoTrivia);
-                }
-                var methods = MergeMembers<MethodDeclarationSyntax>(previousCompilation, program,
-                    method => method.Identifier.Text)
-                    .Cast<MemberDeclarationSyntax>();
-                var fields = MergeMembers<FieldDeclarationSyntax>(previousCompilation, program,
-                    field => field.Declaration.Variables.Single().Identifier.Text)
-                    .Cast<MemberDeclarationSyntax>();
-                var oldClass = previousCompilation.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-                var newClass = oldClass.WithMembers(List(methods.Union(fields)));
-                next = previousCompilation.ReplaceNode(oldClass, newClass);
-            }
-
-            TranslateToCSharp(next);
-
-            var compilation = CSharpCompilation.CreateScriptCompilation(
-                Path.GetRandomFileName(),
-                syntaxTree: CSharpSyntaxTree.Create(next, new CSharpParseOptions(kind: SourceCodeKind.Script)),
-                references: references,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            var result = CreateAssembly(compilation);
-
-            if (result.isOk)
-            {
-                previousCompilation = next;
-            }
-
-            return result;
-        }
-
-        private static IEnumerable<T> MergeMembers<T>(
-            CompilationUnitSyntax previous,
-            CompilationUnitSyntax program,
-            Func<T, string> NameProperty
-            )
-            where T : MemberDeclarationSyntax
-        {
-            var oldMethods = previous.DescendantNodes().OfType<T>();
-            var newMethods = program.DescendantNodes().OfType<T>();
-            var oldMethodsToReplace = oldMethods.Join(newMethods, NameProperty, NameProperty, (old, _) => old);
-            return newMethods.Union(oldMethods.Except(oldMethodsToReplace));
-        }
 
         /// <summary>
         /// Compile the roslyn AST

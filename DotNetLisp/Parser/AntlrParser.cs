@@ -14,9 +14,9 @@ namespace DotNetLisp.Parser
         /// <summary>
         /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST
         /// </summary>
-        public static CompilationUnitSyntax Parse(string input, string namespaceName, string className)
+        public static CompilationUnitSyntax Parse(string input, string namespaceName, string className, string mainMethodName)
         {
-            var visitor = new ParseExpressionVisitor(namespaceName, className);
+            var visitor = new ParseExpressionVisitor(namespaceName, className, mainMethodName);
 
             using (var stream = new StringReader(input))
             {

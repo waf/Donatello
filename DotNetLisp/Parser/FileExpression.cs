@@ -19,14 +19,15 @@ namespace DotNetLisp.Parser
     {
         private readonly string ClassName;
         private readonly string NamespaceName;
+        private readonly string MainMethodName;
+        private readonly SyntaxToken[] PublicStatic = { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) };
 
-        public ParseExpressionVisitor(string namespaceName, string className) : base()
+        public ParseExpressionVisitor(string namespaceName, string className, string mainMethodName)
         {
             this.NamespaceName = namespaceName;
             this.ClassName = className;
+            this.MainMethodName = mainMethodName;
         }
-
-        public readonly SyntaxToken[] PublicStatic = { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) };
 
         public override CSharpSyntaxNode VisitFile([NotNull] DotNetLispParser.FileContext context)
         {
@@ -46,7 +47,7 @@ namespace DotNetLisp.Parser
                     .ToArray();
                 // make a Program class that has a "Run" method, and embed our program expression inside it.
                 methods.Add(
-                    MethodDeclaration(ParseTypeName("System.Object"), "Run")
+                    MethodDeclaration(ParseTypeName("System.Object"), MainMethodName)
                            .AddModifiers(PublicStatic)
                            .WithBody(Block(statements))
                 );
