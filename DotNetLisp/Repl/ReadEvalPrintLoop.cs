@@ -123,14 +123,12 @@ namespace DotNetLisp.Repl
 
         private static object DynamicInvoke(byte[] bytes)
         {
-            string FullyQualifiedClass = $"{NamespaceName}.{ClassName}";
-            Assembly assembly = Assembly.Load(bytes);
-            Type type = assembly.GetType(FullyQualifiedClass);
             try
             {
-                return type.InvokeMember(RunMethod, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
+                return AssemblyRunner.Run<object>(bytes, NamespaceName, ClassName, RunMethod);
             }
-            catch(MissingMethodException e) when (e.Message == $"Method '{FullyQualifiedClass}.{RunMethod}' not found.")
+            catch (MissingMethodException e)
+                  when (e.Message == $"Method '{NamespaceName}.{ClassName}.{RunMethod}' not found.")
             {
                 // this is a valid case; the user could have issue a statement with no return value (like defining a function)
                 return null;

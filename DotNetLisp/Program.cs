@@ -17,7 +17,7 @@ using DotNetLisp.Repl;
 
 namespace DotNetLisp
 {
-    static class Program
+    public static class Program
     {
         static void Main(string[] args)
         {
@@ -50,5 +50,18 @@ namespace DotNetLisp
                 Error: errors => Console.WriteLine(string.Join(Environment.NewLine, errors)));
         }
 
+        public static Result<T, string[]> Run<T>(string program)
+        {
+            const string namespaceName = "DotNetLispRun";
+            const string className = "Runner";
+            const string methodName = "Run";
+
+            var result = AntlrParser.Parse(program, namespaceName, className, methodName);
+            var compiled = Compiler.Compile(result);
+
+            return compiled.Select(bytes =>
+                AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName)
+            );
+        }
     }
 }
