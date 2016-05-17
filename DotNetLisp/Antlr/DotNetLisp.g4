@@ -7,10 +7,15 @@ forms: form* ;
 form: literal
     | list
 	| vector
+	| set
+	| dictionary
     ;
 
 list: '(' forms ')' ;
 
+// collection types
+dictionary: '{' form * '}';
+set: '|' form * '|';
 vector: '[' form * ']' ;
 
 literal
@@ -31,7 +36,7 @@ type: TYPE;
 STRING: '"' ( ~'"' | '\\' '"' )* '"' ;
 LONG: '-'? [0-9]+[lL]?;
 SYMBOL: ('A'..'Z' | 'a'..'z' | '+' | '.')+;
-TYPE: ':' ('A'..'Z' | 'a'..'z' | '<' | '>')+;
+TYPE: ':' ('A'..'Z' | 'a'..'z' | '<' | ',' | ', ' | '>')+; //TODO: need to tighten this up.
 
 // Discard
 //--------------------------------------------------------------------

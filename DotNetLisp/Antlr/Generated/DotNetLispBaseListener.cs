@@ -84,6 +84,30 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitList([NotNull] DotNetLispParser.ListContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.dictionary"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDictionary([NotNull] DotNetLispParser.DictionaryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.dictionary"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDictionary([NotNull] DotNetLispParser.DictionaryContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.set"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSet([NotNull] DotNetLispParser.SetContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.set"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSet([NotNull] DotNetLispParser.SetContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.vector"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

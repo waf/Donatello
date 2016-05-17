@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.Formatting;
 using System.Diagnostics;
 using System.Collections.Immutable;
 using Newtonsoft.Json;
+using DotNetLisp.StandardLibrary;
 
 namespace DotNetLisp.Compilation
 {
@@ -79,6 +80,7 @@ namespace DotNetLisp.Compilation
                 new { Namespace = "System", DllFile = typeof(object).Assembly.Location },
                 new { Namespace = "System.Linq", DllFile = typeof(Enumerable).Assembly.Location },
                 new { Namespace = "System.Collections.Immutable", DllFile = typeof(ImmutableArray).Assembly.Location },
+                new { Namespace = "DotNetLisp.StandardLibrary", DllFile = typeof(KeyValuePair).Assembly.Location },
             };
 
             // add facade references for PCL support (like immutable collections)

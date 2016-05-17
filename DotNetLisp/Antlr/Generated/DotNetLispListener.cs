@@ -72,6 +72,26 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitList([NotNull] DotNetLispParser.ListContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.dictionary"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDictionary([NotNull] DotNetLispParser.DictionaryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.dictionary"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDictionary([NotNull] DotNetLispParser.DictionaryContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.set"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSet([NotNull] DotNetLispParser.SetContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.set"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSet([NotNull] DotNetLispParser.SetContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.vector"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

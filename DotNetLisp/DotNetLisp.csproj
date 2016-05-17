@@ -181,7 +181,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repl\ReadEvalPrintLoop.cs" />
-    <Compile Include="Scope.cs" />
     <Compile Include="Util\Result.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +211,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetLisp.StandardLibrary\DotNetLisp.StandardLibrary.csproj">
+      <Project>{e785bad9-3c37-441f-8a90-9cf4924d1a44}</Project>
+      <Name>DotNetLisp.StandardLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

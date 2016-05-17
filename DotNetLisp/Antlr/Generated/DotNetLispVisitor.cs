@@ -57,6 +57,18 @@ public interface IDotNetLispVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitList([NotNull] DotNetLispParser.ListContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.dictionary"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDictionary([NotNull] DotNetLispParser.DictionaryContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.set"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSet([NotNull] DotNetLispParser.SetContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="DotNetLispParser.vector"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

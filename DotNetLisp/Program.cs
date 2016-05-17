@@ -19,8 +19,6 @@ namespace DotNetLisp
 {
     static class Program
     {
-        internal readonly static Scope GlobalScope = new Scope();
-
         static void Main(string[] args)
         {
             if (args.Length > 2)
