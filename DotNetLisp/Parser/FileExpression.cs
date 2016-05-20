@@ -32,6 +32,7 @@ namespace DotNetLisp.Parser
         public override CSharpSyntaxNode VisitFile([NotNull] DotNetLispParser.FileContext context)
         {
             var children = context.form().Select(f => this.Visit(f)).ToArray();
+            var usings = children.OfType<UsingDirectiveSyntax>().ToArray();
             var fields = children.OfType<FieldDeclarationSyntax>().Select(field => field.AddModifiers(PublicStatic)).ToList();
             var methods = children.OfType<MethodDeclarationSyntax>().Select(field => field.AddModifiers(PublicStatic)).ToList();
             var expressions = children.OfType<ExpressionSyntax>().ToArray();
@@ -54,6 +55,7 @@ namespace DotNetLisp.Parser
             }
 
             var @class = CompilationUnit()
+                .AddUsings(usings)
                 .AddMembers(NamespaceDeclaration(IdentifierName(NamespaceName))
                     .AddMembers(ClassDeclaration(ClassName)
                         .AddMembers(fields.ToArray())

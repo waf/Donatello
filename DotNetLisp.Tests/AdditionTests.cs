@@ -17,7 +17,7 @@ namespace DotNetLisp.Tests
         [InlineData(int.MinValue, int.MaxValue)]
         public void AddTwoNumbers(int x, int y)
         {
-            Test($"(+ {x} {y})", x + y);
+            AssertOutput($"(+ {x} {y})", x + y);
             return;
         }
 
@@ -27,7 +27,7 @@ namespace DotNetLisp.Tests
         public void AddRangeOfNumbers(int[] xs)
         {
             var arguments = " ".Join(xs);
-            Test($"(+ {arguments})", xs.Sum());
+            AssertOutput($"(+ {arguments})", xs.Sum());
         }
     }
 }

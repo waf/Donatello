@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Diagnostics;
 using System.Collections.Immutable;
-using Newtonsoft.Json;
 using DotNetLisp.StandardLibrary;
 
 namespace DotNetLisp.Compilation
@@ -91,7 +90,7 @@ namespace DotNetLisp.Compilation
             var usings = defaultImports
                 .Select(import => CreateUsingDirective(import.Namespace))
                 .ToArray();
-            program = program.WithUsings(List(usings));
+            program = program.AddUsings(usings);
 
             MetadataReference[] references = defaultImports
                 .Select(import => MetadataReference.CreateFromFile(import.DllFile))

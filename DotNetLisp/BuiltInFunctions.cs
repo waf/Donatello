@@ -23,10 +23,27 @@ namespace DotNetLisp
                 case "def": return Def(visitor, children);
                 case "fun": return Fun(visitor, children);
                 case "if": return If(visitor, children);
+                case "use": return Use(visitor, children);
                 case "+": return Add(visitor, children);
                 default:
                     return null;
             }
+        }
+
+        private static CSharpSyntaxNode Use(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var target = children[1].GetText().Split('.');
+            if(target.Last() == "*")
+            {
+                return UsingDirective(
+                    Token(SyntaxKind.StaticKeyword),
+                    null,
+                    ParseName(string.Join(".", target.Take(target.Length - 1))));
+            }
+            return UsingDirective(
+                NameEquals(IdentifierName(target.Last()),
+                Token(SyntaxKind.EqualsToken)),
+                ParseName(string.Join(".", target)));
         }
 
         private static CSharpSyntaxNode Fun(

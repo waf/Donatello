@@ -35,7 +35,7 @@ type: TYPE;
 
 STRING: '"' ( ~'"' | '\\' '"' )* '"' ;
 LONG: '-'? [0-9]+[lL]?;
-SYMBOL: ('A'..'Z' | 'a'..'z' | '+' | '.')+;
+SYMBOL: ('A'..'Z' | 'a'..'z' | '0'..'9' | '+' | '.' | '*')+;
 TYPE: ':' ('A'..'Z' | 'a'..'z' | '<' | ',' | ', ' | '>')+; //TODO: need to tighten this up.
 
 // Discard
@@ -45,7 +45,7 @@ fragment
 WS : [ \n\r\t\,] ;
 
 fragment
-COMMENT: ';' ~[\r\n]* ;
+COMMENT: '//' ~[\r\n]* ;
 
 TRASH
     : ( WS | COMMENT ) -> channel(HIDDEN)

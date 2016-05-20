@@ -13,13 +13,13 @@ namespace DotNetLisp.Tests
         [Fact]
         public void IfStatement_IsTrue_SelectsTrueBranch()
         {
-            Test("(if true 5 10)", 5);
+            AssertOutput("(if true 5 10)", 5);
         }
 
         [Fact]
         public void IfStatement_IsFalse_SelectsFalseBranch()
         {
-            Test("(if false 5 10)", 10);
+            AssertOutput("(if false 5 10)", 10);
         }
     }
 }

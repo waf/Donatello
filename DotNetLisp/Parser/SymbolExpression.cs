@@ -30,16 +30,18 @@ namespace DotNetLisp.Parser
                 return builtIn;
             }
 
-            if(name.Contains("."))
+            var parts = name.Split('.');
+
+            ExpressionSyntax simpleAccess = IdentifierName(parts.First());
+            if(parts.Length == 1)
             {
-                var index = name.LastIndexOf('.');
-                return MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(name.Substring(0, index)),
-                    IdentifierName(name.Substring(index + 1)));
+                return simpleAccess;
             }
 
-            return IdentifierName(name);
+            var chainedAccess = parts.Skip(1).Aggregate(simpleAccess, 
+                (access, token) => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, access, IdentifierName(token)));
+
+            return chainedAccess;
         }
     }
 }
