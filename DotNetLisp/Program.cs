@@ -34,7 +34,8 @@ namespace DotNetLisp
                 return;
             }
 
-            ReadEvalPrintLoop.Run();
+            var repl = new ReadEvalPrintLoop(Console.ReadLine, Console.Write);
+            repl.Run();
         }
 
         private static void CompileFile(string[] files)

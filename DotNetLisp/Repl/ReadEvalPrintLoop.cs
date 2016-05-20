@@ -14,13 +14,21 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetLisp.Repl
 {
-    class ReadEvalPrintLoop
+    public class ReadEvalPrintLoop
     {
-        private const string NamespaceName = "Repl";
-        private const string ClassName = "Program";
-        private const string RunMethod = "DotNetLispReplRun";
+        const string NamespaceName = "Repl";
+        const string ClassName = "Program";
+        const string RunMethod = "DotNetLispReplRun";
+        readonly Func<string> input;
+        readonly Action<string> output;
 
-        public static void Run()
+        public ReadEvalPrintLoop(Func<string> input, Action<string> output)
+        {
+            this.output = output;
+            this.input = input;
+        }
+
+        public void Run()
         {
             // there's a slight delay when we load up roslyn and run a program for the first time. Do an
             // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
@@ -30,20 +38,20 @@ namespace DotNetLisp.Repl
             while (true)
             {
                 //read
-                Console.Write("> ");
-                string input = Console.ReadLine().Trim();
+                this.output("> ");
+                string text = input().Trim();
 
-                if (input == string.Empty) { continue; }
-                if (input == "exit") { break; }
+                if (text == string.Empty) { continue; }
+                if (text == "exit") { break; }
 
                 //eval
-                string output = "";
+                string toPrint = "";
                 try
                 {
-                    var program = AntlrParser.Parse(input, NamespaceName, ClassName, RunMethod);
+                    var program = AntlrParser.Parse(text, NamespaceName, ClassName, RunMethod);
                     program = CombineWithPreviousProgram(previousProgram, program);
                     // either run the compiled output or handle the errors
-                    output = Compiler.Compile(program).Match(
+                    toPrint = Compiler.Compile(program).Match(
                         Ok: bytes =>
                         {
                             previousProgram = program;
@@ -53,13 +61,13 @@ namespace DotNetLisp.Repl
                 }
                 catch (Exception e)
                 {
-                    output = "Error: " + e.Message;
+                    toPrint = "Error: " + e.Message;
                 }
 
                 // print
-                if(output != null)
+                if(toPrint != null)
                 {
-                    Console.WriteLine(output);
+                    output(toPrint + Environment.NewLine);
                 }
             } // loop!
         }
@@ -104,7 +112,13 @@ namespace DotNetLisp.Repl
                 .Cast<MemberDeclarationSyntax>();
             var oldClass = previousProgram.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
             var newClass = oldClass.WithMembers(List(methods.Union(fields)));
-            return previousProgram.ReplaceNode(oldClass, newClass);
+
+            var usings = previousProgram.Usings.Union(newProgram.Usings)
+                .GroupBy(usingStatement => usingStatement.ToString())
+                .Select(grouping => grouping.First()).ToArray();
+
+            return previousProgram.ReplaceNode(oldClass, newClass)
+                    .WithUsings(List(usings));
         }
 
         private static IEnumerable<T> MergeMembers<T>(
