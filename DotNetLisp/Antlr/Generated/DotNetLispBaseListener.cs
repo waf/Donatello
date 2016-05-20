@@ -120,6 +120,30 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVector([NotNull] DotNetLispParser.VectorContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.lambdaParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLambdaParameter([NotNull] DotNetLispParser.LambdaParameterContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.lambdaParameter"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLambdaParameter([NotNull] DotNetLispParser.LambdaParameterContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.lambda"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterLambda([NotNull] DotNetLispParser.LambdaContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.lambda"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitLambda([NotNull] DotNetLispParser.LambdaContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

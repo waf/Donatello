@@ -75,6 +75,18 @@ public interface IDotNetLispVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitVector([NotNull] DotNetLispParser.VectorContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.lambdaParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLambdaParameter([NotNull] DotNetLispParser.LambdaParameterContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.lambda"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLambda([NotNull] DotNetLispParser.LambdaContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="DotNetLispParser.literal"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -172,6 +172,7 @@
     <Compile Include="Compilation\Compiler.cs" />
     <Compile Include="Parser\AntlrParser.cs" />
     <Compile Include="Parser\FileExpression.cs" />
+    <Compile Include="Parser\LambdaExpression.cs" />
     <Compile Include="Parser\TypeExpression.cs" />
     <Compile Include="Parser\VectorExpression.cs" />
     <Compile Include="Parser\ListExpression.cs" />

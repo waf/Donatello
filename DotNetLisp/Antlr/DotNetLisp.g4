@@ -6,6 +6,7 @@ forms: form* ;
 
 form: literal
     | list
+    | lambda
 	| vector
 	| set
 	| dictionary
@@ -18,10 +19,15 @@ dictionary: '{' form * '}';
 set: '|' form * '|';
 vector: '[' form * ']' ;
 
+LAMBDA_PARAMETER: '^' [0-9]+;
+lambdaParameter: LAMBDA_PARAMETER;
+lambda: '\\(' forms ')';
+
 literal
     : string
     | number
     | symbol
+    | lambdaParameter
 	| type
     ;
 

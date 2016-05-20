@@ -102,6 +102,26 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitVector([NotNull] DotNetLispParser.VectorContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.lambdaParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLambdaParameter([NotNull] DotNetLispParser.LambdaParameterContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.lambdaParameter"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLambdaParameter([NotNull] DotNetLispParser.LambdaParameterContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.lambda"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterLambda([NotNull] DotNetLispParser.LambdaContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.lambda"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitLambda([NotNull] DotNetLispParser.LambdaContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.literal"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

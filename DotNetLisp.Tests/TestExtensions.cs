@@ -27,7 +27,6 @@ namespace DotNetLisp.Tests
                 Error: errors => {
                     throw new Exception(string.Join(Environment.NewLine, errors));
                 });
-
         }
 
         public static string Join<T>(this string separator, T[] values)

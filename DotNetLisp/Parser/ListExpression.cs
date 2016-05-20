@@ -20,8 +20,13 @@ namespace DotNetLisp.Parser
         {
             var children = context.forms().children;
 
+            return CreateListInvocation(children);
+        }
+
+        private CSharpSyntaxNode CreateListInvocation(IList<IParseTree> children)
+        {
             var builtIn = BuiltInFunctions.Run(this, children);
-            if(builtIn != null)
+            if (builtIn != null)
             {
                 return builtIn;
             }
