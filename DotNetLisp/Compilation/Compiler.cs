@@ -79,7 +79,7 @@ namespace DotNetLisp.Compilation
                 new { Namespace = "System", DllFile = typeof(object).Assembly.Location },
                 new { Namespace = "System.Linq", DllFile = typeof(Enumerable).Assembly.Location },
                 new { Namespace = "System.Collections.Immutable", DllFile = typeof(ImmutableArray).Assembly.Location },
-                new { Namespace = "DotNetLisp.StandardLibrary", DllFile = typeof(KeyValuePair).Assembly.Location },
+                new { Namespace = "DotNetLisp.StandardLibrary", DllFile = typeof(Constructors).Assembly.Location },
             };
 
             // add facade references for PCL support (like immutable collections)

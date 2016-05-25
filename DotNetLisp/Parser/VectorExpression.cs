@@ -57,8 +57,8 @@ namespace DotNetLisp.Parser
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            IdentifierName(nameof(KeyValuePair)),
-                            IdentifierName(nameof(KeyValuePair.Create))))
+                            IdentifierName(nameof(Constructors)),
+                            IdentifierName(nameof(Constructors.CreateKeyValuePair))))
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList(new[] {

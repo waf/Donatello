@@ -11,6 +11,20 @@ namespace DotNetLisp.Tests
     public class FunctionTests
     {
         [Fact]
+        public void FunctionsCanHaveMultipleLines()
+        {
+            const string code =
+                @"
+                    (fun foo [x:int y:int] :int
+                      (Console.WriteLine x)
+                      (+ x y))
+
+                    (foo 4 6)
+                ";
+            AssertOutput(code, 10);
+        }
+
+        [Fact]
         public void FunctionsCanBeInvoked()
         {
             const string code =

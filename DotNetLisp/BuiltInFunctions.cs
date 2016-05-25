@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Antlr4.Runtime.Tree;
 using Microsoft.CodeAnalysis;
+using DotNetLisp.StandardLibrary;
 
 namespace DotNetLisp
 {
@@ -23,11 +24,56 @@ namespace DotNetLisp
                 case "def": return Def(visitor, children);
                 case "fun": return Fun(visitor, children);
                 case "if": return If(visitor, children);
+                case "let": return Let(visitor, children);
                 case "use": return Use(visitor, children);
                 case "+": return Add(visitor, children);
                 default:
                     return null;
             }
+        }
+
+        private static CSharpSyntaxNode Let(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var bindings = children[1].GetChild(0);
+            var expressions = children.Skip(2).Select(statement => visitor.Visit(statement)).ToArray();
+            int finalElement = expressions.Length - 1;
+            var statements = expressions
+                .Select((expression, index) =>
+                            index == finalElement ?
+                            ReturnStatement(expression as ExpressionSyntax) :
+                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
+                .ToArray();
+
+            List<StatementSyntax> variables = PairwiseListVisit<StatementSyntax>(bindings, (name, value) =>
+            {
+                return LocalDeclarationStatement(
+                        VariableDeclaration(IdentifierName("var"))
+                        .WithVariables(SingletonSeparatedList(
+                            VariableDeclarator(Identifier(name.GetText()))
+                            .WithInitializer(EqualsValueClause(visitor.Visit(value) as ExpressionSyntax)))));
+            });
+
+            var lambda = ParenthesizedLambdaExpression(Block(variables.Union(statements)));
+
+            return InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(nameof(Constructors)),
+                        IdentifierName(nameof(Constructors.CreateLet))))
+                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))));
+        }
+
+        private static List<T> PairwiseListVisit<T>(IParseTree tree, Func<IParseTree, IParseTree, T> pairwiseOperation)
+        {
+            var list = new List<T>();
+            for (int i = 1; i < tree.ChildCount - 1; i += 2)
+            {
+                list.Add(
+                    pairwiseOperation(tree.GetChild(i), tree.GetChild(i + 1))
+                );
+            }
+
+            return list;
         }
 
         private static CSharpSyntaxNode Use(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
@@ -52,18 +98,25 @@ namespace DotNetLisp
         {
             var methodName = children[1].GetText();
             var parameters = children[2].GetChild(0);
-            var parameterList = new List<ParameterSyntax>();
-            for(int i = 1; i < parameters.ChildCount - 1; i += 2) //select every two pairs, skipping "[" and "]"
+
+            IList<ParameterSyntax> parameterList = PairwiseListVisit(parameters, (name, type) =>
             {
-                parameterList.Add(
-                    Parameter(Identifier(parameters.GetChild(i).GetText()))
-                        .WithType(visitor.Visit(parameters.GetChild(i + 1)) as TypeSyntax));
-            }
+                return Parameter(Identifier(name.GetText()))
+                    .WithType(visitor.Visit(type) as TypeSyntax);
+            });
+
             var returnType = visitor.Visit(children[3]) as TypeSyntax;
-            var body = visitor.Visit(children[4]);
+            var statements = children.Skip(4).Select(statement => visitor.Visit(statement)).ToArray();
+            int finalElement = statements.Length - 1;
+            var body = statements
+                .Select((expression, index) =>
+                            index == finalElement ?
+                            ReturnStatement(expression as ExpressionSyntax) :
+                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
+                .ToArray();
             return MethodDeclaration(returnType, methodName)
                     .WithParameterList(ParameterList(SeparatedList(parameterList)))
-                    .WithBody(Block(ReturnStatement(body as ExpressionSyntax)));
+                    .WithBody(Block(body));
         }
 
         private static CSharpSyntaxNode If(
