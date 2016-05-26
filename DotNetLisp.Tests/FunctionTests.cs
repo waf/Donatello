@@ -15,7 +15,7 @@ namespace DotNetLisp.Tests
         {
             const string code =
                 @"
-                    (fun foo [x:int y:int] :int
+                    (defn foo [x:int y:int] :int
                       (Console.WriteLine x)
                       (+ x y))
 
@@ -29,7 +29,7 @@ namespace DotNetLisp.Tests
         {
             const string code =
                 @"
-                    (fun foo [x:int y:int] :int
+                    (defn foo [x:int y:int] :int
                       (+ x y))
 
                     (foo 4 6)
@@ -42,10 +42,10 @@ namespace DotNetLisp.Tests
         {
             const string code =
                 @"
-                    (fun foo [x:int y:int] :int
+                    (defn foo [x:int y:int] :int
                       (+ x y))
 
-                    (fun foo [x:int y:int z:int] :int
+                    (defn foo [x:int y:int z:int] :int
                       (+ x y z))
 
                     (+
@@ -63,12 +63,51 @@ namespace DotNetLisp.Tests
                     (def a:int 8)
                     (def b:int 12)
 
-                    (fun foo [x:int] :int
+                    (defn foo [x:int] :int
                       (+ x a b))
 
                     (foo 5)
                 ";
             AssertOutput(code, 25);
+        }
+
+        [Fact]
+        public void AnonymousFunction()
+        {
+            const string code =
+                @"
+                    (use System.Linq.Enumerable)
+                    (Enumerable.Select [1 2 3 4] (fn [i x] (+ 1 i)))
+                ";
+            AssertOutput<IEnumerable<int>>(code, result =>
+            {
+                var computed = result.ToList();
+                Assert.Equal(2, computed[0]);
+                Assert.Equal(3, computed[1]);
+                Assert.Equal(4, computed[2]);
+                Assert.Equal(5, computed[3]);
+            });
+        }
+
+        [Fact]
+        public void AnonymousFunctionWithMultipleLines()
+        {
+            const string code =
+                @"
+                    (use System.Linq.Enumerable)
+                    (Enumerable.Select [1 2 3 4]
+                        (fn [i x]
+                            (Console.WriteLine x)
+                            (+ 1 i)))
+                ";
+            AssertOutput<IEnumerable<int>>(code, result =>
+            {
+                var computed = result.ToList();
+                Assert.Equal(2, computed[0]);
+                Assert.Equal(3, computed[1]);
+                Assert.Equal(4, computed[2]);
+                Assert.Equal(5, computed[3]);
+            });
         }
     }
 }

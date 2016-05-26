@@ -19,14 +19,14 @@ namespace DotNetLisp.Tests
             var expectedOutputAndInput = new string[][] {
                 new[] { "> ",      @"(def a:int 5)"},
                 new[] { "> ",      @"(def b:int 7)"},
-                new[] { "> ",      @"(fun mystery [x:int] :int 
+                new[] { "> ",      @"(defn mystery [x:int] :int 
                                        (+ x a b))"},
                 new[] { "> ",      @"(mystery 8)"},
                 new[] { "20\r\n",  null },
 
                 new[] { "> ",      @"(def b:int 8)"},
                 new[] { "> ",      @"(def c:int 10)"},
-                new[] { "> ",      @"(fun mystery [x:int] :int 
+                new[] { "> ",      @"(defn mystery [x:int] :int 
                                        (+ x a b c))"},
                 new[] { "> ",      @"(mystery 2)"},
                 new[] { "25\r\n",  null },

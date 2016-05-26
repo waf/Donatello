@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Antlr4.Runtime.Tree;
 using Microsoft.CodeAnalysis;
 using DotNetLisp.StandardLibrary;
+using DotNetLisp.Util;
 
 namespace DotNetLisp
 {
@@ -22,7 +23,8 @@ namespace DotNetLisp
             switch (children[0].GetText())
             {
                 case "def": return Def(visitor, children);
-                case "fun": return Fun(visitor, children);
+                case "defn": return Defn(visitor, children);
+                case "fn": return Fn(visitor, children);
                 case "if": return If(visitor, children);
                 case "let": return Let(visitor, children);
                 case "use": return Use(visitor, children);
@@ -30,6 +32,27 @@ namespace DotNetLisp
                 default:
                     return null;
             }
+        }
+
+        private static CSharpSyntaxNode Fn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            /*
+                (fn [a b] (+ a b))
+             */
+
+            var bindings = children[1].GetChild(0).Children().ToList();
+            var parameters = bindings.Skip(1).Take(bindings.Count - 2)
+                                    .Select(var => Parameter(Identifier(var.GetText())));
+            var expressions = children.Skip(2).Select(statement => visitor.Visit(statement)).ToArray();
+            int finalElement = expressions.Length - 1;
+            var statements = expressions
+                .Select((expression, index) =>
+                            index == finalElement ?
+                            ReturnStatement(expression as ExpressionSyntax) :
+                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
+                .ToArray();
+            return ParenthesizedLambdaExpression(Block(statements))
+                    .WithParameterList(ParameterList(SeparatedList(parameters)));
         }
 
         private static CSharpSyntaxNode Let(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
@@ -92,7 +115,7 @@ namespace DotNetLisp
                 ParseName(string.Join(".", target)));
         }
 
-        private static CSharpSyntaxNode Fun(
+        private static CSharpSyntaxNode Defn(
             IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {

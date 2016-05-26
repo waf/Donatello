@@ -32,10 +32,6 @@ namespace DotNetLisp.Tests
             ";
             AssertOutput(code, 10);
         }
-        public static T CreateLet<T>(Func<T> letFunc)
-        {
-            return letFunc();
-        }
 
         [Fact]
         public void NestedLet()
@@ -47,6 +43,5 @@ namespace DotNetLisp.Tests
             ";
             AssertOutput(code, 11);
         }
-
     }
 }
