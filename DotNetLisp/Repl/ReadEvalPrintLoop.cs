@@ -32,7 +32,9 @@ namespace DotNetLisp.Repl
         {
             // there's a slight delay when we load up roslyn and run a program for the first time. Do an
             // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
-            Task.Run(() => Compiler.Compile(AntlrParser.Parse(@"""DotNetLisp""", NamespaceName, ClassName, RunMethod)));
+            Task.Run(() => Compiler.Compile(
+                NamespaceName,
+                AntlrParser.Parse(@"""DotNetLisp""", NamespaceName, ClassName, RunMethod)));
 
             CompilationUnitSyntax previousProgram = null;
             while (true)
@@ -51,7 +53,7 @@ namespace DotNetLisp.Repl
                     var program = AntlrParser.Parse(text, NamespaceName, ClassName, RunMethod);
                     program = CombineWithPreviousProgram(previousProgram, program);
                     // either run the compiled output or handle the errors
-                    toPrint = Compiler.Compile(program).Match(
+                    toPrint = Compiler.Compile(NamespaceName, program).Match(
                         Ok: bytes =>
                         {
                             previousProgram = program;

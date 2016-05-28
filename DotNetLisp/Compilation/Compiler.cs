@@ -28,20 +28,22 @@ namespace DotNetLisp.Compilation
             return;
         }
 
-        public static Result<byte[], string[]> Compile(CompilationUnitSyntax program)
+        public static Result<byte[], string[]> Compile(string dllName, params CompilationUnitSyntax[] programs)
         {
-            MetadataReference[] references = AddDefaultReferences(ref program);
-            Compiler.TranslateToCSharp(program);
+            var references = programs
+                .SelectMany(program => AddDefaultReferences(ref program))
+                .Distinct()
+                .ToList();
+            var trees = programs.Select(program => CSharpSyntaxTree.Create(program));
 
             CSharpCompilation compilation = CSharpCompilation.Create(
-                Path.GetRandomFileName(),
-                syntaxTrees: new[] { CSharpSyntaxTree.Create(program) },
+                dllName,
+                syntaxTrees: trees,
                 references: references,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             return CreateAssembly(compilation);
         }
-
 
         /// <summary>
         /// Compile the roslyn AST
@@ -91,6 +93,8 @@ namespace DotNetLisp.Compilation
                 .Select(import => CreateUsingDirective(import.Namespace))
                 .ToArray();
             program = program.AddUsings(usings);
+
+            TranslateToCSharp(program); // for debugging purposes
 
             MetadataReference[] references = defaultImports
                 .Select(import => MetadataReference.CreateFromFile(import.DllFile))

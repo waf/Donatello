@@ -1,19 +1,13 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
-using DotNetLisp.Antlr.Generated;
+﻿using CommandLine;
+using CommandLine.Text;
 using DotNetLisp.Compilation;
 using DotNetLisp.Parser;
-using DotNetLisp.Util;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.IO;
-using System.Reflection;
-using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using DotNetLisp.Repl;
+using DotNetLisp.Util;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace DotNetLisp
 {
@@ -21,16 +15,17 @@ namespace DotNetLisp
     {
         static void Main(string[] args)
         {
-            if (args.Length > 2)
+            var options = new CommandLineOptions();
+
+            if (!CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                Console.WriteLine("Usage:");
-                Console.WriteLine("  DotNetLisp           open a repl");
-                Console.WriteLine("  DotNetLisp <file>    compile a file");
+                Console.WriteLine(options.GetUsage());
+                return;
             }
 
-            if(args.Length > 0)
+            if(options.Inputs.Any())
             {
-                CompileFile(args);
+                CompileFile(options.Inputs.ToArray(), options.Output);
                 return;
             }
 
@@ -38,17 +33,33 @@ namespace DotNetLisp
             repl.Run();
         }
 
-        private static void CompileFile(string[] files)
+        private static void CompileFile(string[] inputFile, string outputDll)
         {
-            var file = files[0];
-            var namespaceName = Directory.GetParent(file).Name;
-            var className = Path.GetFileNameWithoutExtension(file);
-            var result = AntlrParser.Parse(File.ReadAllText(file), namespaceName, className, "Main");
-            var assembly = Compiler.Compile(result);
-
-            assembly.Match(
-                Ok: bytes => File.WriteAllBytes(file.Replace("dnl", "dll"), bytes),
+            var fileContent = (from file in inputFile
+                               select new
+                               {
+                                   NamespaceName = Directory.GetParent(file).Name,
+                                   ClassName = Path.GetFileNameWithoutExtension(file),
+                                   Content = File.ReadAllText(file)
+                               })
+                              .ToDictionary(
+                                    unit => Tuple.Create(unit.NamespaceName, unit.ClassName),
+                                    unit => unit.Content);
+            var result = CompileContent(fileContent, Path.GetFileNameWithoutExtension(outputDll));
+            result.Match(
+                Ok: bytes => File.WriteAllBytes(outputDll, bytes),
                 Error: errors => Console.WriteLine(string.Join(Environment.NewLine, errors)));
+        }
+
+        public static Result<byte[], string[]> CompileContent(IDictionary<Tuple<string, string>, string> files, string dllName)
+        {
+            var result = files
+                .Select(file => AntlrParser.Parse(file.Value, file.Key.Item1, file.Key.Item2, "Main"))
+                .ToArray();
+
+            var assembly = Compiler.Compile(dllName, result);
+
+            return assembly;
         }
 
         public static Result<T, string[]> Run<T>(string program)
@@ -58,11 +69,27 @@ namespace DotNetLisp
             const string methodName = "Run";
 
             var result = AntlrParser.Parse(program, namespaceName, className, methodName);
-            var compiled = Compiler.Compile(result);
+            var compiled = Compiler.Compile(namespaceName, result);
 
             return compiled.Select(bytes =>
                 AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName)
             );
+        }
+
+        private class CommandLineOptions
+        {
+            [OptionList('i', "input", HelpText = "A list of input files")]
+            public IList<string> Inputs { get; set; } = new List<string>();
+
+            [Option('o', "output", DefaultValue = "Out.dll", HelpText = "The output DLL name")]
+            public string Output { get; set; }
+
+            [HelpOption]
+            public string GetUsage()
+            {
+                return HelpText.AutoBuild(this,
+                  (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current));
+            }
         }
     }
 }
