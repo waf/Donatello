@@ -13,11 +13,11 @@ namespace DotNetLisp.Parser
     partial class ParseExpressionVisitor : DotNetLispBaseVisitor<CSharpSyntaxNode>
     {
         private readonly string UniqueId = "parameter_" + CreateUniqueId(12) + "_";
+        private static readonly Random random = new Random();
 
         private static string CreateUniqueId(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            Random random = new Random();
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }

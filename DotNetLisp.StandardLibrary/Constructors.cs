@@ -27,5 +27,14 @@ namespace DotNetLisp.StandardLibrary
         {
             return letFunc();
         }
+
+        /// <summary>
+        /// Execute a Let function with inferred types.
+        /// </summary>
+        public static T CreateLet<T>(Action letFunc)
+        {
+            letFunc();
+            return default(T);
+        }
     }
 }

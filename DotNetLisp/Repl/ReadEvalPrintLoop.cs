@@ -1,14 +1,13 @@
 ﻿using DotNetLisp.Compilation;
 using DotNetLisp.Parser;
+using DotNetLisp.StandardLibrary;
 using DotNetLisp.Util;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -19,14 +18,6 @@ namespace DotNetLisp.Repl
         const string NamespaceName = "Repl";
         const string ClassName = "Program";
         const string RunMethod = "DotNetLispReplRun";
-        readonly Func<string> input;
-        readonly Action<string> output;
-
-        public ReadEvalPrintLoop(Func<string> input, Action<string> output)
-        {
-            this.output = output;
-            this.input = input;
-        }
 
         public void Run()
         {
@@ -34,45 +25,67 @@ namespace DotNetLisp.Repl
             // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
             Task.Run(() => Compiler.Compile(
                 NamespaceName,
+                OutputType.DynamicallyLinkedLibrary,
                 AntlrParser.Parse(@"""DotNetLisp""", NamespaceName, ClassName, RunMethod)));
 
             CompilationUnitSyntax previousProgram = null;
             while (true)
             {
                 //read
-                this.output("> ");
-                string text = input().Trim();
+                Console.Write("> ");
+                string text = Console.ReadLine().Trim();
 
                 if (text == string.Empty) { continue; }
                 if (text == "exit") { break; }
 
-                //eval
-                string toPrint = "";
                 try
                 {
-                    var program = AntlrParser.Parse(text, NamespaceName, ClassName, RunMethod);
+                    //eval
+                    var program = AntlrParser.Parse(text, NamespaceName, ClassName);
                     program = CombineWithPreviousProgram(previousProgram, program);
-                    // either run the compiled output or handle the errors
-                    toPrint = Compiler.Compile(NamespaceName, program).Match(
-                        Ok: bytes =>
-                        {
-                            previousProgram = program;
-                            return FormatProgramOutput(DynamicInvoke(bytes));
-                        },
-                        Error: errors => string.Join(Environment.NewLine, errors));
+                    program = WrapLastLineWithPrintStatement(program);
+                    var result = Compiler.Compile(NamespaceName, OutputType.DynamicallyLinkedLibrary, program);
+                    AssemblyRunner.RunClassConstructor(result, NamespaceName, ClassName); //print
+
+                    previousProgram = program;
                 }
                 catch (Exception e)
                 {
-                    toPrint = "Error: " + e.Message;
-                }
-
-                // print
-                if(toPrint != null)
-                {
-                    output(toPrint + Environment.NewLine);
+                    Console.WriteLine("Error: " + e.Message);
                 }
             } // loop!
         }
+
+        /// <summary>
+        /// Wrap the last line of the constructor with a print statement.
+        /// </summary>
+        private CompilationUnitSyntax WrapLastLineWithPrintStatement(CompilationUnitSyntax program)
+        {
+            var lastLineOfConstructor = program
+                .DescendantNodes()
+                .OfType<ConstructorDeclarationSyntax>().SingleOrDefault()?
+                .Body.Statements.Cast<ExpressionStatementSyntax>().LastOrDefault();
+
+            if(lastLineOfConstructor == null)
+            {
+                return program;
+            }
+
+            var lastLineWrappedWithPrint =
+                ExpressionStatement(
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName(nameof(ReplUtil)),
+                            IdentifierName(nameof(ReplUtil.Print))))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(ParenthesizedLambdaExpression(lastLineOfConstructor.Expression))))));
+
+            return program.ReplaceNode(lastLineOfConstructor, lastLineWrappedWithPrint);
+        }
+
 
         /// <summary>
         /// Given a previous program and new program, merge the new members (field and methods) of the two programs.
@@ -95,17 +108,21 @@ namespace DotNetLisp.Repl
                 return newProgram;
             }
 
-            // get rid of the old run method.
-            var oldRunMethod = previousProgram
+            // get rid of the old constructor. This way, if the user evaluates something
+            // that doesn't have a constructor (like a variable definition), we don't run
+            // the old constructor
+            var oldConstructor = previousProgram
                 .DescendantNodes()
-                .OfType<MethodDeclarationSyntax>()
-                .SingleOrDefault(m => m.Identifier.Text == RunMethod);
-            if(oldRunMethod != null)
+                .OfType<ConstructorDeclarationSyntax>();
+            if(oldConstructor != null)
             {
-                previousProgram = previousProgram.RemoveNode(oldRunMethod, SyntaxRemoveOptions.KeepNoTrivia);
+                previousProgram = previousProgram.RemoveNodes(oldConstructor, SyntaxRemoveOptions.KeepNoTrivia);
             }
 
             // add/replace methods and fields into the previous program
+            var constructors = MergeMembers<ConstructorDeclarationSyntax>(previousProgram, newProgram,
+                constructor => constructor.Identifier.Text)
+                .Cast<MemberDeclarationSyntax>();
             var methods = MergeMembers<MethodDeclarationSyntax>(previousProgram, newProgram,
                 method => method.Identifier.Text)
                 .Cast<MemberDeclarationSyntax>();
@@ -113,7 +130,7 @@ namespace DotNetLisp.Repl
                 field => field.Declaration.Variables.Single().Identifier.Text)
                 .Cast<MemberDeclarationSyntax>();
             var oldClass = previousProgram.DescendantNodes().OfType<ClassDeclarationSyntax>().First();
-            var newClass = oldClass.WithMembers(List(methods.Union(fields)));
+            var newClass = oldClass.WithMembers(List(constructors.Union(methods).Union(fields)));
 
             var usings = previousProgram.Usings.Union(newProgram.Usings)
                 .GroupBy(usingStatement => usingStatement.ToString())
@@ -135,26 +152,6 @@ namespace DotNetLisp.Repl
             // inner join on old members and new members
             var oldMembersToReplace = oldMembers.Join(newMembers, NameProperty, NameProperty, (old, _) => old);
             return newMembers.Union(oldMembers.Except(oldMembersToReplace));
-        }
-
-        private static object DynamicInvoke(byte[] bytes)
-        {
-            try
-            {
-                return AssemblyRunner.Run<object>(bytes, NamespaceName, ClassName, RunMethod);
-            }
-            catch (MissingMethodException e)
-                  when (e.Message == $"Method '{NamespaceName}.{ClassName}.{RunMethod}' not found.")
-            {
-                // this is a valid case; the user could have issue a statement with no return value (like defining a function)
-                return null;
-            }
-        }
-
-
-        private static string FormatProgramOutput(object output)
-        {
-            return output == null ? null : JsonConvert.SerializeObject(output, Formatting.Indented);
         }
     }
 }

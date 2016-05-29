@@ -4,6 +4,7 @@ using DotNetLisp.Compilation;
 using DotNetLisp.Parser;
 using DotNetLisp.Repl;
 using DotNetLisp.Util;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,11 +30,11 @@ namespace DotNetLisp
                 return;
             }
 
-            var repl = new ReadEvalPrintLoop(Console.ReadLine, Console.Write);
+            var repl = new ReadEvalPrintLoop();
             repl.Run();
         }
 
-        private static void CompileFile(string[] inputFile, string outputDll)
+        private static void CompileFile(string[] inputFile, string outputFilename)
         {
             var fileContent = (from file in inputFile
                                select new
@@ -45,35 +46,39 @@ namespace DotNetLisp
                               .ToDictionary(
                                     unit => Tuple.Create(unit.NamespaceName, unit.ClassName),
                                     unit => unit.Content);
-            var result = CompileContent(fileContent, Path.GetFileNameWithoutExtension(outputDll));
-            result.Match(
-                Ok: bytes => File.WriteAllBytes(outputDll, bytes),
-                Error: errors => Console.WriteLine(string.Join(Environment.NewLine, errors)));
+            string assemblyName = Path.GetFileNameWithoutExtension(outputFilename);
+            string extension = Path.GetExtension(outputFilename);
+            var outputKind = extension == "dll" ? OutputType.DynamicallyLinkedLibrary :
+                             extension == "exe" ? OutputType.ConsoleApplication :
+                             Utility.Throw<OutputType>(new Exception("unknown extension"));
+            var bytes = CompileContent(fileContent, assemblyName, outputKind);
+            File.WriteAllBytes(outputFilename, bytes);
         }
 
-        public static Result<byte[], string[]> CompileContent(IDictionary<Tuple<string, string>, string> files, string dllName)
+        public static byte[] CompileContent(
+            IDictionary<Tuple<string, string>, string> files,
+            string assemblyName,
+            OutputType outputKind)
         {
-            var result = files
-                .Select(file => AntlrParser.Parse(file.Value, file.Key.Item1, file.Key.Item2, "Main"))
+            var compilationUnit = files
+                .Select(file => AntlrParser.Parse(file.Value, file.Key.Item1, file.Key.Item2))
                 .ToArray();
 
-            var assembly = Compiler.Compile(dllName, result);
+            var assembly = Compiler.Compile(assemblyName, outputKind, compilationUnit);
 
             return assembly;
         }
 
-        public static Result<T, string[]> Run<T>(string program)
+        public static T Run<T>(string program)
         {
             const string namespaceName = "DotNetLispRun";
             const string className = "Runner";
             const string methodName = "Run";
 
             var result = AntlrParser.Parse(program, namespaceName, className, methodName);
-            var compiled = Compiler.Compile(namespaceName, result);
+            var bytes = Compiler.Compile(namespaceName, OutputType.DynamicallyLinkedLibrary, result);
 
-            return compiled.Select(bytes =>
-                AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName)
-            );
+            return AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName);
         }
 
         private class CommandLineOptions

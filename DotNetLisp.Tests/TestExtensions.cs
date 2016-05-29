@@ -11,22 +11,13 @@ namespace DotNetLisp.Tests
     {
         public static void AssertOutput<T>(string test, T expected)
         {
-            var sum = Program.Run<T>(test);
-            sum.Match(
-                Ok: result => Assert.Equal(expected, result),
-                Error: errors => {
-                    throw new Exception(string.Join(Environment.NewLine, errors));
-                });
-
+            var result = Program.Run<T>(test);
+            Assert.Equal(expected, result);
         }
         public static void AssertOutput<T>(string test, Action<T> assertions)
         {
-            var sum = Program.Run<T>(test);
-            sum.Match(
-                Ok: result => assertions(result),
-                Error: errors => {
-                    throw new Exception(string.Join(Environment.NewLine, errors));
-                });
+            var result = Program.Run<T>(test);
+            assertions(result);
         }
 
         public static string Join<T>(this string separator, T[] values)

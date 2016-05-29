@@ -14,11 +14,26 @@ using Microsoft.CodeAnalysis.Formatting;
 using System.Diagnostics;
 using System.Collections.Immutable;
 using DotNetLisp.StandardLibrary;
+using System.Reflection;
 
 namespace DotNetLisp.Compilation
 {
+    public enum OutputType
+    {
+        ConsoleApplication = OutputKind.ConsoleApplication,
+        WindowsApplication = OutputKind.WindowsApplication,
+        DynamicallyLinkedLibrary = OutputKind.DynamicallyLinkedLibrary,
+    }
     public static class Compiler
     {
+        static readonly IDictionary<string, Assembly> DefaultImports = new Dictionary<string, Assembly>
+        {
+            { "System", typeof(object).Assembly },
+            { "System.Linq", typeof(Enumerable).Assembly },
+            { "System.Collections.Immutable", typeof(ImmutableArray).Assembly },
+            { "DotNetLisp.StandardLibrary", typeof(ReplUtil).Assembly }
+        };
+
         [Conditional("DEBUG")]
         public static void TranslateToCSharp(CSharpSyntaxNode programExpression)
         {
@@ -28,19 +43,21 @@ namespace DotNetLisp.Compilation
             return;
         }
 
-        public static Result<byte[], string[]> Compile(string dllName, params CompilationUnitSyntax[] programs)
+        public static byte[] Compile(string assemblyName, OutputType outputKind, params CompilationUnitSyntax[] programs)
         {
-            var references = programs
-                .SelectMany(program => AddDefaultReferences(ref program))
-                .Distinct()
-                .ToList();
-            var trees = programs.Select(program => CSharpSyntaxTree.Create(program));
+            var trees = programs.Select(program =>
+            {
+                var defaultUsings = DefaultImports.Select(import => CreateUsingDirective(import.Key)).ToArray();
+                program = program.AddUsings(defaultUsings);
+                TranslateToCSharp(program);
+                return CSharpSyntaxTree.Create(program);
+            }).ToArray();
 
             CSharpCompilation compilation = CSharpCompilation.Create(
-                dllName,
+                assemblyName,
                 syntaxTrees: trees,
-                references: references,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                references: GetDefaultReferences(),
+                options: new CSharpCompilationOptions((OutputKind)outputKind));
 
             return CreateAssembly(compilation);
         }
@@ -49,7 +66,7 @@ namespace DotNetLisp.Compilation
         /// Compile the roslyn AST
         /// </summary>
         /// <returns>Either the compiled bytes of the program, or a list of error messages</returns>
-        private static Result<byte[], string[]> CreateAssembly(CSharpCompilation compilation)
+        private static byte[] CreateAssembly(CSharpCompilation compilation)
         {
             using (var ms = new MemoryStream())
             {
@@ -58,12 +75,13 @@ namespace DotNetLisp.Compilation
                 if (!emmitted.Success)
                 {
                     // create error messages
-                    return emmitted.Diagnostics
+                    var errors = emmitted.Diagnostics
                         .Where(diagnostic =>
                             diagnostic.IsWarningAsError ||
                             diagnostic.Severity == DiagnosticSeverity.Error)
-                        .Select(diagnostic => $"{diagnostic.Id}: {diagnostic.GetMessage()}")
-                        .ToArray();
+                        .Select(diagnostic => $"{diagnostic.Id}: {diagnostic.GetMessage()}");
+
+                    throw new Exception(string.Join(Environment.NewLine, errors));
                 }
 
                 // load the program and run it
@@ -72,34 +90,19 @@ namespace DotNetLisp.Compilation
             }
         }
 
-        private static MetadataReference[] AddDefaultReferences(ref CompilationUnitSyntax program)
+        private static MetadataReference[] GetDefaultReferences()
         {
-            var defaultImports = new[]
-            {
-                // TODO: maybe this project should be a PCL so we can reference our own System.Object?
-                //new { Namespace = "System", DllFile = @"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETPortable\v4.6\Profile\Profile151\System.Runtime.dll" }, // we can't use our own system.object here, since it won't work if we reference PCLs
-                new { Namespace = "System", DllFile = typeof(object).Assembly.Location },
-                new { Namespace = "System.Linq", DllFile = typeof(Enumerable).Assembly.Location },
-                new { Namespace = "System.Collections.Immutable", DllFile = typeof(ImmutableArray).Assembly.Location },
-                new { Namespace = "DotNetLisp.StandardLibrary", DllFile = typeof(Constructors).Assembly.Location },
-            };
-
             // add facade references for PCL support (like immutable collections)
             var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\Facades", "*.dll")
                 .Select(file => MetadataReference.CreateFromFile(file))
                 .ToArray();
 
-            var usings = defaultImports
-                .Select(import => CreateUsingDirective(import.Namespace))
-                .ToArray();
-            program = program.AddUsings(usings);
-
-            TranslateToCSharp(program); // for debugging purposes
-
-            MetadataReference[] references = defaultImports
-                .Select(import => MetadataReference.CreateFromFile(import.DllFile))
+            MetadataReference[] references = DefaultImports
+                .Select(import => MetadataReference.CreateFromFile(import.Value.Location))
                 .Union(facades)
+                .Distinct()
                 .ToArray();
+
             return references;
         }
 

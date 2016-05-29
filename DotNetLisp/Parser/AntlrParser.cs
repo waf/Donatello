@@ -14,17 +14,17 @@ namespace DotNetLisp.Parser
         /// <summary>
         /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST
         /// </summary>
-        public static CompilationUnitSyntax Parse(string input, string namespaceName, string className, string mainMethodName)
+        public static CompilationUnitSyntax Parse(string input, string namespaceName, string className, string mainMethodName = null)
         {
             var visitor = new ParseExpressionVisitor(namespaceName, className, mainMethodName);
 
             using (var stream = new StringReader(input))
             {
-                AntlrInputStream inputStream = new AntlrInputStream(stream);
+                var inputStream = new AntlrInputStream(stream);
 
-                DotNetLispLexer lexer = new DotNetLispLexer(inputStream);
-                CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-                DotNetLispParser parser = new DotNetLispParser(commonTokenStream);
+                var lexer = new DotNetLispLexer(inputStream);
+                var commonTokenStream = new CommonTokenStream(lexer);
+                var parser = new DotNetLispParser(commonTokenStream);
                 var file = parser.file();
 
                 return visitor.Visit(file) as CompilationUnitSyntax;

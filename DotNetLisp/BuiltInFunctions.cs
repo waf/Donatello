@@ -1,37 +1,48 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Antlr4.Runtime.Tree;
+using DotNetLisp.StandardLibrary;
+using DotNetLisp.Util;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime.Tree;
-using Microsoft.CodeAnalysis;
-using DotNetLisp.StandardLibrary;
-using DotNetLisp.Util;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace DotNetLisp
 {
     internal static class BuiltInFunctions
     {
+        delegate CSharpSyntaxNode BuiltIn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children);
+
+        static readonly IDictionary<string, BuiltIn> BuiltIns = new Dictionary<string, BuiltIn>
+        {
+            { "def", Def },
+            { "defn", Defn },
+            { "fn", Fn },
+            { "if", If },
+            { "let", Let },
+            { "use", Use },
+            { "inherit", Inherit },
+            { "+", Add }
+        };
+
         internal static CSharpSyntaxNode Run(
             IParseTreeVisitor<CSharpSyntaxNode> visitor,
             IList<IParseTree> children)
         {
-            switch (children[0].GetText())
+            string name = children[0].GetText();
+            BuiltIn builtIn = null;
+            if(!BuiltIns.TryGetValue(name, out builtIn))
             {
-                case "def": return Def(visitor, children);
-                case "defn": return Defn(visitor, children);
-                case "fn": return Fn(visitor, children);
-                case "if": return If(visitor, children);
-                case "let": return Let(visitor, children);
-                case "use": return Use(visitor, children);
-                case "+": return Add(visitor, children);
-                default:
-                    return null;
+                return null;
             }
+            return builtIn(visitor, children);
+        }
+
+        private static CSharpSyntaxNode Inherit(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var baseType = children[1].GetText();
+            return SimpleBaseType(IdentifierName(baseType));
         }
 
         private static CSharpSyntaxNode Fn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
