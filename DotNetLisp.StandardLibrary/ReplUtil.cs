@@ -9,26 +9,26 @@ namespace DotNetLisp.StandardLibrary
 {
     public static class ReplUtil
     {
-        public static void Print<T>(Func<T> func)
+        public static string Print<T>(Func<T> func)
         {
-            Print((dynamic)func());
+            return Print((dynamic)func());
         }
 
-        public static void Print(Action func)
+        public static string Print(Action func)
         {
             func();
-            Console.WriteLine("void");
+            return "void";
         }
 
-        public static void Print(object obj)
+        public static string Print(object obj)
         {
             if(obj == null)
             {
-                Console.WriteLine("null");
+                return "null";
             }
             string output = JsonConvert.SerializeObject(obj, Formatting.Indented);
             string type = obj.GetType().Name;
-            Console.WriteLine($"{output} :{type}");
+            return $"{output} :{type}";
         }
     }
 }

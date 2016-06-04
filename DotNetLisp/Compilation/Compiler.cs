@@ -31,7 +31,7 @@ namespace DotNetLisp.Compilation
             { "System", typeof(object).Assembly },
             { "System.Linq", typeof(Enumerable).Assembly },
             { "System.Collections.Immutable", typeof(ImmutableArray).Assembly },
-            { "DotNetLisp.StandardLibrary", typeof(ReplUtil).Assembly }
+            { "DotNetLisp.StandardLibrary", typeof(Constructors).Assembly }
         };
 
         [Conditional("DEBUG")]

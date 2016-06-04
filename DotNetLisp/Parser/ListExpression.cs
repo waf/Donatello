@@ -35,8 +35,16 @@ namespace DotNetLisp.Parser
                 .Select(child => this.Visit(child) as ExpressionSyntax)
                 .ToArray();
 
-            var arguments = ArgumentList(SeparatedList(elements.Skip(1).Select(Argument)));
-            return InvocationExpression(elements.First(), arguments);
+            var access = elements[0] as MemberAccessExpressionSyntax;
+            if(access != null && access.Expression.GetText().ToString() == string.Empty)
+            {
+                var instanceInvocation = access.WithExpression(elements[1]);
+                var instanceArgs = ArgumentList(SeparatedList(elements.Skip(2).Select(Argument)));
+                return InvocationExpression(instanceInvocation, instanceArgs);
+            }
+            var staticInvocation = elements[0];
+            var staticArgs = ArgumentList(SeparatedList(elements.Skip(1).Select(Argument)));
+            return InvocationExpression(staticInvocation, staticArgs);
         }
     }
 }

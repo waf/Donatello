@@ -17,7 +17,8 @@ namespace DotNetLisp.Parser
         static IDictionary<string, CSharpSyntaxNode> BuiltIns = new Dictionary<string, CSharpSyntaxNode>
         {
             { "true", LiteralExpression(SyntaxKind.TrueLiteralExpression) },
-            { "false", LiteralExpression(SyntaxKind.FalseLiteralExpression) }
+            { "false", LiteralExpression(SyntaxKind.FalseLiteralExpression) },
+            { "this", ThisExpression()}
         };
 
         public override CSharpSyntaxNode VisitSymbol([NotNull] DotNetLispParser.SymbolContext context)

@@ -14,12 +14,13 @@ namespace DotNetLisp.Tests
         public void Inherit()
         {
             const string code = @"
-                (inherit IComparable)
-                (defn CompareTo [obj:Object] :int
-                    0)
+                (inherit IComparable<Runner>)
+                (defn GetX [] :int 5)
+                (defn CompareTo [obj:Runner] :int
+                    (.CompareTo (.GetX obj) (.GetX this)))
+
+                (def example:IComparable<Runner> (new Runner))
             ";
-
-
 
         }
     }

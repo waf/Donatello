@@ -23,7 +23,8 @@ namespace DotNetLisp
             { "let", Let },
             { "use", Use },
             { "inherit", Inherit },
-            { "+", Add }
+            { "+", Add },
+            { "new", New },
         };
 
         internal static CSharpSyntaxNode Run(
@@ -39,10 +40,20 @@ namespace DotNetLisp
             return builtIn(visitor, children);
         }
 
+        private static CSharpSyntaxNode New(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var type = children[1].GetText();
+            var constructorParameters = children
+                .Skip(2)
+                .Select(child => Argument(visitor.Visit(child) as ExpressionSyntax));
+            return ObjectCreationExpression(IdentifierName(type))
+                .WithArgumentList(ArgumentList(SeparatedList(constructorParameters)));
+        }
+
         private static CSharpSyntaxNode Inherit(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
             var baseType = children[1].GetText();
-            return SimpleBaseType(IdentifierName(baseType));
+            return SimpleBaseType(ParseTypeName(baseType));
         }
 
         private static CSharpSyntaxNode Fn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)

@@ -109,5 +109,16 @@ namespace DotNetLisp.Tests
                 Assert.Equal(5, computed[3]);
             });
         }
+
+        [Fact]
+        public void InstanceMethods()
+        {
+            const string code =
+                @"
+                    (.Replace ""Hello World"" ""World"" ""Universe"")
+                ";
+            AssertOutput(code, "Hello Universe");
+
+        }
     }
 }

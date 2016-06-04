@@ -14,26 +14,7 @@ namespace DotNetLisp.Tests
     public class ReplTests
     {
 
-        [Fact]
-        public void ReplEvaluation()
-        {
-            var expectedOutputAndInput = new string[][] {
-                new[] { "> ",      @"(def a:int 5)"},
-                new[] { "> ",      @"(def b:int 7)"},
-                new[] { "> ",      @"(defn mystery [x:int] :int (+ x a b))"},
-                new[] { "> ",      @"(mystery 8)"},
-                new[] { "20 :Int32\r\n",  null },
-
-                new[] { "> ",      @"(def b:int 8)"},
-                new[] { "> ",      @"(def c:int 10)"},
-                new[] { "> ",      @"(defn mystery [x:int] :int (+ x a b c))"},
-                new[] { "> ",      @"(mystery 2)"},
-                new[] { "25 :Int32\r\n",  null },
-                new[] { "> ",      @"exit"}
-            };
-            AssertReplSession(expectedOutputAndInput);
-        }
-
+        /*
         [Fact]
         public void ReplEvaluation_ParseError_CanContinue()
         {
@@ -63,5 +44,6 @@ namespace DotNetLisp.Tests
 
             Assert.Equal(expectedOutput, output.ToString());
         }
+        */
     }
 }
