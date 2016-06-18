@@ -79,14 +79,14 @@ Donatello also supports lambda expressions. Here's the full syntax. Note that th
 
 ```clojure
 (.Select [1 2 3] (fn [elem] (+ elem 1)))
-[2 3 4] :WhereSelectArrayIterator`2
+[2 3 4] :WhereSelectArrayIterator<int, int>
 ```
 
 The above also demonstrates calling .NET methods. See the .NET Interop section below for more detail. In addition to the full syntax there is a shorthand syntax. A shorthand lambda is enclosed in `\()` and uses positional parameters (`^0`, `^1`, etc):
 
 ```clojure
 (.Select [1 2 3] \(+ ^0 1))
-[2 3 4] :WhereSelectArrayIterator`2
+[2 3 4] :WhereSelectArrayIterator<int, int>
 ```
 
 ## .NET Interop:
