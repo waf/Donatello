@@ -46,7 +46,9 @@ namespace Donatello.Parser
 
         private CSharpSyntaxNode BuildInvocation(MemberAccessExpressionSyntax first, ExpressionSyntax[] rest)
         {
-            return first.WithExpression(rest[0]);
+            return (first.Expression.ToString() == string.Empty) ?
+                first.WithExpression(rest[0]) :
+                BuildInvocation(first as ExpressionSyntax, rest);
         }
 
         private CSharpSyntaxNode BuildInvocation(InvocationExpressionSyntax first, ExpressionSyntax[] rest)
