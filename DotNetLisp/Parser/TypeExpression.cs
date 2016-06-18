@@ -17,7 +17,9 @@ namespace DotNetLisp.Parser
         public override CSharpSyntaxNode VisitType([NotNull] DotNetLispParser.TypeContext context)
         {
             var type = context.GetText().Substring(1); // given `:int`, we want `int`
-            return ParseTypeName(type);
+            return type == "void" ?
+                PredefinedType(Token(SyntaxKind.VoidKeyword)) :
+                ParseTypeName(type);
         }
     }
 }

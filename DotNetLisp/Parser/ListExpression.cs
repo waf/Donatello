@@ -36,11 +36,19 @@ namespace DotNetLisp.Parser
                 .ToArray();
 
             var access = elements[0] as MemberAccessExpressionSyntax;
-            if(access != null && access.Expression.GetText().ToString() == string.Empty)
+            if(access != null)
             {
-                var instanceInvocation = access.WithExpression(elements[1]);
-                var instanceArgs = ArgumentList(SeparatedList(elements.Skip(2).Select(Argument)));
-                return InvocationExpression(instanceInvocation, instanceArgs);
+                string invocationType = access.Expression.GetText().ToString();
+                if(invocationType == MethodInvocation)
+                {
+                    var instanceInvocation = access.WithExpression(elements[1]);
+                    var instanceArgs = ArgumentList(SeparatedList(elements.Skip(2).Select(Argument)));
+                    return InvocationExpression(instanceInvocation, instanceArgs);
+                }
+                if(invocationType == PropertyAccess)
+                {
+                    return access.WithExpression(elements[1]);
+                }
             }
             var staticInvocation = elements[0];
             var staticArgs = ArgumentList(SeparatedList(elements.Skip(1).Select(Argument)));

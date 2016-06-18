@@ -35,33 +35,33 @@ namespace DotNetLisp.Parser
         {
             var children = context.form().Select(f => this.Visit(f)).ToArray();
             var usings = children.OfType<UsingDirectiveSyntax>().ToArray();
-            var baseTypes = children.OfType<SimpleBaseTypeSyntax>().ToArray();
+            var baseTypes = children.OfType<BaseListSyntax>().SingleOrDefault();
 
             // the existance of base types means that the user is doing some .NET interop
-            bool hasBaseTypes = baseTypes.Any();
+            bool isInstance = baseTypes != null;
 
             var expressions = children.OfType<ExpressionSyntax>().ToArray();
             var fields = children.OfType<FieldDeclarationSyntax>()
                 .Select(field => field.AddModifiers(PublicStaticReadonly))
                 .ToArray();
             var methods = children.OfType<MethodDeclarationSyntax>()
-                .Select(method => method.AddModifiers(hasBaseTypes ? Public : PublicStatic) as MemberDeclarationSyntax)
+                .Select(method => method.AddModifiers(isInstance ? Public : PublicStatic) as MemberDeclarationSyntax)
                 .ToList();
 
             if(expressions.Any())
             {
                 // embed any free-standing expressions in the constructor
                 var entryPoint = MainMethodName == null ?
-                    CreateConstructor(expressions, hasBaseTypes) :
+                    CreateConstructor(expressions, isInstance) :
                     CreateMethod(expressions, MainMethodName);
                 methods.Add(entryPoint);
             }
 
             var classDeclaration = ClassDeclaration(ClassName);
 
-            if(hasBaseTypes)
+            if(isInstance)
             {
-                classDeclaration = classDeclaration.AddBaseListTypes(baseTypes);
+                classDeclaration = classDeclaration.WithBaseList(baseTypes);
             }
                 
             var program = CompilationUnit()
@@ -70,7 +70,7 @@ namespace DotNetLisp.Parser
                     .AddMembers(classDeclaration
                         .AddMembers(fields)
                         .AddMembers(methods.ToArray())
-                        .AddModifiers(hasBaseTypes ? Public : PublicStatic)));
+                        .AddModifiers(isInstance ? Public : PublicStatic)));
 
             return program;
         }

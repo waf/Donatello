@@ -22,9 +22,9 @@ namespace DotNetLisp
             { "if", If },
             { "let", Let },
             { "use", Use },
-            { "inherit", Inherit },
+            { "instance", Instance },
             { "+", Add },
-            { "new", New },
+            { "new", New }
         };
 
         internal static CSharpSyntaxNode Run(
@@ -50,10 +50,13 @@ namespace DotNetLisp
                 .WithArgumentList(ArgumentList(SeparatedList(constructorParameters)));
         }
 
-        private static CSharpSyntaxNode Inherit(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        private static CSharpSyntaxNode Instance(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
-            var baseType = children[1].GetText();
-            return SimpleBaseType(ParseTypeName(baseType));
+            var baseTypesAndInterfaces = children
+                .Skip(1)
+                .Select(child => SimpleBaseType(ParseTypeName(child.GetText())))
+                .ToArray();
+            return BaseList(SeparatedList<BaseTypeSyntax>(baseTypesAndInterfaces));
         }
 
         private static CSharpSyntaxNode Fn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
@@ -155,13 +158,19 @@ namespace DotNetLisp
             int finalElement = statements.Length - 1;
             var body = statements
                 .Select((expression, index) =>
-                            index == finalElement ?
+                            index == finalElement && !IsVoid(returnType) ?
                             ReturnStatement(expression as ExpressionSyntax) :
                             ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
                 .ToArray();
             return MethodDeclaration(returnType, methodName)
                     .WithParameterList(ParameterList(SeparatedList(parameterList)))
                     .WithBody(Block(body));
+        }
+
+        private static bool IsVoid(TypeSyntax returnType)
+        {
+            var voidType = returnType as PredefinedTypeSyntax;
+            return voidType != null && voidType.Keyword.Kind() == SyntaxKind.VoidKeyword;
         }
 
         private static CSharpSyntaxNode If(

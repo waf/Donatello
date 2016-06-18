@@ -17,7 +17,7 @@ namespace DotNetLisp.Tests
             {
                 { Tuple.Create("UnitTest", "Aaa"), @"(Console.WriteLine ""Hello World"")" },
                 { Tuple.Create("UnitTest", ""), @"(Console.WriteLine ""Hello World"")" }
-            }, "Out", OutputType.DynamicallyLinkedLibrary);
+            }, new string[0], "Out", OutputType.DynamicallyLinkedLibrary);
         }
     }
 }

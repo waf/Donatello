@@ -26,7 +26,7 @@ namespace DotNetLisp
 
             if(options.Inputs.Any())
             {
-                CompileFile(options.Inputs.ToArray(), options.Output);
+                CompileFile(options.Inputs.ToArray(), options.References.ToArray(), options.Output);
                 return;
             }
 
@@ -34,7 +34,7 @@ namespace DotNetLisp
             repl.Run();
         }
 
-        private static void CompileFile(string[] inputFile, string outputFilename)
+        private static void CompileFile(string[] inputFile, string[] references, string outputFilename)
         {
             var fileContent = (from file in inputFile
                                select new
@@ -48,15 +48,16 @@ namespace DotNetLisp
                                     unit => unit.Content);
             string assemblyName = Path.GetFileNameWithoutExtension(outputFilename);
             string extension = Path.GetExtension(outputFilename);
-            var outputKind = extension == "dll" ? OutputType.DynamicallyLinkedLibrary :
-                             extension == "exe" ? OutputType.ConsoleApplication :
+            var outputKind = extension == ".dll" ? OutputType.DynamicallyLinkedLibrary :
+                             extension == ".exe" ? OutputType.ConsoleApplication :
                              Utility.Throw<OutputType>(new Exception("unknown extension"));
-            var bytes = CompileContent(fileContent, assemblyName, outputKind);
+            var bytes = CompileContent(fileContent, references, assemblyName, outputKind);
             File.WriteAllBytes(outputFilename, bytes);
         }
 
         public static byte[] CompileContent(
             IDictionary<Tuple<string, string>, string> files,
+            IList<string> references,
             string assemblyName,
             OutputType outputKind)
         {
@@ -64,7 +65,7 @@ namespace DotNetLisp
                 .Select(file => AntlrParser.Parse(file.Value, file.Key.Item1, file.Key.Item2))
                 .ToArray();
 
-            var assembly = Compiler.Compile(assemblyName, outputKind, compilationUnit);
+            var assembly = Compiler.Compile(assemblyName, references, outputKind, compilationUnit);
 
             return assembly;
         }
@@ -76,7 +77,7 @@ namespace DotNetLisp
             const string methodName = "Run";
 
             var result = AntlrParser.Parse(program, namespaceName, className, methodName);
-            var bytes = Compiler.Compile(namespaceName, OutputType.DynamicallyLinkedLibrary, result);
+            var bytes = Compiler.Compile(namespaceName, new string[0], OutputType.DynamicallyLinkedLibrary, result);
 
             return AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName);
         }
@@ -86,8 +87,11 @@ namespace DotNetLisp
             [OptionList('i', "input", HelpText = "A list of input files")]
             public IList<string> Inputs { get; set; } = new List<string>();
 
-            [Option('o', "output", DefaultValue = "Out.dll", HelpText = "The output DLL name")]
+            [Option('o', "output", DefaultValue = "Out.exe", HelpText = "The output DLL name")]
             public string Output { get; set; }
+
+            [OptionList('r', "references", HelpText = "The DLLs to reference")]
+            public IList<string> References { get; set; } = new List<string>();
 
             [HelpOption]
             public string GetUsage()

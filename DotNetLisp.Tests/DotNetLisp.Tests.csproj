@@ -87,7 +87,7 @@
     <Compile Include="CollectionTests.cs" />
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="FunctionTests.cs" />
-    <Compile Include="InheritTests.cs" />
+    <Compile Include="InstanceTests.cs" />
     <Compile Include="LambdaTests.cs" />
     <Compile Include="LetTests.cs" />
     <Compile Include="MultipleFileTests.cs" />

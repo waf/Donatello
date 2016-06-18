@@ -14,6 +14,9 @@ namespace DotNetLisp.Parser
 {
     public partial class ParseExpressionVisitor : DotNetLispBaseVisitor<CSharpSyntaxNode>
     {
+        private const string MethodInvocation = "METHOD_INVOCATION";
+        private const string PropertyAccess = "PROPERTY_ACCESS";
+
         static IDictionary<string, CSharpSyntaxNode> BuiltIns = new Dictionary<string, CSharpSyntaxNode>
         {
             { "true", LiteralExpression(SyntaxKind.TrueLiteralExpression) },
@@ -31,14 +34,25 @@ namespace DotNetLisp.Parser
                 return builtIn;
             }
 
-            var parts = name.Split('.');
+            if (name[0] == '-')
+            {
+                return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(PropertyAccess),
+                    IdentifierName(name.Substring(1)));
+            }
+            if (name[0] == '.')
+            {
+                return MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(MethodInvocation),
+                    IdentifierName(name.Substring(1)));
+            }
 
+            var parts = name.Split('.');
             ExpressionSyntax simpleAccess = IdentifierName(parts.First());
             if(parts.Length == 1)
             {
                 return simpleAccess;
             }
-
             var chainedAccess = parts.Skip(1).Aggregate(simpleAccess, 
                 (access, token) => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, access, IdentifierName(token)));
 

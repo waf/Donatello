@@ -25,6 +25,7 @@ namespace DotNetLisp.Repl
             // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
             Task.Run(() => Compiler.Compile(
                 NamespaceName,
+                new string[0],
                 OutputType.DynamicallyLinkedLibrary,
                 AntlrParser.Parse(@"""DotNetLisp""", NamespaceName, ClassName, RunMethod)));
 
@@ -44,7 +45,7 @@ namespace DotNetLisp.Repl
                     var program = AntlrParser.Parse(text, NamespaceName, ClassName);
                     program = CombineWithPreviousProgram(previousProgram, program);
                     program = WrapLastLineWithPrintStatement(program);
-                    var result = Compiler.Compile(NamespaceName, OutputType.DynamicallyLinkedLibrary, program);
+                    var result = Compiler.Compile(NamespaceName, new string[0], OutputType.DynamicallyLinkedLibrary, program);
                     AssemblyRunner.RunClassConstructor(result, NamespaceName, ClassName); //print
 
                     previousProgram = program;

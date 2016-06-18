@@ -43,7 +43,7 @@ namespace DotNetLisp.Compilation
             return;
         }
 
-        public static byte[] Compile(string assemblyName, OutputType outputKind, params CompilationUnitSyntax[] programs)
+        public static byte[] Compile(string assemblyName, IList<string> references, OutputType outputKind, params CompilationUnitSyntax[] programs)
         {
             var trees = programs.Select(program =>
             {
@@ -56,7 +56,7 @@ namespace DotNetLisp.Compilation
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: trees,
-                references: GetDefaultReferences(),
+                references: GetReferences(references),
                 options: new CSharpCompilationOptions((OutputKind)outputKind));
 
             return CreateAssembly(compilation);
@@ -90,20 +90,21 @@ namespace DotNetLisp.Compilation
             }
         }
 
-        private static MetadataReference[] GetDefaultReferences()
+        private static MetadataReference[] GetReferences(IList<string> references)
         {
             // add facade references for PCL support (like immutable collections)
             var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\Facades", "*.dll")
-                .Select(file => MetadataReference.CreateFromFile(file))
                 .ToArray();
 
-            MetadataReference[] references = DefaultImports
-                .Select(import => MetadataReference.CreateFromFile(import.Value.Location))
+            MetadataReference[] allReferences = DefaultImports
+                .Select(import => import.Value.Location)
+                .Union(references)
                 .Union(facades)
+                .Select(dll => MetadataReference.CreateFromFile(dll.Trim()))
                 .Distinct()
                 .ToArray();
 
-            return references;
+            return allReferences;
         }
 
         private static UsingDirectiveSyntax CreateUsingDirective(string usingName)
