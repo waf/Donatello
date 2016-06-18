@@ -152,6 +152,26 @@ public interface IDotNetLispListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitNumber([NotNull] DotNetLispParser.NumberContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.methodAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMethodAccess([NotNull] DotNetLispParser.MethodAccessContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.methodAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMethodAccess([NotNull] DotNetLispParser.MethodAccessContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.fieldAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterFieldAccess([NotNull] DotNetLispParser.FieldAccessContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.fieldAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitFieldAccess([NotNull] DotNetLispParser.FieldAccessContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.symbol"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

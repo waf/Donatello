@@ -26,6 +26,8 @@ lambda: '\\(' forms ')';
 literal
     : string
     | number
+    | methodAccess
+    | fieldAccess
     | symbol
     | lambdaParameter
 	| type
@@ -33,6 +35,8 @@ literal
 
 string: STRING;
 number: LONG;
+methodAccess: METHOD_ACCESS;
+fieldAccess: FIELD_ACCESS;
 symbol: SYMBOL;
 type: TYPE;
 
@@ -41,7 +45,9 @@ type: TYPE;
 
 STRING: '"' ( ~'"' | '\\' '"' )* '"' ;
 LONG: '-'? [0-9]+[lL]?;
-SYMBOL: ('A'..'Z' | 'a'..'z' | '0'..'9' | '+' | '.' | '-' | '<' | ',' | ', ' | '>' | '*')+;
+METHOD_ACCESS: '.' SYMBOL;
+FIELD_ACCESS: '-' SYMBOL;
+SYMBOL: ('A'..'Z' | 'a'..'z' | '0'..'9' | '+' | '.' | '<' | ',' | ', ' | '>' | '*')+;
 TYPE: ':' ('A'..'Z' | 'a'..'z' | '<' | ',' | ', ' | '>')+; //TODO: need to tighten this up.
 
 // Discard

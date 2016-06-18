@@ -35,24 +35,27 @@ namespace DotNetLisp.Parser
                 .Select(child => this.Visit(child) as ExpressionSyntax)
                 .ToArray();
 
-            var access = elements[0] as MemberAccessExpressionSyntax;
-            if(access != null)
-            {
-                string invocationType = access.Expression.GetText().ToString();
-                if(invocationType == MethodInvocation)
-                {
-                    var instanceInvocation = access.WithExpression(elements[1]);
-                    var instanceArgs = ArgumentList(SeparatedList(elements.Skip(2).Select(Argument)));
-                    return InvocationExpression(instanceInvocation, instanceArgs);
-                }
-                if(invocationType == PropertyAccess)
-                {
-                    return access.WithExpression(elements[1]);
-                }
-            }
-            var staticInvocation = elements[0];
-            var staticArgs = ArgumentList(SeparatedList(elements.Skip(1).Select(Argument)));
-            return InvocationExpression(staticInvocation, staticArgs);
+            return BuildInvocation((dynamic)elements[0], elements.Skip(1).ToArray());
+        }
+
+        private CSharpSyntaxNode BuildInvocation(ExpressionSyntax first, ExpressionSyntax[] rest)
+        {
+            var staticArgs = ArgumentList(SeparatedList(rest.Select(Argument)));
+            return InvocationExpression(first, staticArgs);
+        }
+
+        private CSharpSyntaxNode BuildInvocation(MemberAccessExpressionSyntax first, ExpressionSyntax[] rest)
+        {
+            return first.WithExpression(rest[0]);
+        }
+
+        private CSharpSyntaxNode BuildInvocation(InvocationExpressionSyntax first, ExpressionSyntax[] rest)
+        {
+            var instance = rest[0];
+            var methodArguments = rest.Skip(1).Select(Argument).ToArray();
+            return first
+                .WithExpression((first.Expression as MemberAccessExpressionSyntax).WithExpression(instance))
+                .WithArgumentList(ArgumentList(SeparatedList(methodArguments)));
         }
     }
 }

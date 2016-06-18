@@ -180,6 +180,30 @@ public partial class DotNetLispBaseListener : IDotNetLispListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitNumber([NotNull] DotNetLispParser.NumberContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.methodAccess"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMethodAccess([NotNull] DotNetLispParser.MethodAccessContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.methodAccess"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMethodAccess([NotNull] DotNetLispParser.MethodAccessContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="DotNetLispParser.fieldAccess"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterFieldAccess([NotNull] DotNetLispParser.FieldAccessContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="DotNetLispParser.fieldAccess"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitFieldAccess([NotNull] DotNetLispParser.FieldAccessContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="DotNetLispParser.symbol"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

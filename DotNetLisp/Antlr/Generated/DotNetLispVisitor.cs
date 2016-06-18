@@ -105,6 +105,18 @@ public interface IDotNetLispVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitNumber([NotNull] DotNetLispParser.NumberContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.methodAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMethodAccess([NotNull] DotNetLispParser.MethodAccessContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DotNetLispParser.fieldAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFieldAccess([NotNull] DotNetLispParser.FieldAccessContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="DotNetLispParser.symbol"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
