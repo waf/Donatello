@@ -23,8 +23,11 @@ namespace Donatello
             { "let", Let },
             { "use", Use },
             { "instance", Instance },
+            { "new", New },
             { "+", Add },
-            { "new", New }
+            { "-", Subtract },
+            { "*", Multiply },
+            { "/", Divide },
         };
 
         internal static CSharpSyntaxNode Run(
@@ -202,8 +205,33 @@ namespace Donatello
             IList<IParseTree> children)
         {
             // (+ a b c ...)
-            var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
-            return values.Aggregate((a, b) => BinaryExpression(SyntaxKind.AddExpression, a, b));
+            return MathOperation(SyntaxKind.AddExpression, visitor, children);
         }
+
+        private static CSharpSyntaxNode Subtract(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            // (- a b c ...)
+            return MathOperation(SyntaxKind.SubtractExpression, visitor, children);
+        }
+
+        private static CSharpSyntaxNode Multiply(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            // (* a b c ...)
+            return MathOperation(SyntaxKind.MultiplyExpression, visitor, children);
+        }
+
+        private static CSharpSyntaxNode Divide(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            // (/ a b c ...)
+            return MathOperation(SyntaxKind.DivideExpression, visitor, children);
+        }
+
+        private static CSharpSyntaxNode MathOperation(SyntaxKind operation, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            // (/ a b c ...)
+            var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
+            return values.Aggregate((a, b) => BinaryExpression(operation, a, b));
+        }
+
     }
 }

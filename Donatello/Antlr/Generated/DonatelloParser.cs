@@ -36,7 +36,7 @@ public partial class DonatelloParser : Parser {
 	public const int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, LAMBDA_PARAMETER=9, 
 		STRING=10, LONG=11, METHOD_ACCESS=12, FIELD_ACCESS=13, SYMBOL=14, TYPE=15, 
-		TRASH=16;
+		MATH_OPERATION=16, TRASH=17;
 	public const int
 		RULE_file = 0, RULE_forms = 1, RULE_form = 2, RULE_list = 3, RULE_dictionary = 4, 
 		RULE_set = 5, RULE_vector = 6, RULE_lambdaParameter = 7, RULE_lambda = 8, 
@@ -53,7 +53,8 @@ public partial class DonatelloParser : Parser {
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, null, null, null, "LAMBDA_PARAMETER", 
-		"STRING", "LONG", "METHOD_ACCESS", "FIELD_ACCESS", "SYMBOL", "TYPE", "TRASH"
+		"STRING", "LONG", "METHOD_ACCESS", "FIELD_ACCESS", "SYMBOL", "TYPE", "MATH_OPERATION", 
+		"TRASH"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -998,7 +999,7 @@ public partial class DonatelloParser : Parser {
 	private static string _serializeATN()
 	{
 	    StringBuilder sb = new StringBuilder();
-	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\x12");
+	    sb.Append("\x3\x430\xD6D1\x8206\xAD2D\x4417\xAEF1\x8D80\xAADD\x3\x13");
 		sb.Append("q\x4\x2\t\x2\x4\x3\t\x3\x4\x4\t\x4\x4\x5\t\x5\x4\x6\t\x6\x4");
 		sb.Append("\a\t\a\x4\b\t\b\x4\t\t\t\x4\n\t\n\x4\v\t\v\x4\f\t\f\x4\r\t\r");
 		sb.Append("\x4\xE\t\xE\x4\xF\t\xF\x4\x10\t\x10\x4\x11\t\x11\x3\x2\a\x2");
