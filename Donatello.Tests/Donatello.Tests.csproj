@@ -83,7 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdditionTests.cs" />
+    <Compile Include="MathTests.cs" />
     <Compile Include="CollectionTests.cs" />
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="FunctionTests.cs" />

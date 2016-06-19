@@ -28,6 +28,7 @@ namespace Donatello
             { "-", Subtract },
             { "*", Multiply },
             { "/", Divide },
+            { "<", LessThan },
         };
 
         internal static CSharpSyntaxNode Run(
@@ -230,6 +231,47 @@ namespace Donatello
         {
             var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
             return values.Aggregate((a, b) => BinaryExpression(operation, a, b));
+        }
+
+        private static CSharpSyntaxNode LessThan(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax).ToArray();
+
+            // optimize for common scenario
+            if(values.Length == 2)
+            {
+                return BinaryExpression(SyntaxKind.LessThanExpression, values[0], values[1]);
+            }
+
+            // create a var declaration for each operand.
+            var variableNames = Enumerable.Range(1, int.MaxValue)
+                                 .Select(n => "operand" + n)
+                                 .Take(values.Length)
+                                 .ToArray();
+            StatementSyntax[] variableDeclarations = variableNames
+                .Zip(values, (variable, value) =>
+                    LocalDeclarationStatement(
+                        VariableDeclaration(IdentifierName("var"))
+                            .WithVariables(SingletonSeparatedList(
+                                VariableDeclarator(Identifier(variable))
+                                .WithInitializer(EqualsValueClause(value))))))
+                .ToArray();
+
+            StatementSyntax andStatement = ReturnStatement(
+                // pairwise list visit to create [operand1 < operand2, operand2 < operand3, operand3 < operand4]
+                variableNames.Zip(variableNames.Skip(1),
+                    (a, b) => BinaryExpression(SyntaxKind.LessThanExpression, IdentifierName(a), IdentifierName(b)))
+                // 'and' the comparisons together
+                .Aggregate((a, b) => BinaryExpression(SyntaxKind.LogicalAndExpression, a, b)));
+
+            // execute let expression
+            var lambda = ParenthesizedLambdaExpression(Block(variableDeclarations.Union(new[] { andStatement })));
+            return InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName(nameof(Constructors)),
+                        IdentifierName(nameof(Constructors.CreateLet))))
+                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))));
         }
 
     }
