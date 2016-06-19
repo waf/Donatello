@@ -228,7 +228,6 @@ namespace Donatello
 
         private static CSharpSyntaxNode MathOperation(SyntaxKind operation, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
-            // (/ a b c ...)
             var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
             return values.Aggregate((a, b) => BinaryExpression(operation, a, b));
         }

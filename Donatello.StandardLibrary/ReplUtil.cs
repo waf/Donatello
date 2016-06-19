@@ -28,7 +28,7 @@ namespace Donatello.StandardLibrary
             {
                 Console.WriteLine("null");
             }
-            string output = JsonConvert.SerializeObject(obj, Formatting.Indented);
+            string output = JsonConvert.SerializeObject(obj, Formatting.None);
             string type = PrettyPrintTypeName(obj.GetType());
             Console.WriteLine($"{output} :{type}");
         }
