@@ -24,11 +24,15 @@ namespace Donatello
             { "use", Use },
             { "instance", Instance },
             { "new", New },
-            { "+", Add },
-            { "-", Subtract },
-            { "*", Multiply },
-            { "/", Divide },
-            { "<", LessThan },
+            { "+", (visitor, children) => MathOperation(SyntaxKind.AddExpression, visitor, children) },
+            { "-", (visitor, children) => MathOperation(SyntaxKind.SubtractExpression, visitor, children) },
+            { "*", (visitor, children) => MathOperation(SyntaxKind.MultiplyExpression, visitor, children) },
+            { "/", (visitor, children) => MathOperation(SyntaxKind.DivideExpression, visitor, children) },
+            { "<", (visitor, children) => EqualityOperation(SyntaxKind.LessThanExpression, visitor, children) },
+            { ">", (visitor, children) => EqualityOperation(SyntaxKind.GreaterThanExpression, visitor, children) },
+            { "<=", (visitor, children) => EqualityOperation(SyntaxKind.LessThanOrEqualExpression, visitor, children) },
+            { ">=", (visitor, children) => EqualityOperation(SyntaxKind.GreaterThanOrEqualExpression, visitor, children) },
+            { "=", (visitor, children) => EqualityOperation(SyntaxKind.EqualsExpression, visitor, children) },
         };
 
         internal static CSharpSyntaxNode Run(
@@ -201,46 +205,20 @@ namespace Donatello
                     VariableDeclarator(name).WithInitializer(EqualsValueClause(value)))));
         }
 
-        private static CSharpSyntaxNode Add(
-            IParseTreeVisitor<CSharpSyntaxNode> visitor,
-            IList<IParseTree> children)
-        {
-            // (+ a b c ...)
-            return MathOperation(SyntaxKind.AddExpression, visitor, children);
-        }
-
-        private static CSharpSyntaxNode Subtract(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            // (- a b c ...)
-            return MathOperation(SyntaxKind.SubtractExpression, visitor, children);
-        }
-
-        private static CSharpSyntaxNode Multiply(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            // (* a b c ...)
-            return MathOperation(SyntaxKind.MultiplyExpression, visitor, children);
-        }
-
-        private static CSharpSyntaxNode Divide(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            // (/ a b c ...)
-            return MathOperation(SyntaxKind.DivideExpression, visitor, children);
-        }
-
         private static CSharpSyntaxNode MathOperation(SyntaxKind operation, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
             var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
             return values.Aggregate((a, b) => BinaryExpression(operation, a, b));
         }
 
-        private static CSharpSyntaxNode LessThan(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        private static CSharpSyntaxNode EqualityOperation(SyntaxKind equalityExpression, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
             var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax).ToArray();
 
             // optimize for common scenario
             if(values.Length == 2)
             {
-                return BinaryExpression(SyntaxKind.LessThanExpression, values[0], values[1]);
+                return BinaryExpression(equalityExpression, values[0], values[1]);
             }
 
             // create a var declaration for each operand.
@@ -260,7 +238,7 @@ namespace Donatello
             StatementSyntax andStatement = ReturnStatement(
                 // pairwise list visit to create [operand1 < operand2, operand2 < operand3, operand3 < operand4]
                 variableNames.Zip(variableNames.Skip(1),
-                    (a, b) => BinaryExpression(SyntaxKind.LessThanExpression, IdentifierName(a), IdentifierName(b)))
+                    (a, b) => BinaryExpression(equalityExpression, IdentifierName(a), IdentifierName(b)))
                 // 'and' the comparisons together
                 .Aggregate((a, b) => BinaryExpression(SyntaxKind.LogicalAndExpression, a, b)));
 
