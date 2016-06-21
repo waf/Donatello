@@ -44,9 +44,9 @@ Top-level variable and function definitions are not type inferred. However, loca
 Conditionals:
 
 ```clojure
-(if true 
-    "Hello"
-    "Goodbye")
+(if (< 1 x 20) // if x is between 1 and 20 
+    "in bounds"
+    "out of bounds")
 ```
 
 ## Data structures
