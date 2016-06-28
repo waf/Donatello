@@ -2,7 +2,7 @@
 
 Donatello is a statically-typed, lisp-like language for the .NET platform. You get the power of the .NET platform, with a nice clean lisp syntax.
 
-At this point, Donatello is just an experimental syntax transformation to [Roslyn syntax trees](https://github.com/dotnet/roslyn), rather than a full-blown, production-ready lisp implementation. This will probably upset people, and it should be considered pre-alpha.
+At this point, Donatello is just an experimental syntax transformation to [Roslyn syntax trees](https://github.com/dotnet/roslyn), rather than a full-blown, production-ready lisp implementation (this will probably upset people). It's so pre-alpha, it should probably have a negative version number.
 
 # Examples
 
