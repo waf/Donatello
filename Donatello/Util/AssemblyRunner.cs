@@ -10,13 +10,6 @@ namespace Donatello.Util
 {
     static class AssemblyRunner
     {
-        internal static void RunClassConstructor(byte[] bytes, string namespaceName, string className)
-        {
-            string FullyQualifiedClass = $"{namespaceName}.{className}";
-            Assembly assembly = Assembly.Load(bytes);
-            Type type = assembly.GetType(FullyQualifiedClass);
-            RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-        }
 
         internal static T Run<T>(byte[] bytes, string namespaceName, string className, string methodName)
         {

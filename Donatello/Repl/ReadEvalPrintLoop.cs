@@ -19,9 +19,7 @@ namespace Donatello.Repl
     {
         public async Task RunAsync()
         {
-            // there's a slight delay (2-3 seconds) when we load up roslyn and run a program for the first time. Do an
-            // initial run to warm things up, so the user doesn't experience a delay for the first evaluation.
-            var warmup = Task.Run(() => CSharpScript.RunAsync(@"""Hello World"""));
+            var warmup = Task.Run(InitialEvaluation).ConfigureAwait(false);
             ScriptState<object> state = null;
             while (true)
             {
@@ -38,14 +36,34 @@ namespace Donatello.Repl
                         .NormalizeWhitespace()
                         .ToFullString();
                     state = await (state ?? await warmup).ContinueWithAsync(program);
+
                     // print!
-                    ReplUtil.Print(state.ReturnValue);
+                    ReplPrinter.Print(state.ReturnValue);
                 }
                 catch (Exception e)
                 {
                     Console.Error.WriteLine("Error: " + e.Message);
                 }
             } // loop!
+        }
+
+        /// <summary>
+        /// Initial REPL setup and warmup
+        /// </summary>
+        private async static Task<ScriptState<object>> InitialEvaluation()
+        {
+            // import required libraries
+            var usings = Compiler.DefaultImports.Keys
+                .Select(ns => $"using {ns};")
+                .StringJoin(" ");
+            var references = ScriptOptions.Default.WithReferences(Compiler.GetDefaultReferences());
+            var state = await CSharpScript.RunAsync(usings, references);
+
+            // do a first run to "warm up" the repl so the user doesn't experience a delay for the first evaluation.
+            var warmup = AntlrParser.ParseAsRepl(@"""Hello World""")
+                .NormalizeWhitespace()
+                .ToFullString();
+            return await state.ContinueWithAsync(warmup);
         }
     }
 }

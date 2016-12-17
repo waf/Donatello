@@ -16,5 +16,10 @@ namespace Donatello.Util
                 yield return tree.GetChild(i);
             }
         }
+
+        public static string StringJoin<T>(this IEnumerable<T> enumerable, string separator)
+        {
+            return string.Join(separator, enumerable);
+        }
     }
 }

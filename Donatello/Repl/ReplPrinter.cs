@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Donatello.StandardLibrary
 {
-    public static class ReplUtil
+    public static class ReplPrinter
     {
         public static void Print(object obj)
         {
@@ -39,6 +39,7 @@ namespace Donatello.StandardLibrary
             }
         }
 
+        // translates unfriendly type names to friendly type names (e.g. 'System.Int32' to 'int')
         private static readonly Dictionary<Type, string> Aliases =
             new Dictionary<Type, string>()
         {

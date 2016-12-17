@@ -26,7 +26,7 @@ namespace Donatello.Compilation
     }
     public static class Compiler
     {
-        static readonly IDictionary<string, Assembly> DefaultImports = new Dictionary<string, Assembly>
+        public static readonly IDictionary<string, Assembly> DefaultImports = new Dictionary<string, Assembly>
         {
             { "System", typeof(object).Assembly },
             { "System.Linq", typeof(Enumerable).Assembly },
@@ -56,7 +56,7 @@ namespace Donatello.Compilation
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName,
                 syntaxTrees: trees,
-                references: GetReferences(references),
+                references: GetDefaultReferences(references.ToArray()),
                 options: new CSharpCompilationOptions((OutputKind)outputKind));
 
             return CreateAssembly(compilation);
@@ -90,7 +90,7 @@ namespace Donatello.Compilation
             }
         }
 
-        private static MetadataReference[] GetReferences(IList<string> references)
+        public static MetadataReference[] GetDefaultReferences(params string[] additionalReferences)
         {
             // add facade references for PCL support (like immutable collections)
             var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\Facades", "*.dll")
@@ -98,7 +98,7 @@ namespace Donatello.Compilation
 
             MetadataReference[] allReferences = DefaultImports
                 .Select(import => import.Value.Location)
-                .Union(references)
+                .Union(additionalReferences)
                 .Union(facades)
                 .Select(dll => MetadataReference.CreateFromFile(dll.Trim()))
                 .Distinct()
@@ -107,7 +107,7 @@ namespace Donatello.Compilation
             return allReferences;
         }
 
-        private static UsingDirectiveSyntax CreateUsingDirective(string usingName)
+        public static UsingDirectiveSyntax CreateUsingDirective(string usingName)
         {
             //TODO: stole this method from the internet. can it be better?
             NameSyntax qualifiedName = null;
