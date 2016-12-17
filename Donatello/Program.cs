@@ -5,6 +5,7 @@ using Donatello.Parser;
 using Donatello.Repl;
 using Donatello.Util;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +32,7 @@ namespace Donatello
             }
 
             var repl = new ReadEvalPrintLoop();
-            repl.Run();
+            repl.RunAsync().Wait();
         }
 
         private static void CompileFile(string[] inputFile, string[] references, string outputFilename)
@@ -62,7 +63,7 @@ namespace Donatello
             OutputType outputKind)
         {
             var compilationUnit = files
-                .Select(file => AntlrParser.Parse(file.Value, file.Key.Item1, file.Key.Item2))
+                .Select(file => AntlrParser.ParseAsClass(file.Value, file.Key.Item1, file.Key.Item2) as CompilationUnitSyntax)
                 .ToArray();
 
             var assembly = Compiler.Compile(assemblyName, references, outputKind, compilationUnit);
@@ -76,7 +77,7 @@ namespace Donatello
             const string className = "Runner";
             const string methodName = "Run";
 
-            var result = AntlrParser.Parse(program, namespaceName, className, methodName);
+            var result = AntlrParser.ParseAsClass(program, namespaceName, className, methodName) as CompilationUnitSyntax;
             var bytes = Compiler.Compile(namespaceName, new string[0], OutputType.DynamicallyLinkedLibrary, result);
 
             return AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName);

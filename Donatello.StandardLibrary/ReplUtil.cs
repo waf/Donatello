@@ -11,22 +11,12 @@ namespace Donatello.StandardLibrary
 {
     public static class ReplUtil
     {
-        public static void Print<T>(Func<T> func)
-        {
-            Print((dynamic)func());
-        }
-
-        public static void Print(Action func)
-        {
-            func();
-            Console.WriteLine("void");
-        }
-
         public static void Print(object obj)
         {
             if (obj == null)
             {
                 Console.WriteLine("null");
+                return;
             }
             string output = JsonConvert.SerializeObject(obj, Formatting.None);
             string type = PrettyPrintTypeName(obj.GetType());

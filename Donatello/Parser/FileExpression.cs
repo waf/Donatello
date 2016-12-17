@@ -18,8 +18,15 @@ namespace Donatello.Parser
         readonly SyntaxToken[] Static = { Token(SyntaxKind.StaticKeyword) };
         readonly SyntaxToken[] PublicStatic = { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword) };
         readonly SyntaxToken[] PublicStaticReadonly = { Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword), Token(SyntaxKind.ReadOnlyKeyword) };
+        private readonly bool repl;
+
+        public ParseExpressionVisitor(bool repl)
+        {
+            this.repl = repl;
+        }
 
         public ParseExpressionVisitor(string namespaceName, string className)
+            :this(false)
         {
             this.NamespaceName = namespaceName;
             this.ClassName = className;
@@ -33,7 +40,20 @@ namespace Donatello.Parser
 
         public override CSharpSyntaxNode VisitFile([NotNull] DonatelloParser.FileContext context)
         {
-            var children = context.form().Select(f => this.Visit(f)).ToArray();
+            var children = context.form()
+                .Select(f => this.Visit(f))
+                .ToArray();
+
+            if (repl)
+            {
+                return children.First();
+            }
+
+            return CreateClass(children);
+        }
+
+        private CSharpSyntaxNode CreateClass(CSharpSyntaxNode[] children)
+        {
             var usings = children.OfType<UsingDirectiveSyntax>().ToArray();
             var baseTypes = children.OfType<BaseListSyntax>().SingleOrDefault();
 
@@ -48,7 +68,7 @@ namespace Donatello.Parser
                 .Select(method => method.AddModifiers(isInstance ? Public : PublicStatic) as MemberDeclarationSyntax)
                 .ToList();
 
-            if(expressions.Any())
+            if (expressions.Any())
             {
                 // embed any free-standing expressions in the constructor
                 var entryPoint = MainMethodName == null ?
@@ -59,11 +79,11 @@ namespace Donatello.Parser
 
             var classDeclaration = ClassDeclaration(ClassName);
 
-            if(isInstance)
+            if (isInstance)
             {
                 classDeclaration = classDeclaration.WithBaseList(baseTypes);
             }
-                
+
             var program = CompilationUnit()
                 .AddUsings(usings)
                 .AddMembers(NamespaceDeclaration(IdentifierName(NamespaceName))
@@ -73,6 +93,16 @@ namespace Donatello.Parser
                         .AddModifiers(isInstance ? Public : PublicStatic)));
 
             return program;
+        }
+
+        private BaseMethodDeclarationSyntax CreateConstructor(ExpressionSyntax[] expressions, bool hasBaseTypes)
+        {
+            var statements = expressions
+                .Select(expression => ExpressionStatement(expression))
+                .ToArray();
+            return ConstructorDeclaration(ClassName)
+                    .AddModifiers(hasBaseTypes ? Public : Static)
+                    .WithBody(Block(statements));
         }
 
         private BaseMethodDeclarationSyntax CreateMethod(ExpressionSyntax[] expressions, string mainMethodName)
@@ -85,16 +115,6 @@ namespace Donatello.Parser
             return MethodDeclaration(ParseTypeName("System.Object"), mainMethodName)
                        .AddModifiers(PublicStatic)
                        .WithBody(Block(statements));
-        }
-
-        private BaseMethodDeclarationSyntax CreateConstructor(ExpressionSyntax[] expressions, bool hasBaseTypes)
-        {
-            var statements = expressions
-                .Select(expression => ExpressionStatement(expression))
-                .ToArray();
-            return ConstructorDeclaration(ClassName)
-                    .AddModifiers(hasBaseTypes ? Public : Static)
-                    .WithBody(Block(statements));
         }
     }
 }
