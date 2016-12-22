@@ -5,13 +5,10 @@ using Donatello.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Scripting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Donatello.Repl
 {
@@ -24,7 +21,7 @@ namespace Donatello.Repl
             ScriptState<object> state = null;
             while (true)
             {
-                //read
+                //read!
                 Console.Write("> ");
                 string text = Console.ReadLine().Trim();
                 if (text == string.Empty) { continue; }
@@ -32,7 +29,7 @@ namespace Donatello.Repl
 
                 try
                 {
-                    // eval
+                    // eval!
                     // convert to roslyn tree
                     var program = AntlrParser.ParseAsRepl(text)
                         .NormalizeWhitespace()
@@ -40,7 +37,7 @@ namespace Donatello.Repl
                     // pass roslyn tree to scripting api
                     state = await (state ?? await initialState)
                         .ContinueWithAsync(program) // roslyn scripting api - continue program with existing instance state
-                        .ConfigureAwait(false); // tpl api - await configuration
+                        .ConfigureAwait(false); // TPL api
 
                     // print!
                     ReplPrinter.Print(state.ReturnValue);
@@ -55,6 +52,7 @@ namespace Donatello.Repl
         private static void DrawBanner()
         {
             Console.WriteLine("Welcome to the Donatello REPL. Try typing (+ 2 2) or type exit to leave.");
+            Console.WriteLine("For more, see https://github.com/waf/Donatello/blob/master/Readme.md");
             Console.WriteLine();
         }
 
