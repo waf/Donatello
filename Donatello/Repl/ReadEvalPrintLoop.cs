@@ -19,7 +19,8 @@ namespace Donatello.Repl
     {
         public async Task RunAsync()
         {
-            var warmup = Task.Run(InitialEvaluation).ConfigureAwait(false);
+            var initialState = Task.Run(InitialEvaluation).ConfigureAwait(false);
+            DrawBanner();
             ScriptState<object> state = null;
             while (true)
             {
@@ -32,10 +33,14 @@ namespace Donatello.Repl
                 try
                 {
                     // eval
+                    // convert to roslyn tree
                     var program = AntlrParser.ParseAsRepl(text)
                         .NormalizeWhitespace()
                         .ToFullString();
-                    state = await (state ?? await warmup).ContinueWithAsync(program);
+                    // pass roslyn tree to scripting api
+                    state = await (state ?? await initialState)
+                        .ContinueWithAsync(program) // roslyn scripting api - continue program with existing instance state
+                        .ConfigureAwait(false); // tpl api - await configuration
 
                     // print!
                     ReplPrinter.Print(state.ReturnValue);
@@ -45,6 +50,12 @@ namespace Donatello.Repl
                     Console.Error.WriteLine("Error: " + e.Message);
                 }
             } // loop!
+        }
+
+        private static void DrawBanner()
+        {
+            Console.WriteLine("Welcome to the Donatello REPL. Try typing (+ 2 2) or type exit to leave.");
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -57,13 +68,13 @@ namespace Donatello.Repl
                 .Select(ns => $"using {ns};")
                 .StringJoin(" ");
             var references = ScriptOptions.Default.WithReferences(Compiler.GetDefaultReferences());
-            var state = await CSharpScript.RunAsync(usings, references);
+            var state = await CSharpScript.RunAsync(usings, references).ConfigureAwait(false);
 
             // do a first run to "warm up" the repl so the user doesn't experience a delay for the first evaluation.
             var warmup = AntlrParser.ParseAsRepl(@"""Hello World""")
                 .NormalizeWhitespace()
                 .ToFullString();
-            return await state.ContinueWithAsync(warmup);
+            return await state.ContinueWithAsync(warmup).ConfigureAwait(false);
         }
     }
 }
