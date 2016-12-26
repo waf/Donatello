@@ -250,6 +250,7 @@
     <Compile Include="Antlr\Generated\DonatelloVisitor.cs" />
     <Compile Include="BuiltInFunctions.cs" />
     <Compile Include="Compilation\Compiler.cs" />
+    <Compile Include="Macros.cs" />
     <Compile Include="Parser\AntlrParser.cs" />
     <Compile Include="Parser\FileExpression.cs" />
     <Compile Include="Parser\LambdaExpression.cs" />

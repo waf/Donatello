@@ -18,6 +18,7 @@ namespace Donatello
         {
             { "def", Def },
             { "defn", Defn },
+            { "defmacro", DefMacro },
             { "fn", Fn },
             { "if", If },
             { "let", Let },
@@ -189,7 +190,9 @@ namespace Donatello
             var condition = visitor.Visit(children[1]) as ExpressionSyntax;
             var thenStatement = visitor.Visit(children[2]) as ExpressionSyntax;
             var elseStatement = visitor.Visit(children[3]) as ExpressionSyntax;
-            return ConditionalExpression(condition, thenStatement, elseStatement);
+            return ParenthesizedExpression(
+                ConditionalExpression(condition, thenStatement, elseStatement)
+            );
         }
 
         private static CSharpSyntaxNode Def(
@@ -208,17 +211,24 @@ namespace Donatello
         private static CSharpSyntaxNode MathOperation(SyntaxKind operation, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
             var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
-            return values.Aggregate((a, b) => BinaryExpression(operation, a, b));
+            return ParenthesizedExpression(
+                values.Aggregate((a, b) => BinaryExpression(operation, a, b))
+            );
         }
 
         private static CSharpSyntaxNode EqualityOperation(SyntaxKind equalityExpression, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
-            var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax).ToArray();
+            var values = children
+                .Skip(1)
+                .Select(child => visitor.Visit(child) as ExpressionSyntax)
+                .ToArray();
 
             // optimize for common scenario
             if(values.Length == 2)
             {
-                return BinaryExpression(equalityExpression, values[0], values[1]);
+                return ParenthesizedExpression(
+                    BinaryExpression(equalityExpression, values[0], values[1])
+                );
             }
 
             // create a var declaration for each operand.
@@ -244,13 +254,26 @@ namespace Donatello
 
             // execute let expression
             var lambda = ParenthesizedLambdaExpression(Block(variableDeclarations.Union(new[] { andStatement })));
-            return InvocationExpression(
+            return ParenthesizedExpression(
+                InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName(nameof(Constructors)),
                         IdentifierName(nameof(Constructors.CreateLet))))
-                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))));
+                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))))
+            );
         }
 
+        private static CSharpSyntaxNode DefMacro(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var result = (Defn(visitor, children) as MethodDeclarationSyntax)
+                .WithAttributeLists(
+                    SingletonList(
+                        AttributeList(
+                            SingletonSeparatedList(
+                                Attribute(IdentifierName(nameof(MacroAttribute).Replace("Attribute", "")))))));
+            Macros.AddMacro(result);
+            return result;
+        }
     }
 }

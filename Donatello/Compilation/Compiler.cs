@@ -8,13 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Microsoft.CodeAnalysis.Emit;
 using System.IO;
-using Donatello.Util;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Diagnostics;
 using System.Collections.Immutable;
 using Donatello.StandardLibrary;
 using System.Reflection;
+using Antlr4.Runtime.Tree;
 
 namespace Donatello.Compilation
 {
@@ -31,6 +31,8 @@ namespace Donatello.Compilation
             { "System", typeof(object).Assembly },
             { "System.Linq", typeof(Enumerable).Assembly },
             { "System.Collections.Immutable", typeof(ImmutableArray).Assembly },
+            { "System.Collections.Generic", typeof(IEnumerable<>).Assembly },
+            { "Antlr4.Runtime.Tree", typeof(IParseTree).Assembly }, // todo: required because of macros manipulating IParseTree. Is there a better way?
             { "Donatello.StandardLibrary", typeof(Constructors).Assembly }
         };
 
@@ -45,9 +47,9 @@ namespace Donatello.Compilation
 
         public static byte[] Compile(string assemblyName, IList<string> references, OutputType outputKind, params CompilationUnitSyntax[] programs)
         {
+            var defaultUsings = DefaultImports.Select(import => CreateUsingDirective(import.Key)).ToArray();
             var trees = programs.Select(program =>
             {
-                var defaultUsings = DefaultImports.Select(import => CreateUsingDirective(import.Key)).ToArray();
                 program = program.AddUsings(defaultUsings);
                 TranslateToCSharp(program);
                 return CSharpSyntaxTree.Create(program);

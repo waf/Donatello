@@ -7,8 +7,8 @@
     <ProjectGuid>{E785BAD9-3C37-441F-8A90-9CF4924D1A44}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DotNetLisp.StandardLibrary</RootNamespace>
-    <AssemblyName>DotNetLisp.StandardLibrary</AssemblyName>
+    <RootNamespace>Donatello.StandardLibrary</RootNamespace>
+    <AssemblyName>Donatello.StandardLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constructors.cs" />
+    <Compile Include="MacroAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

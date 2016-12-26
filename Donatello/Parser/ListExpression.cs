@@ -25,17 +25,27 @@ namespace Donatello.Parser
 
         private CSharpSyntaxNode CreateListInvocation(IList<IParseTree> children)
         {
+            // macro invocation
+            var head = this.Visit(children[0]);
+            IList<IParseTree> tail = children.Skip(1).ToList();
+            IList<IParseTree> output;
+            if(Macros.TryRunMacro(head.GetText().ToString(), tail, out output))
+            {
+                return Visit(output[0]); // is this right to only take the first form the macro returns?
+            }
+
+            // built-in function invocation
             var builtIn = BuiltInFunctions.Run(this, children);
             if (builtIn != null)
             {
                 return builtIn;
             }
 
-            var elements = children
+            // user function invocation
+            var elements = tail
                 .Select(child => this.Visit(child) as ExpressionSyntax)
                 .ToArray();
-
-            return BuildInvocation((dynamic)elements[0], elements.Skip(1).ToArray());
+            return BuildInvocation((dynamic)head, elements);
         }
 
         private CSharpSyntaxNode BuildInvocation(ExpressionSyntax first, ExpressionSyntax[] rest)
