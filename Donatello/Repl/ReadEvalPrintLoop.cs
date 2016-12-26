@@ -45,6 +45,7 @@ namespace Donatello.Repl
                 catch (Exception e)
                 {
                     Console.Error.WriteLine("Error: " + e.Message);
+                    Console.Error.WriteLine(e.StackTrace);
                 }
             } // loop!
         }

@@ -31,7 +31,8 @@ namespace Donatello.Parser
             IList<IParseTree> output;
             if(Macros.TryRunMacro(head.GetText().ToString(), tail, out output))
             {
-                return Visit(output[0]); // is this right to only take the first form the macro returns?
+                //return Visit(output[0]); // is this right to only take the first form the macro returns?
+                return CreateListInvocation(output);
             }
 
             // built-in function invocation
