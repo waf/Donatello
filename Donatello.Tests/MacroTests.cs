@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
+using static Donatello.Tests.TestExtensions;
 
 namespace DotNetLisp.Tests
 {
@@ -17,10 +14,18 @@ namespace DotNetLisp.Tests
                                  falseBranch:IParseTree
                                  trueBranch:IParseTree]
                          :IParseTree
-                    (ImmutableList.Create (quote if)
-                                            
+                    (let [list (new ListContext)
+                          not  (new ListContext)]
+                        (.AddChild list (quote ""if""))
+                        (.AddChild list not)
+                        (.AddChild not (quote ""not""))
+                        (.AddChild not condition)
+                        (.AddChild list falseBranch)
+                        (.AddChild list trueBranch)))
+
+               (unless false 1 0)
             ";
-            AssertOutput(code, 10);
+            AssertOutput(code, 1);
         }
     }
 }
