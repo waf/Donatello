@@ -32,6 +32,7 @@ namespace Donatello.Compilation
             { "System.Linq", typeof(Enumerable).Assembly },
             { "System.Collections.Immutable", typeof(ImmutableArray).Assembly },
             { "System.Collections.Generic", typeof(IEnumerable<>).Assembly },
+            { "Antlr4.Runtime", typeof(IParseTree).Assembly }, // todo: required because of macros manipulating IParseTree. Is there a better way?
             { "Antlr4.Runtime.Tree", typeof(IParseTree).Assembly }, // todo: required because of macros manipulating IParseTree. Is there a better way?
             { "Donatello.StandardLibrary", typeof(Constructors).Assembly }
         };

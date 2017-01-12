@@ -1,4 +1,6 @@
-﻿using Antlr4.Runtime.Tree;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
+using Donatello.Antlr.Generated;
 using Donatello.StandardLibrary;
 using Donatello.Util;
 using Microsoft.CodeAnalysis.CSharp;
@@ -25,6 +27,7 @@ namespace Donatello
             { "use", Use },
             { "instance", Instance },
             { "new", New },
+            { "quote", Quote },
             { "+", (visitor, children) => MathOperation(SyntaxKind.AddExpression, visitor, children) },
             { "-", (visitor, children) => MathOperation(SyntaxKind.SubtractExpression, visitor, children) },
             { "*", (visitor, children) => MathOperation(SyntaxKind.MultiplyExpression, visitor, children) },
@@ -274,6 +277,18 @@ namespace Donatello
                                 Attribute(IdentifierName(nameof(MacroAttribute).Replace("Attribute", "")))))));
             Macros.AddMacro(result);
             return result;
+        }
+
+        private static CSharpSyntaxNode Quote(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        {
+            var symbol = children[1].GetText();
+            var commonToken = ObjectCreationExpression(IdentifierName(nameof(CommonToken)))
+                .WithArgumentList(ArgumentList(SeparatedList(new[] {
+                    Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(DonatelloLexer.SYMBOL))),
+                    Argument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(symbol)))
+                })));
+            return ObjectCreationExpression(IdentifierName(nameof(TerminalNodeImpl)))
+                .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(commonToken))));
         }
     }
 }

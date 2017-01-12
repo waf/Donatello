@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MacroTests.cs" />
     <Compile Include="MathTests.cs" />
     <Compile Include="CollectionTests.cs" />
     <Compile Include="ConditionalTests.cs" />

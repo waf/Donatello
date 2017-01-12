@@ -28,11 +28,10 @@ namespace Donatello.Parser
             // macro invocation
             var head = this.Visit(children[0]);
             IList<IParseTree> tail = children.Skip(1).ToList();
-            IList<IParseTree> output;
-            if(Macros.TryRunMacro(head.GetText().ToString(), tail, out output))
+            IParseTree transformed;
+            if(Macros.TryRunMacro(head.GetText().ToString(), tail, out transformed))
             {
-                //return Visit(output[0]); // is this right to only take the first form the macro returns?
-                return CreateListInvocation(output);
+                return Visit(transformed);
             }
 
             // built-in function invocation

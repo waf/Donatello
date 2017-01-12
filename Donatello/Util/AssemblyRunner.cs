@@ -19,13 +19,14 @@ namespace Donatello.Util
             return (T)type.InvokeMember(methodName, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, args);
         }
 
-        internal static Func<TArg, TReturn> GetFunction<TArg, TReturn>(byte[] bytes, string namespaceName, string className, string methodName)
+        internal static MethodInfo GetFunction(byte[] bytes, string namespaceName, string className, string methodName)
         {
             Type type = GetTypeFromAssemblyBytes(bytes, namespaceName, className);
             var macroMethodInfo = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
-            var macroParam = Expression.Parameter(typeof(TArg), "tree");
-            var lambda = Expression.Lambda<Func<TArg, TReturn>>(Expression.Call(macroMethodInfo, macroParam), macroParam);
-            return lambda.Compile();
+            return macroMethodInfo;
+            //var macroParam = Expression.Parameter(typeof(TArg), "arg");
+            //var lambda = Expression.Lambda<Func<TArg, TReturn>>(Expression.Call(macroMethodInfo, macroParam), macroParam);
+            //return lambda.Compile();
         }
 
         private static Type GetTypeFromAssemblyBytes(byte[] bytes, string namespaceName, string className)
