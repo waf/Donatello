@@ -25,7 +25,7 @@ namespace Donatello.Parser
         public override CSharpSyntaxNode VisitLambdaParameter([NotNull] DonatelloParser.LambdaParameterContext context)
         {
             var param = context.GetText();
-            param = param.Replace("^", UniqueId);
+            param = param.Replace("\\", UniqueId);
             return IdentifierName(param);
         }
 

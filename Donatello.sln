@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26014.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello", "Donatello\Donatello.csproj", "{A340D5C1-8A6B-49CD-AF60-837517944C1A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.StandardLibrary", "Donatello.StandardLibrary\Donatello.StandardLibrary.csproj", "{E785BAD9-3C37-441F-8A90-9CF4924D1A44}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.Tests", "Donatello.Tests\Donatello.Tests.csproj", "{BCE656A5-F047-4395-A9C4-2CC70FD14093}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{11F24F9B-2CF0-400A-A239-6274399ECF54}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

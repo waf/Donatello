@@ -16,7 +16,7 @@ namespace Donatello.Tests
         {
             const string code = @"
                 (use System.Linq.Enumerable)
-                (Enumerable.Select [1 2 3 4] \(+ 1 ^0))
+                (Enumerable.Select [1 2 3 4] \(+ 1 \0))
             ";
             AssertOutput<IEnumerable<int>>(code, result =>
             {
@@ -34,7 +34,7 @@ namespace Donatello.Tests
             const string code = @"
                 (use System.Linq.Enumerable)
                 (Enumerable.Select [[1] [2]]
-                    \(Enumerable.Select ^0 \(+ 1 ^1)))
+                    \(Enumerable.Select \0 \(+ 1 \1)))
             ";
             AssertOutput<IEnumerable<IEnumerable<int>>>(code, result =>
             {

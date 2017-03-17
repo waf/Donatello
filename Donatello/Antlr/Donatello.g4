@@ -19,7 +19,7 @@ dictionary: '{' form * '}';
 set: '|' form * '|';
 vector: '[' form * ']' ;
 
-LAMBDA_PARAMETER: '^' [0-9]+;
+LAMBDA_PARAMETER: '\\' [0-9]+;
 lambdaParameter: LAMBDA_PARAMETER;
 lambda: '\\(' forms ')';
 
