@@ -28,10 +28,10 @@ namespace Donatello.Parser
             // macro invocation
             var head = this.Visit(children[0]);
             IList<IParseTree> tail = children.Skip(1).ToList();
-            IParseTree transformed;
-            if(Macros.TryRunMacro(head.GetText().ToString(), tail, out transformed))
+            CSharpSyntaxNode transformed;
+            if(Macros.TryRunMacro(this, head.GetText().ToString(), tail, out transformed))
             {
-                return Visit(transformed);
+                return transformed;
             }
 
             // built-in function invocation
