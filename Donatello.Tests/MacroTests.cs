@@ -2,7 +2,7 @@
 using Xunit;
 using static Donatello.Tests.TestExtensions;
 
-namespace DotNetLisp.Tests
+namespace Donatello.Tests
 {
     public class MacroTests
     {
