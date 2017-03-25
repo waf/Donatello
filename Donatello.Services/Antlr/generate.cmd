@@ -1,5 +1,5 @@
 
-java -jar antlr-4.5.3-complete.jar ^
+java -jar antlr-4.6-complete.jar ^
      -Dlanguage=CSharp ^
      -o .\Generated ^
      -package Donatello.Services.Antlr.Generated ^
