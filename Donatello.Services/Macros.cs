@@ -37,8 +37,7 @@ namespace Donatello.Services
             IParseTreeVisitor<CSharpSyntaxNode> visitor,
             string name, IList<IParseTree> input, out CSharpSyntaxNode output)
         {
-            Lazy<MethodInfo> lazyMacro;
-            if(!MacroStore.TryGetValue(name, out lazyMacro))
+            if (!MacroStore.TryGetValue(name, out var lazyMacro))
             {
                 output = null;
                 return false;

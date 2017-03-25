@@ -94,7 +94,7 @@ namespace Donatello.Services.Compilation
         public static MetadataReference[] GetDefaultReferences(params string[] additionalReferences)
         {
             // add facade references for PCL support (like immutable collections)
-            var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6\Facades", "*.dll")
+            var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\Facades", "*.dll")
                 .ToArray();
 
             MetadataReference[] allReferences = DefaultImports

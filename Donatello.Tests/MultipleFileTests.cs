@@ -1,4 +1,5 @@
-﻿using Donatello.Services.Compilation;
+﻿using Donatello.Build;
+using Donatello.Services.Compilation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Donatello.Tests
         [Fact]
         public void MultipleFiles()
         {
-            Program.CompileContent(new Dictionary<Tuple<string, string>, string>
+            FileBuilder.CompileContent(new Dictionary<Tuple<string, string>, string>
             {
                 { Tuple.Create("UnitTest", "Aaa"), @"(Console.WriteLine ""Hello World"")" },
                 { Tuple.Create("UnitTest", ""), @"(Console.WriteLine ""Hello World"")" }

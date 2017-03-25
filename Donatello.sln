@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26014.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.StandardLibrary", "Donatello.StandardLibrary\Donatello.StandardLibrary.csproj", "{E785BAD9-3C37-441F-8A90-9CF4924D1A44}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.Tests", "Donatello.Tests\Donatello.Tests.csproj", "{BCE656A5-F047-4395-A9C4-2CC70FD14093}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{11F24F9B-2CF0-400A-A239-6274399ECF54}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,6 +13,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.Services", "Donatello.Services\Donatello.Services.csproj", "{25059A49-AD6D-4370-8D5E-E97499676F0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello", "Donatello\Donatello.csproj", "{C59B3500-1C12-4F5B-A11A-B3D1E78F2D34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.Tests", "Donatello.Tests\Donatello.Tests.csproj", "{62F071AA-EA69-4EAC-9D7F-E6653A756AAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +26,6 @@ Global
 		{E785BAD9-3C37-441F-8A90-9CF4924D1A44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E785BAD9-3C37-441F-8A90-9CF4924D1A44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E785BAD9-3C37-441F-8A90-9CF4924D1A44}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BCE656A5-F047-4395-A9C4-2CC70FD14093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BCE656A5-F047-4395-A9C4-2CC70FD14093}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BCE656A5-F047-4395-A9C4-2CC70FD14093}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BCE656A5-F047-4395-A9C4-2CC70FD14093}.Release|Any CPU.Build.0 = Release|Any CPU
 		{25059A49-AD6D-4370-8D5E-E97499676F0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{25059A49-AD6D-4370-8D5E-E97499676F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25059A49-AD6D-4370-8D5E-E97499676F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -38,6 +34,10 @@ Global
 		{C59B3500-1C12-4F5B-A11A-B3D1E78F2D34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C59B3500-1C12-4F5B-A11A-B3D1E78F2D34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C59B3500-1C12-4F5B-A11A-B3D1E78F2D34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62F071AA-EA69-4EAC-9D7F-E6653A756AAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62F071AA-EA69-4EAC-9D7F-E6653A756AAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62F071AA-EA69-4EAC-9D7F-E6653A756AAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62F071AA-EA69-4EAC-9D7F-E6653A756AAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -41,8 +41,7 @@ namespace Donatello.Services
             IList<IParseTree> children)
         {
             string name = children[0].GetText();
-            BuiltIn builtIn = null;
-            if(!BuiltIns.TryGetValue(name, out builtIn))
+            if (!BuiltIns.TryGetValue(name, out var builtIn))
             {
                 return null;
             }

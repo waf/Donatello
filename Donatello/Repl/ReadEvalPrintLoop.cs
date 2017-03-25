@@ -16,7 +16,7 @@ namespace Donatello.Repl
     {
         public async Task RunAsync()
         {
-            var initialState = Task.Run(InitialEvaluation).ConfigureAwait(false);
+            var initialState = Task.Run(InitialEvaluationAsync).ConfigureAwait(false);
             DrawBanner();
             ScriptState<object> state = null;
             while (true)
@@ -60,7 +60,7 @@ namespace Donatello.Repl
         /// <summary>
         /// Initial REPL setup and warmup
         /// </summary>
-        private async static Task<ScriptState<object>> InitialEvaluation()
+        private async static Task<ScriptState<object>> InitialEvaluationAsync()
         {
             // import required libraries
             var usings = Compiler.DefaultImports.Keys

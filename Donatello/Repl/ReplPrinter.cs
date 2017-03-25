@@ -23,8 +23,7 @@ namespace Donatello.StandardLibrary
 
         private static string PrettyPrintTypeName(Type type)
         {
-            string name;
-            if(Aliases.TryGetValue(type, out name))
+            if (Aliases.TryGetValue(type, out string name))
             {
                 return name;
             }
