@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Donatello.Antlr.Generated {
+namespace Donatello.Services.Antlr.Generated {
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IToken = Antlr4.Runtime.IToken;
@@ -195,4 +195,4 @@ public partial class DonatelloBaseVisitor<Result> : AbstractParseTreeVisitor<Res
 	/// <return>The visitor result.</return>
 	public virtual Result VisitType([NotNull] DonatelloParser.TypeContext context) { return VisitChildren(context); }
 }
-} // namespace Donatello.Antlr.Generated
+} // namespace Donatello.Services.Antlr.Generated

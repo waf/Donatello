@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Tree;
 using Donatello.StandardLibrary;
-using Donatello.Util;
+using Donatello.Services.Util;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Donatello
+namespace Donatello.Services
 {
     internal static class BuiltInFunctions
     {

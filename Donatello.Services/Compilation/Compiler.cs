@@ -16,7 +16,7 @@ using Donatello.StandardLibrary;
 using System.Reflection;
 using Antlr4.Runtime.Tree;
 
-namespace Donatello.Compilation
+namespace Donatello.Services.Compilation
 {
     public enum OutputType
     {

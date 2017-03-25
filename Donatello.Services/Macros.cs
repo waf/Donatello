@@ -1,6 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
-using Donatello.Compilation;
-using Donatello.Util;
+using Donatello.Services.Compilation;
+using Donatello.Services.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Donatello
+namespace Donatello.Services
 {
     static class Macros
     {

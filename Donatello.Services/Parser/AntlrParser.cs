@@ -1,5 +1,5 @@
 ﻿using Antlr4.Runtime;
-using Donatello.Antlr.Generated;
+using Donatello.Services.Antlr.Generated;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -8,9 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Donatello.Parser
+namespace Donatello.Services.Parser
 {
-    static class AntlrParser
+    public static class AntlrParser
     {
         /// <summary>
         /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST

@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Donatello.Antlr.Generated {
+namespace Donatello.Services.Antlr.Generated {
 using Antlr4.Runtime.Misc;
 using IParseTreeListener = Antlr4.Runtime.Tree.IParseTreeListener;
 using IToken = Antlr4.Runtime.IToken;
@@ -192,4 +192,4 @@ public interface IDonatelloListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitType([NotNull] DonatelloParser.TypeContext context);
 }
-} // namespace Donatello.Antlr.Generated
+} // namespace Donatello.Services.Antlr.Generated

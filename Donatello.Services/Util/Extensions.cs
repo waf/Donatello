@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Donatello.Util
+namespace Donatello.Services.Util
 {
-    static class Extensions
+    public static class Extensions
     {
         public static IEnumerable<IParseTree> Children(this IParseTree tree)
         {

@@ -1,5 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
-using Donatello.Antlr.Generated;
+using Donatello.Services.Antlr.Generated;
 using Microsoft.CodeAnalysis.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime;
 
-namespace Donatello.Parser
+namespace Donatello.Services.Parser
 {
     public partial class ParseExpressionVisitor : DonatelloBaseVisitor<CSharpSyntaxNode>
     {

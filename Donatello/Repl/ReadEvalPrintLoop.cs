@@ -1,7 +1,7 @@
-﻿using Donatello.Compilation;
-using Donatello.Parser;
+﻿using Donatello.Services.Compilation;
+using Donatello.Services.Parser;
+using Donatello.Services.Util;
 using Donatello.StandardLibrary;
-using Donatello.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;

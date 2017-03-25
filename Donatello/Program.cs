@@ -1,9 +1,9 @@
 ﻿using CommandLine;
 using CommandLine.Text;
-using Donatello.Compilation;
-using Donatello.Parser;
 using Donatello.Repl;
-using Donatello.Util;
+using Donatello.Services.Compilation;
+using Donatello.Services.Parser;
+using Donatello.Services.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
@@ -51,7 +51,7 @@ namespace Donatello
             string extension = Path.GetExtension(outputFilename);
             var outputKind = extension == ".dll" ? OutputType.DynamicallyLinkedLibrary :
                              extension == ".exe" ? OutputType.ConsoleApplication :
-                             Utility.Throw<OutputType>(new Exception("unknown extension"));
+                             throw new Exception("unknown extension");
             var bytes = CompileContent(fileContent, references, assemblyName, outputKind);
             File.WriteAllBytes(outputFilename, bytes);
         }

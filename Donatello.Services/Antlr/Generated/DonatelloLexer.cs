@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace Donatello.Antlr.Generated {
+namespace Donatello.Services.Antlr.Generated {
 using System;
 using System.Text;
 using Antlr4.Runtime;
@@ -145,4 +145,4 @@ public partial class DonatelloLexer : Lexer {
 	public static readonly ATN _ATN =
 		new ATNDeserializer().Deserialize(_serializedATN.ToCharArray());
 }
-} // namespace Donatello.Antlr.Generated
+} // namespace Donatello.Services.Antlr.Generated

@@ -102,13 +102,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Donatello\Donatello.csproj">
-      <Project>{a340d5c1-8a6b-49cd-af60-837517944c1a}</Project>
-      <Name>Donatello</Name>
-    </ProjectReference>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <ProjectReference Include="..\Donatello.Services\Donatello.Services.csproj">
+      <Project>{25059a49-ad6d-4370-8d5e-e97499676f0b}</Project>
+      <Name>Donatello.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Donatello\Donatello.csproj">
+      <Project>{c59b3500-1c12-4f5b-a11a-b3d1e78f2d34}</Project>
+      <Name>Donatello</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

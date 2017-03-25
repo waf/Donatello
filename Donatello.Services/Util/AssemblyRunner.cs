@@ -8,12 +8,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Donatello.Util
+namespace Donatello.Services.Util
 {
-    static class AssemblyRunner
+    public static class AssemblyRunner
     {
 
-        internal static T Run<T>(byte[] bytes, string namespaceName, string className, string methodName, object[] args = null)
+        public static T Run<T>(byte[] bytes, string namespaceName, string className, string methodName, object[] args = null)
         {
             Type type = GetTypeFromAssemblyBytes(bytes, namespaceName, className);
             return (T)type.InvokeMember(methodName, BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, args);

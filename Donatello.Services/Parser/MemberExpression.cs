@@ -1,4 +1,4 @@
-﻿using Donatello.Antlr.Generated;
+﻿using Donatello.Services.Antlr.Generated;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Antlr4.Runtime.Misc;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Donatello.Parser
+namespace Donatello.Services.Parser
 {
     public partial class ParseExpressionVisitor : DonatelloBaseVisitor<CSharpSyntaxNode>
     {
