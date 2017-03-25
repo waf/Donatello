@@ -24,10 +24,10 @@ namespace Donatello.Services.Parser
         /// <summary>
         /// Use ANTLR4 and the associated visitor implementation to produce a roslyn AST
         /// </summary>
-        public static CSharpSyntaxNode ParseAsClass(string input, string namespaceName, string className, string mainMethodName = null)
+        public static CompilationUnitSyntax ParseAsClass(string input, string namespaceName, string className, string mainMethodName = null)
         {
             var visitor = new ParseExpressionVisitor(namespaceName, className, mainMethodName);
-            return Parse(input, visitor);
+            return Parse(input, visitor) as CompilationUnitSyntax;
         }
 
         private static CSharpSyntaxNode Parse(string input, ParseExpressionVisitor visitor)

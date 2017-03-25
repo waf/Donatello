@@ -27,9 +27,8 @@ namespace Donatello.Services.Parser
         {
             // macro invocation
             var head = this.Visit(children[0]);
-            IList<IParseTree> tail = children.Skip(1).ToList();
-            CSharpSyntaxNode transformed;
-            if(Macros.TryRunMacro(this, head.GetText().ToString(), tail, out transformed))
+            var tail = children.Skip(1).ToList();
+            if (Macros.TryRunMacro(this, head.GetText().ToString(), tail, out CSharpSyntaxNode transformed))
             {
                 return transformed;
             }
@@ -42,10 +41,17 @@ namespace Donatello.Services.Parser
             }
 
             // user function invocation
-            var elements = tail
+            var arguments = tail
                 .Select(child => this.Visit(child) as ExpressionSyntax)
                 .ToArray();
-            return BuildInvocation((dynamic)head, elements);
+            switch (head)
+            {
+                case MemberAccessExpressionSyntax member: return BuildInvocation(member, arguments);
+                case InvocationExpressionSyntax invocation: return BuildInvocation(invocation, arguments);
+                case ExpressionSyntax expression: return BuildInvocation(expression, arguments);
+                default:
+                    throw new InvalidOperationException($"Unexpected first element in list: {head.GetType().FullName}");
+            }
         }
 
         private CSharpSyntaxNode BuildInvocation(ExpressionSyntax first, ExpressionSyntax[] rest)

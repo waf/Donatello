@@ -35,6 +35,9 @@ namespace Donatello.Services.Compilation
             { "Donatello.StandardLibrary", typeof(Constructors).Assembly }
         };
 
+        /// <summary>
+        /// Helpful method while debugging, see the translated C# source.
+        /// </summary>
         [Conditional("DEBUG")]
         public static void TranslateToCSharp(CSharpSyntaxNode programExpression)
         {
@@ -44,9 +47,12 @@ namespace Donatello.Services.Compilation
             return;
         }
 
-        public static byte[] Compile(string assemblyName, IList<string> references, OutputType outputKind, params CompilationUnitSyntax[] programs)
+        public static byte[] Compile(string assemblyName,
+            IReadOnlyCollection<string> references,
+            OutputType outputKind,
+            params CompilationUnitSyntax[] programs)
         {
-            var defaultUsings = DefaultImports.Select(import => CreateUsingDirective(import.Key)).ToArray();
+            var defaultUsings = DefaultImports.Select(import => UsingDirective(ParseName(import.Key))).ToArray();
             var trees = programs.Select(program =>
             {
                 program = program.AddUsings(defaultUsings);
@@ -106,28 +112,6 @@ namespace Donatello.Services.Compilation
                 .ToArray();
 
             return allReferences;
-        }
-
-        public static UsingDirectiveSyntax CreateUsingDirective(string usingName)
-        {
-            //TODO: stole this method from the internet. can it be better?
-            NameSyntax qualifiedName = null;
-
-            foreach (var identifier in usingName.Split('.'))
-            {
-                var name = IdentifierName(identifier);
-
-                if (qualifiedName != null)
-                {
-                    qualifiedName = QualifiedName(qualifiedName, name);
-                }
-                else
-                {
-                    qualifiedName = name;
-                }
-            }
-
-            return UsingDirective(qualifiedName);
         }
     }
 }

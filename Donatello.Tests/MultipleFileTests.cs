@@ -14,10 +14,10 @@ namespace Donatello.Tests
         [Fact]
         public void MultipleFiles()
         {
-            FileBuilder.CompileContent(new Dictionary<Tuple<string, string>, string>
+            FileCompiler.CompileSource(new[]
             {
-                { Tuple.Create("UnitTest", "Aaa"), @"(Console.WriteLine ""Hello World"")" },
-                { Tuple.Create("UnitTest", ""), @"(Console.WriteLine ""Hello World"")" }
+                ("UnitTest", "Aaa", @"(Console.WriteLine ""Hello World"")"),
+                ("UnitTest", "",    @"(Console.WriteLine ""Hello World"")")
             }, new string[0], "Out", OutputType.DynamicallyLinkedLibrary);
         }
     }

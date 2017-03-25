@@ -20,6 +20,7 @@
 #pragma warning disable 419
 
 namespace Donatello.Services.Antlr.Generated {
+#pragma warning disable 3021
 using Antlr4.Runtime.Misc;
 using IParseTreeListener = Antlr4.Runtime.Tree.IParseTreeListener;
 using IToken = Antlr4.Runtime.IToken;

@@ -28,7 +28,7 @@ namespace Donatello
 
             if(options.Inputs.Any())
             {
-                FileBuilder.CompileFile(options.Inputs.ToArray(), options.References.ToArray(), options.Output);
+                FileCompiler.CompileFiles(options.Inputs.ToArray(), options.References.ToArray(), options.Output);
                 return;
             }
 
@@ -49,10 +49,10 @@ namespace Donatello
             const string className = "Runner";
             const string methodName = "Run";
 
-            var result = AntlrParser.ParseAsClass(program, namespaceName, className, methodName) as CompilationUnitSyntax;
-            var bytes = Compiler.Compile(namespaceName, new string[0], OutputType.DynamicallyLinkedLibrary, result);
+            CompilationUnitSyntax syntaxTree = AntlrParser.ParseAsClass(program, namespaceName, className, methodName);
+            byte[] result = Compiler.Compile(namespaceName, new string[0], OutputType.DynamicallyLinkedLibrary, syntaxTree);
 
-            return AssemblyRunner.Run<T>(bytes, namespaceName, className, methodName);
+            return AssemblyRunner.Run<T>(result, namespaceName, className, methodName);
         }
 
         /// <summary>
