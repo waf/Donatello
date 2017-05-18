@@ -10,9 +10,9 @@ namespace Donatello.Services.Parser
 {
     public partial class ParseExpressionVisitor : DonatelloBaseVisitor<CSharpSyntaxNode>
     {
-        readonly string ClassName;
-        readonly string NamespaceName;
-        readonly string MainMethodName;
+        public readonly string ClassName;
+        public readonly string NamespaceName;
+        public readonly string MainMethodName;
 
         readonly SyntaxToken[] Public  = { Token(SyntaxKind.PublicKeyword) };
         readonly SyntaxToken[] Static = { Token(SyntaxKind.StaticKeyword) };
@@ -23,6 +23,7 @@ namespace Donatello.Services.Parser
         public ParseExpressionVisitor(bool repl)
         {
             this.repl = repl;
+            //TODO: set namespace name and class name to some default?
         }
 
         public ParseExpressionVisitor(string namespaceName, string className)

@@ -50,12 +50,9 @@ namespace Donatello.Services
             return true;
         }
 
-        public static void AddMacro(MethodDeclarationSyntax macro)
+        public static void AddMacro(MethodDeclarationSyntax macro, string namespaceName, string className)
         {
             string methodName = macro.Identifier.ToString();
-            string className = methodName + "Macro";
-            string assemblyName = className + "Assembly";
-            string namespaceName = assemblyName;
 
             var assemblies = new[]
             {
@@ -71,9 +68,26 @@ namespace Donatello.Services
 
             MacroStore[methodName] = new Lazy<MethodInfo>(() =>
             {
-                var bytes = Compiler.Compile(assemblyName, assemblies, OutputType.DynamicallyLinkedLibrary, program);
+                var bytes = Compiler.Compile(namespaceName, assemblies, OutputType.DynamicallyLinkedLibrary, program);
                 var macroFunc = AssemblyRunner.GetFunction(bytes, namespaceName, className, methodName);
                 return macroFunc;
+            });
+        }
+
+        internal static void ResolveMacro(string path)
+        {
+            var split = path.Split('.');
+            var macroName = split.Last();
+            var className = split.Take(split.Length - 1).StringJoin(".");
+            MacroStore[macroName] = new Lazy<MethodInfo>(() =>
+            {
+                //var containingClass = Type.GetType(className);
+                var containingClass = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => !a.IsDynamic)
+                    .SelectMany(a => a.GetTypes())
+                    .FirstOrDefault(t => t.FullName.Equals(className));
+                var macro = containingClass.GetMethod(macroName, BindingFlags.Static | BindingFlags.Public);
+                return macro;
             });
         }
     }

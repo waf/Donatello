@@ -11,6 +11,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Reflection;
 
 namespace Donatello
 {
@@ -28,7 +30,17 @@ namespace Donatello
 
             if(options.Inputs.Any())
             {
-                FileCompiler.CompileFiles(options.Inputs.ToArray(), options.References.ToArray(), options.Output);
+                string[] references = options.References
+                    .Select(reference => new DirectoryInfo(reference).FullName)
+                    .ToArray();
+
+                // todo: do something better?
+                foreach (var reference in references)
+                {
+                    Assembly.LoadFile(reference);
+                }
+
+                FileCompiler.CompileFiles(options.Inputs.ToArray(), references, options.Output);
                 return;
             }
 
@@ -43,14 +55,14 @@ namespace Donatello
         /// <typeparam name="T">The expected return type</typeparam>
         /// <param name="program">The donatello source code</param>
         /// <returns>the return value of the program</returns>
-        public static T Run<T>(string program)
+        public static T Run<T>(string program, params string[] references)
         {
             const string namespaceName = "DonatelloRun";
             const string className = "Runner";
             const string methodName = "Run";
 
             CompilationUnitSyntax syntaxTree = AntlrParser.ParseAsClass(program, namespaceName, className, methodName);
-            byte[] result = Compiler.Compile(namespaceName, new string[0], OutputType.DynamicallyLinkedLibrary, syntaxTree);
+            byte[] result = Compiler.Compile(namespaceName, references, OutputType.DynamicallyLinkedLibrary, syntaxTree);
 
             return AssemblyRunner.Run<T>(result, namespaceName, className, methodName);
         }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using System;
 using Xunit;
 using static Donatello.Tests.TestExtensions;
 
@@ -6,10 +8,20 @@ namespace Donatello.Tests
 {
     public class MacroTests
     {
+        static string[] references = new[]
+        {
+            typeof(SyntaxNode).Assembly.Location,
+            typeof(SyntaxFactory).Assembly.Location,
+        };
+
         [Fact]
         public void MacroTest()
         {
             const string code = @"
+                (use Microsoft.CodeAnalysis.CSharp)
+                (use Microsoft.CodeAnalysis.CSharp.Syntax)
+                (use Microsoft.CodeAnalysis.CSharp.SyntaxFactory.*)
+
                 (defmacro unless [test:ExpressionSyntax
                                   thenBranch:ExpressionSyntax
                                   elseBranch:ExpressionSyntax]
@@ -21,7 +33,7 @@ namespace Donatello.Tests
                             elseBranch)))
                 (unless false 1 0)
             ";
-            AssertOutput(code, 1);
+            AssertOutput(code, 1, references);
         }
     }
 }

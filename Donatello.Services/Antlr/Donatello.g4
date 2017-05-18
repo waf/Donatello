@@ -49,7 +49,7 @@ STRING: '"' ( ~'"' | '\\' '"' )* '"' ;
 LONG: '-'? [0-9]+[lL]?;
 METHOD_ACCESS: '.' SYMBOL;
 FIELD_ACCESS: '-' SYMBOL;
-SYMBOL: ('A'..'Z' | 'a'..'z' | '0'..'9' | '.' | '=' | '<' | ',' | ', ' | '>' | '*')+ | MATH_OPERATION;
+SYMBOL: ('A'..'Z' | 'a'..'z' | '0'..'9' | '_' | '.' | '=' | '<' | ',' | ', ' | '>' | '*')+ | MATH_OPERATION;
 TYPE: ':' ('A'..'Z' | 'a'..'z' | '<' | ',' | ', ' | '>')+; //TODO: need to tighten this up.
 MATH_OPERATION: '+' | '-' | '/' | '*';
 

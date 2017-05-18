@@ -7,12 +7,13 @@ using Donatello.Services.Util;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Donatello.Services.Parser;
 
 namespace Donatello.Services
 {
     internal static class BuiltInFunctions
     {
-        delegate CSharpSyntaxNode BuiltIn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children);
+        delegate CSharpSyntaxNode BuiltIn(ParseExpressionVisitor visitor, IList<IParseTree> children);
 
         static readonly IDictionary<string, BuiltIn> BuiltIns = new Dictionary<string, BuiltIn>
         {
@@ -23,6 +24,7 @@ namespace Donatello.Services
             { "if", If },
             { "let", Let },
             { "use", Use },
+            { "usemacro", UseMacro },
             { "instance", Instance },
             { "new", New },
             { "+", (visitor, children) => MathOperation(SyntaxKind.AddExpression, visitor, children) },
@@ -37,7 +39,7 @@ namespace Donatello.Services
         };
 
         internal static CSharpSyntaxNode Run(
-            IParseTreeVisitor<CSharpSyntaxNode> visitor,
+            ParseExpressionVisitor visitor,
             IList<IParseTree> children)
         {
             string name = children[0].GetText();
@@ -142,10 +144,7 @@ namespace Donatello.Services
                     null,
                     ParseName(string.Join(".", target.Take(target.Length - 1))));
             }
-            return UsingDirective(
-                NameEquals(IdentifierName(target.Last()),
-                Token(SyntaxKind.EqualsToken)),
-                ParseName(string.Join(".", target)));
+            return UsingDirective(ParseName(string.Join(".", target)));
         }
 
         private static CSharpSyntaxNode Defn(
@@ -263,16 +262,18 @@ namespace Donatello.Services
             );
         }
 
-        private static CSharpSyntaxNode DefMacro(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
+        private static CSharpSyntaxNode UseMacro(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
         {
-            var result = (Defn(visitor, children) as MethodDeclarationSyntax)
-                .WithAttributeLists(
-                    SingletonList(
-                        AttributeList(
-                            SingletonSeparatedList(
-                                Attribute(IdentifierName(nameof(MacroAttribute).Replace("Attribute", "")))))));
-            Macros.AddMacro(result);
-            return EmptyStatement(); // don't include the macro definition in the compiled output.
+            var path = children[1].GetText();
+            Macros.ResolveMacro(path);
+            return EmptyStatement();
+        }
+
+        private static CSharpSyntaxNode DefMacro(ParseExpressionVisitor visitor, IList<IParseTree> children)
+        {
+            var result = Defn(visitor, children) as MethodDeclarationSyntax;
+            Macros.AddMacro(result, visitor.NamespaceName, visitor.ClassName);
+            return result; // return the macro as a function so other programs can reference it.
         }
     }
 }

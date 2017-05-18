@@ -29,7 +29,7 @@ namespace Donatello.Tests
         {
             const string code =
                 @"
-                    (use System.Int32)
+                    (use System)
 
                     Int32.MaxValue
                 ";
@@ -43,7 +43,7 @@ namespace Donatello.Tests
                 @"
                     (use System.IO)
 
-                    (IO.Path.Combine ""Hello"" ""World"")
+                    (Path.Combine ""Hello"" ""World"")
                 ";
 
             AssertOutput(code, System.IO.Path.Combine("Hello", "World"));

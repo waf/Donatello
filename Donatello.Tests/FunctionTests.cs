@@ -76,7 +76,7 @@ namespace Donatello.Tests
         {
             const string code =
                 @"
-                    (use System.Linq.Enumerable)
+                    (use System.Linq)
                     (Enumerable.Select [1 2 3 4] (fn [i x] (+ 1 i)))
                 ";
             AssertOutput<IEnumerable<int>>(code, result =>
@@ -94,7 +94,7 @@ namespace Donatello.Tests
         {
             const string code =
                 @"
-                    (use System.Linq.Enumerable)
+                    (use System.Linq)
                     (Enumerable.Select [1 2 3 4]
                         (fn [i x]
                             (Console.WriteLine x)

@@ -9,9 +9,9 @@ namespace Donatello.Tests
 {
     static class TestExtensions
     {
-        public static void AssertOutput<T>(string test, T expected)
+        public static void AssertOutput<T>(string test, T expected, params string[] references)
         {
-            var result = Program.Run<T>(test);
+            var result = Program.Run<T>(test, references);
             Assert.Equal(expected, result);
         }
         public static void AssertOutput<T>(string test, Action<T> assertions)

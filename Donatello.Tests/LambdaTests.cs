@@ -15,7 +15,7 @@ namespace Donatello.Tests
         public void SimpleInvocation()
         {
             const string code = @"
-                (use System.Linq.Enumerable)
+                (use System.Linq)
                 (Enumerable.Select [1 2 3 4] \(+ 1 \0))
             ";
             AssertOutput<IEnumerable<int>>(code, result =>
@@ -32,7 +32,7 @@ namespace Donatello.Tests
         public void NestedInvocation()
         {
             const string code = @"
-                (use System.Linq.Enumerable)
+                (use System.Linq)
                 (Enumerable.Select [[1] [2]]
                     \(Enumerable.Select \0 \(+ 1 \1)))
             ";
