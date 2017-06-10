@@ -31,9 +31,19 @@ namespace Donatello.StandardLibrary
             }
             else
             {
-                // CSharpObjectFormatter output the type
-                var parts = prettyPrinted.Split(' ', 2);
-                return (parts[0], parts[1]);
+                // we want to swap the order of the value and the type from CSharpObjectFormatter.
+                // given 
+                // Enumerable.SelectArrayIterator<int, int> { 2, 3, 4 }
+                // transform to 
+                // { 2, 3, 4 } :Enumerable.SelectArrayIterator<int, int>
+                bool inGeneric = false;
+                var typeName = new String(prettyPrinted.TakeWhile(x =>
+                {
+                    if (x == '<') inGeneric = true;
+                    if (x == '>') inGeneric = false;
+                    return inGeneric || x != ' ';
+                }).ToArray());
+                return (typeName, prettyPrinted.Substring(typeName.Length + 1));
             }
         }
 
