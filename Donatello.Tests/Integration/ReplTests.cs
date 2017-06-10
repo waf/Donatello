@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using static Donatello.Tests.TestExtensions;
+using static Donatello.Tests.Integration.TestExtensions;
 
-namespace Donatello.Tests
+namespace Donatello.Tests.Integration
 {
     public class ReplTests
     {

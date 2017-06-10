@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Donatello.Tests.TestExtensions;
+using static Donatello.Tests.Integration.TestExtensions;
 using Xunit;
 using static System.Linq.Enumerable;
 
-namespace Donatello.Tests
+namespace Donatello.Tests.Integration
 {
     public class UseTests
     {
