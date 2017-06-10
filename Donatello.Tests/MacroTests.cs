@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
+using System.Reflection;
 using Xunit;
 using static Donatello.Tests.TestExtensions;
 
@@ -10,8 +11,8 @@ namespace Donatello.Tests
     {
         static string[] references = new[]
         {
-            typeof(SyntaxNode).Assembly.Location,
-            typeof(SyntaxFactory).Assembly.Location,
+            typeof(SyntaxNode).GetTypeInfo().Assembly.Location,
+            typeof(SyntaxFactory).GetTypeInfo().Assembly.Location,
         };
 
         [Fact]

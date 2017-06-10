@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.CodeDom;
-using System.CodeDom.Compiler;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp.Scripting.Hosting;
 
 namespace Donatello.StandardLibrary
 {
@@ -16,23 +14,26 @@ namespace Donatello.StandardLibrary
                 Console.WriteLine("null");
                 return;
             }
-            string output = JsonConvert.SerializeObject(obj, Formatting.None);
-            string type = PrettyPrintTypeName(obj.GetType());
-            Console.WriteLine($"{output} :{type}");
+
+            var (type, value) = PrettyPrintObject(obj);
+            Console.WriteLine(value + " :" + type);
         }
 
-        private static string PrettyPrintTypeName(Type type)
+        private static (string type, string value) PrettyPrintObject(object obj)
         {
-            if (Aliases.TryGetValue(type, out string name))
+            //TODO: can we subclass our own ObjectFormatter, rather than using C#'s?
+            string prettyPrinted = CSharpObjectFormatter.Instance.FormatObject(obj);
+            if (Aliases.TryGetValue(obj.GetType(), out string type))
             {
-                return name;
+                // CSharpObjectFormatter doesn't always output types, so use a
+                // dictionary to get the type name in those cases
+                return (type, prettyPrinted);
             }
-
-            string typeName = type.FullName.Replace(type.Namespace + ".", "");//Removing the namespace
-            using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+            else
             {
-                var reference = new CodeTypeReference(typeName);
-                return provider.GetTypeOutput(reference);
+                // CSharpObjectFormatter output the type
+                var parts = prettyPrinted.Split(' ', 2);
+                return (parts[0], parts[1]);
             }
         }
 
@@ -55,7 +56,8 @@ namespace Donatello.StandardLibrary
             { typeof(bool), "bool" },
             { typeof(char), "char" },
             { typeof(string), "string" },
-            { typeof(void), "void" }
+            { typeof(void), "void" },
+            { typeof(DateTime), "DateTime" }
         };
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,7 +13,6 @@ using System.Diagnostics;
 using System.Collections.Immutable;
 using Donatello.StandardLibrary;
 using System.Reflection;
-using Antlr4.Runtime.Tree;
 
 namespace Donatello.Services.Compilation
 {
@@ -28,12 +26,14 @@ namespace Donatello.Services.Compilation
     {
         public static readonly IDictionary<string, Assembly> DefaultImports = new Dictionary<string, Assembly>
         {
-            { "System", typeof(object).Assembly },
-            { "System.Linq", typeof(Enumerable).Assembly },
-            { "System.Collections.Immutable", typeof(ImmutableArray).Assembly },
-            { "System.Collections.Generic", typeof(IEnumerable<>).Assembly },
-            { "Donatello.StandardLibrary", typeof(Constructors).Assembly }
+            { "System", typeof(object).GetTypeInfo().Assembly },
+            { "System.Linq", typeof(Enumerable).GetTypeInfo().Assembly },
+            { "System.Collections.Immutable", typeof(ImmutableArray).GetTypeInfo().Assembly },
+            { "System.Collections.Generic", typeof(IEnumerable<>).GetTypeInfo().Assembly },
+            { "Donatello.StandardLibrary", typeof(Constructors).GetTypeInfo().Assembly }
         };
+        public static Lazy<IReadOnlyCollection<string>> DotNetCoreAssemblies = 
+            new Lazy<IReadOnlyCollection<string>>(GetDotNetCoreAssemblies);
 
         /// <summary>
         /// Helpful method while debugging, see the translated C# source.
@@ -47,7 +47,7 @@ namespace Donatello.Services.Compilation
             return;
         }
 
-        public static byte[] Compile(string assemblyName,
+        public static Stream Compile(string assemblyName,
             IReadOnlyCollection<string> references,
             OutputType outputKind,
             params CompilationUnitSyntax[] programs)
@@ -73,45 +73,54 @@ namespace Donatello.Services.Compilation
         /// Compile the roslyn AST
         /// </summary>
         /// <returns>Either the compiled bytes of the program, or a list of error messages</returns>
-        private static byte[] CreateAssembly(CSharpCompilation compilation)
+        private static Stream CreateAssembly(CSharpCompilation compilation)
         {
-            using (var ms = new MemoryStream())
+            var ms = new MemoryStream();
+            EmitResult emmitted = compilation.Emit(ms);
+
+            if (!emmitted.Success)
             {
-                EmitResult emmitted = compilation.Emit(ms);
+                // create error messages
+                var errors = emmitted.Diagnostics
+                    .Where(diagnostic =>
+                        diagnostic.IsWarningAsError ||
+                        diagnostic.Severity == DiagnosticSeverity.Error)
+                    .Select(diagnostic => $"{diagnostic.Id}: {diagnostic.GetMessage()}");
 
-                if (!emmitted.Success)
-                {
-                    // create error messages
-                    var errors = emmitted.Diagnostics
-                        .Where(diagnostic =>
-                            diagnostic.IsWarningAsError ||
-                            diagnostic.Severity == DiagnosticSeverity.Error)
-                        .Select(diagnostic => $"{diagnostic.Id}: {diagnostic.GetMessage()}");
-
-                    throw new Exception(string.Join(Environment.NewLine, errors));
-                }
-
-                // load the program and run it
-                ms.Seek(0, SeekOrigin.Begin);
-                return ms.ToArray();
+                throw new Exception(string.Join(Environment.NewLine, errors));
             }
+
+            // load the program and run it
+            ms.Seek(0, SeekOrigin.Begin);
+            return ms;
         }
 
         public static MetadataReference[] GetDefaultReferences(params string[] additionalReferences)
         {
-            // add facade references for PCL support (like immutable collections)
-            var facades = Directory.GetFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\Facades", "*.dll")
-                .ToArray();
-
             MetadataReference[] allReferences = DefaultImports
                 .Select(import => import.Value.Location)
+                .Union(DotNetCoreAssemblies.Value)
                 .Union(additionalReferences)
-                .Union(facades)
-                .Select(dll => MetadataReference.CreateFromFile(dll.Trim()))
                 .Distinct()
+                .Select(dll => MetadataReference.CreateFromFile(dll.Trim()))
                 .ToArray();
 
             return allReferences;
+        }
+
+        private static IReadOnlyCollection<string> GetDotNetCoreAssemblies()
+        {
+            // https://github.com/dotnet/roslyn/wiki/Runtime-code-generation-using-Roslyn-compilations-in-.NET-Core-App
+            return Directory
+                .GetParent(
+                    AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")
+                        .ToString().Split(';')
+                        .Single(path => path.EndsWith("netstandard.dll"))
+                )
+                .GetFiles("*.dll")
+                .Where(file => file.Name.StartsWith("System") || file.Name == "netstandard.dll")
+                .Select(file => file.FullName)
+                .ToArray();
         }
     }
 }

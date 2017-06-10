@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,7 +46,10 @@ namespace Donatello.Repl
                 catch (Exception e)
                 {
                     Console.Error.WriteLine("Error: " + e.Message);
-                    Console.Error.WriteLine(e.StackTrace);
+                    if(Debugger.IsAttached)
+                    {
+                        Console.Error.WriteLine(e.StackTrace);
+                    }
                 }
             } // loop!
         }
@@ -70,7 +74,7 @@ namespace Donatello.Repl
             var state = await CSharpScript.RunAsync(usings, references).ConfigureAwait(false);
 
             // do a first run to "warm up" the repl so the user doesn't experience a delay for the first evaluation.
-            var warmup = AntlrParser.ParseAsRepl(@"""Hello World""")
+            var warmup = AntlrParser.ParseAsRepl(@"(+ 30 12)")
                 .NormalizeWhitespace()
                 .ToFullString();
             return await state.ContinueWithAsync(warmup).ConfigureAwait(false);

@@ -54,7 +54,7 @@ namespace Donatello.Services.Parser
 
             var arguments = GetLambdaParameters(body)
                 .Select(identifier => identifier.Identifier.ValueText)
-                .Where(identifier => identifier.StartsWith(UniqueId, StringComparison.InvariantCulture))
+                .Where(identifier => identifier.StartsWith(UniqueId, StringComparison.Ordinal))
                 .Distinct()
                 .OrderBy(i => i)
                 .Select(identifier => Parameter(Identifier(identifier)));

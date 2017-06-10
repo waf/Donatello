@@ -56,8 +56,8 @@ namespace Donatello.Services
 
             var assemblies = new[]
             {
-                typeof(SyntaxNode).Assembly.Location,
-                typeof(SyntaxFactory).Assembly.Location,
+                typeof(SyntaxNode).GetTypeInfo().Assembly.Location,
+                typeof(SyntaxFactory).GetTypeInfo().Assembly.Location,
             };
 
             var program = MacroCompilationUnit
@@ -68,8 +68,8 @@ namespace Donatello.Services
 
             MacroStore[methodName] = new Lazy<MethodInfo>(() =>
             {
-                var bytes = Compiler.Compile(namespaceName, assemblies, OutputType.DynamicallyLinkedLibrary, program);
-                var macroFunc = AssemblyRunner.GetFunction(bytes, namespaceName, className, methodName);
+                var stream = Compiler.Compile(namespaceName, assemblies, OutputType.DynamicallyLinkedLibrary, program);
+                var macroFunc = AssemblyRunner.GetFunction(stream, namespaceName, className, methodName);
                 return macroFunc;
             });
         }
@@ -81,11 +81,11 @@ namespace Donatello.Services
             var className = split.Take(split.Length - 1).StringJoin(".");
             MacroStore[macroName] = new Lazy<MethodInfo>(() =>
             {
-                //var containingClass = Type.GetType(className);
-                var containingClass = AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(a => !a.IsDynamic)
-                    .SelectMany(a => a.GetTypes())
-                    .FirstOrDefault(t => t.FullName.Equals(className));
+                var containingClass = Type.GetType(className);
+                //var containingClass = AppDomain.CurrentDomain.GetAssemblies()
+                //    .Where(a => !a.IsDynamic)
+                //    .SelectMany(a => a.GetTypes())
+                //    .FirstOrDefault(t => t.FullName.Equals(className));
                 var macro = containingClass.GetMethod(macroName, BindingFlags.Static | BindingFlags.Public);
                 return macro;
             });

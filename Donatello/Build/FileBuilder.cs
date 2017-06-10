@@ -33,8 +33,11 @@ namespace Donatello.Build
             OutputType outputKind = extension == ".dll" ? OutputType.DynamicallyLinkedLibrary :
                                     extension == ".exe" ? OutputType.ConsoleApplication :
                                     throw new ArgumentException($"unknown output extension: '{extension}'");
-            var bytes = CompileSource(content, references, assemblyName, outputKind);
-            File.WriteAllBytes(outputFilename, bytes);
+            var assembly = CompileSource(content, references, assemblyName, outputKind);
+            using (var fileStream = File.Create(outputFilename))
+            {
+                assembly.CopyTo(fileStream);
+            }
         }
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace Donatello.Build
         /// <param name="assemblyName">the name of the output assembly</param>
         /// <param name="outputKind">the desired output format</param>
         /// <returns>a byte array of the compiled assembly</returns>
-        public static byte[] CompileSource(
+        public static Stream CompileSource(
             IReadOnlyCollection<(string NamespaceName, string ClassName, string Content)> inputSources,
             IReadOnlyCollection<string> references,
             string assemblyName,

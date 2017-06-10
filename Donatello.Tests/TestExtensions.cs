@@ -11,12 +11,12 @@ namespace Donatello.Tests
     {
         public static void AssertOutput<T>(string test, T expected, params string[] references)
         {
-            var result = Program.Run<T>(test, references);
+            var result = Program.Run<T>(test, Guid.NewGuid().ToString(), references);
             Assert.Equal(expected, result);
         }
         public static void AssertOutput<T>(string test, Action<T> assertions)
         {
-            var result = Program.Run<T>(test);
+            var result = Program.Run<T>(test, Guid.NewGuid().ToString());
             assertions(result);
         }
 
