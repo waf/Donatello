@@ -8,10 +8,26 @@
 
   <ItemGroup>
     <Compile Remove="Unit\Transforms\Let.cs" />
+    <Compile Remove="Unit\Transforms\Macro.cs" />
+    <Compile Remove="Unit\Transforms\PlusSymbol.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Unit\Transforms\Let.dnl" />
+    <None Remove="Unit\Transforms\Macro.dnl" />
+    <None Remove="Unit\Transforms\PlusSymbol.dnl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Unit\Transforms\PlusSymbol.dnl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Unit\Transforms\Macro.dnl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +35,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Unit\Transforms\Let.dnl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Unit\Transforms\Macro.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Unit\Transforms\PlusSymbol.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

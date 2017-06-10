@@ -14,6 +14,8 @@ namespace Donatello.Tests.Unit
 
         [Theory]
         [InlineData("Let")]
+        [InlineData("Macro")]
+        [InlineData("PlusSymbol")]
         public void Donatello_Transforms_ToCSharp(string test)
         {
             string file = Path.Combine("Unit", "Transforms", test);
@@ -25,8 +27,8 @@ namespace Donatello.Tests.Unit
                 .NormalizeWhitespace()
                 .ToFullString();
 
-            string normalizedExpectedCSharp = Whitespace.Replace(expectedCSharp, " ");
-            string normalizedActualCSharp = Whitespace.Replace(actualCSharp, " ");
+            string normalizedExpectedCSharp = Whitespace.Replace(expectedCSharp, "");
+            string normalizedActualCSharp = Whitespace.Replace(actualCSharp, "");
 
             Assert.Equal(normalizedExpectedCSharp, normalizedActualCSharp);
             

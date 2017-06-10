@@ -1,0 +1,15 @@
+﻿(use Microsoft.CodeAnalysis.CSharp)
+(use Microsoft.CodeAnalysis.CSharp.Syntax)
+(use Microsoft.CodeAnalysis.CSharp.SyntaxFactory.*)
+
+(defmacro unless [test:ExpressionSyntax
+                  thenBranch:ExpressionSyntax
+                  elseBranch:ExpressionSyntax]
+          :CSharpSyntaxNode
+    (ParenthesizedExpression
+        (ConditionalExpression
+            (PrefixUnaryExpression SyntaxKind.LogicalNotExpression test)
+            thenBranch
+            elseBranch)))
+
+(unless false 1 0)
