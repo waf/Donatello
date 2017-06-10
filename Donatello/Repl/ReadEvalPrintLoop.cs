@@ -24,9 +24,9 @@ namespace Donatello.Repl
             {
                 //read!
                 Console.Write("> ");
-                string text = Console.ReadLine().Trim();
+                string text = Console.ReadLine()?.Trim(); // null if ctrl-c
                 if (text == string.Empty) { continue; }
-                if (text == "exit") { break; }
+                if (text == "exit" || text == null) { break; }
 
                 try
                 {
@@ -56,7 +56,7 @@ namespace Donatello.Repl
 
         private static void DrawBanner()
         {
-            Console.WriteLine("Welcome to the Donatello REPL. Try typing (+ 2 2) or type exit to leave.");
+            Console.WriteLine("Welcome to the Donatello REPL. Try typing (+ 2 2) or type 'exit' to leave.");
             Console.WriteLine("For more, see https://github.com/waf/Donatello/blob/master/Readme.md");
             Console.WriteLine();
         }
