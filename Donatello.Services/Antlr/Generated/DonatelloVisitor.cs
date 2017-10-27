@@ -20,7 +20,6 @@
 #pragma warning disable 419
 
 namespace Donatello.Services.Antlr.Generated {
-#pragma warning disable 3021
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IToken = Antlr4.Runtime.IToken;
@@ -39,12 +38,6 @@ public interface IDonatelloVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitFile([NotNull] DonatelloParser.FileContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="DonatelloParser.forms"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitForms([NotNull] DonatelloParser.FormsContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="DonatelloParser.form"/>.
 	/// </summary>

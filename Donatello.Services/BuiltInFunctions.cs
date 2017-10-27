@@ -8,6 +8,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Donatello.Services.Parser;
+using static Donatello.Services.Antlr.Generated.DonatelloParser;
+using Antlr4.Runtime;
 
 namespace Donatello.Services
 {
@@ -27,6 +29,9 @@ namespace Donatello.Services
             { "usemacro", UseMacro },
             { "instance", Instance },
             { "new", New },
+            { "pipe", Pipe },
+            { "pipel", Pipe },
+            { "pipef", PipeFirst },
             { "+", (visitor, children) => MathOperation(SyntaxKind.AddExpression, visitor, children) },
             { "-", (visitor, children) => MathOperation(SyntaxKind.SubtractExpression, visitor, children) },
             { "*", (visitor, children) => MathOperation(SyntaxKind.MultiplyExpression, visitor, children) },
@@ -37,6 +42,45 @@ namespace Donatello.Services
             { ">=", (visitor, children) => EqualityOperation(SyntaxKind.GreaterThanOrEqualExpression, visitor, children) },
             { "=", (visitor, children) => EqualityOperation(SyntaxKind.EqualsExpression, visitor, children) },
         };
+
+        private static CSharpSyntaxNode Pipe(ParseExpressionVisitor visitor, IList<IParseTree> children)
+        {
+            return CreatePipe(visitor, children, Enumerable.Append);
+        }
+
+        private static CSharpSyntaxNode PipeFirst(ParseExpressionVisitor visitor, IList<IParseTree> children)
+        {
+            return CreatePipe(visitor, children, Enumerable.Prepend);
+        }
+
+        private static CSharpSyntaxNode CreatePipe(ParseExpressionVisitor visitor, IList<IParseTree> children,
+            Func<IEnumerable<FormContext>, FormContext, IEnumerable<FormContext>> insertOperation)
+        {
+            var piped = children
+                .Skip(2).Cast<FormContext>() // skip 'pipe' and input argument
+                .Aggregate(
+                    children.ElementAt(1) as FormContext, // initial seed is the input argument
+                    (previousOutput, partialFunction) =>
+                        // create a new list that is the partialFunction with the previousOutput appended.
+                        NewList(insertOperation(partialFunction.list().form(), previousOutput).ToArray())
+                );
+
+            var result = visitor.Visit(piped);
+            return result;
+        }
+
+        private static FormContext NewList(params FormContext[] forms)
+        {
+            var list = new ListContext(null, 0);
+            foreach (var element in forms)
+            {
+                list.AddChild(element);
+                element.Parent = list;
+            }
+            var form = new FormContext(null, 0);
+            form.AddChild(list);
+            return form;
+        }
 
         internal static CSharpSyntaxNode Run(
             ParseExpressionVisitor visitor,
@@ -95,14 +139,8 @@ namespace Donatello.Services
             var bindings = children[1].GetChild(0);
             var expressions = children.Skip(2).Select(statement => visitor.Visit(statement)).ToArray();
             int finalElement = expressions.Length - 1;
-            var statements = expressions
-                .Select((expression, index) =>
-                            index == finalElement ?
-                            ReturnStatement(expression as ExpressionSyntax) :
-                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
-                .ToArray();
 
-            List<StatementSyntax> variables = PairwiseListVisit<StatementSyntax>(bindings, (name, value) =>
+            var variables = bindings.As<VectorContext>().form().InPairs((name, value) =>
             {
                 return LocalDeclarationStatement(
                         VariableDeclaration(IdentifierName("var"))
@@ -110,6 +148,12 @@ namespace Donatello.Services
                             VariableDeclarator(Identifier(name.GetText()))
                             .WithInitializer(EqualsValueClause(visitor.Visit(value) as ExpressionSyntax)))));
             });
+
+            var statements = expressions
+                .Select((expression, index) =>
+                            index == finalElement ?
+                            ReturnStatement(expression as ExpressionSyntax) :
+                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax);
 
             var lambda = ParenthesizedLambdaExpression(Block(variables.Union(statements)));
 
@@ -119,19 +163,6 @@ namespace Donatello.Services
                         IdentifierName(nameof(Constructors)),
                         IdentifierName(nameof(Constructors.CreateLet))))
                     .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))));
-        }
-
-        private static List<T> PairwiseListVisit<T>(IParseTree tree, Func<IParseTree, IParseTree, T> pairwiseOperation)
-        {
-            var list = new List<T>();
-            for (int i = 1; i < tree.ChildCount - 1; i += 2)
-            {
-                list.Add(
-                    pairwiseOperation(tree.GetChild(i), tree.GetChild(i + 1))
-                );
-            }
-
-            return list;
         }
 
         private static CSharpSyntaxNode Use(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
@@ -154,7 +185,7 @@ namespace Donatello.Services
             var methodName = children[1].GetText();
             var parameters = children[2].GetChild(0);
 
-            IList<ParameterSyntax> parameterList = PairwiseListVisit(parameters, (name, type) =>
+            var parameterList = parameters.As<VectorContext>().form().InPairs((name, type) =>
             {
                 return Parameter(Identifier(name.GetText()))
                     .WithType(visitor.Visit(type) as TypeSyntax);

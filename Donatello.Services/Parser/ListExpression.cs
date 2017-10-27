@@ -3,10 +3,6 @@ using Donatello.Services.Antlr.Generated;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Antlr4.Runtime.Tree;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
@@ -18,7 +14,7 @@ namespace Donatello.Services.Parser
     {
         public override CSharpSyntaxNode VisitList([NotNull] DonatelloParser.ListContext context)
         {
-            var children = context.forms().children;
+            var children = context.form();
 
             return CreateListInvocation(children);
         }

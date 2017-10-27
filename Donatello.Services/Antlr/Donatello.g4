@@ -1,10 +1,6 @@
 grammar Donatello;
-@parser::header {#pragma warning disable 3021}
-@lexer::header {#pragma warning disable 3021}
 
-file: form *;
-
-forms: form* ;
+file: form*;
 
 form: literal
     | list
@@ -14,16 +10,16 @@ form: literal
 	| dictionary
     ;
 
-list: '(' forms ')' ;
+list: '(' form* ')' ;
 
 // collection types
-dictionary: '{' form * '}';
-set: '|' form * '|';
-vector: '[' form * ']' ;
+dictionary: '{' form* '}';
+set: '|' form* '|';
+vector: '[' form* ']' ;
 
 LAMBDA_PARAMETER: '\\' [0-9]+;
 lambdaParameter: LAMBDA_PARAMETER;
-lambda: '\\(' forms ')';
+lambda: '\\(' form* ')';
 
 literal
     : string

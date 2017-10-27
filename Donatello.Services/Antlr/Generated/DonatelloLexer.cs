@@ -20,7 +20,6 @@
 #pragma warning disable 419
 
 namespace Donatello.Services.Antlr.Generated {
-#pragma warning disable 3021
 using System;
 using System.Text;
 using Antlr4.Runtime;

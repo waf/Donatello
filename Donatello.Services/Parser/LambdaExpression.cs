@@ -48,7 +48,7 @@ namespace Donatello.Services.Parser
         }
         public override CSharpSyntaxNode VisitLambda([NotNull] DonatelloParser.LambdaContext context)
         {
-            var children = context.forms().children;
+            var children = context.form();
 
             var body = CreateListInvocation(children);
 
