@@ -2,309 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Tree;
-using Donatello.StandardLibrary;
-using Donatello.Services.Util;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Donatello.Services.Parser;
-using static Donatello.Services.Antlr.Generated.DonatelloParser;
-using Antlr4.Runtime;
+using Donatello.Services.BuiltIns;
 
 namespace Donatello.Services
 {
     internal static class BuiltInFunctions
     {
-        delegate CSharpSyntaxNode BuiltIn(ParseExpressionVisitor visitor, IList<IParseTree> children);
-
-        static readonly IDictionary<string, BuiltIn> BuiltIns = new Dictionary<string, BuiltIn>
+        static readonly IReadOnlyDictionary<string, IBuiltIn> BuiltIns = new Dictionary<string, IBuiltIn>
         {
-            { "def", Def },
-            { "defn", Defn },
-            { "defmacro", DefMacro },
-            { "fn", Fn },
-            { "if", If },
-            { "let", Let },
-            { "use", Use },
-            { "usemacro", UseMacro },
-            { "instance", Instance },
-            { "new", New },
-            { "pipe", Pipe },
-            { "pipel", Pipe },
-            { "pipef", PipeFirst },
-            { "+", (visitor, children) => MathOperation(SyntaxKind.AddExpression, visitor, children) },
-            { "-", (visitor, children) => MathOperation(SyntaxKind.SubtractExpression, visitor, children) },
-            { "*", (visitor, children) => MathOperation(SyntaxKind.MultiplyExpression, visitor, children) },
-            { "/", (visitor, children) => MathOperation(SyntaxKind.DivideExpression, visitor, children) },
-            { "<", (visitor, children) => EqualityOperation(SyntaxKind.LessThanExpression, visitor, children) },
-            { ">", (visitor, children) => EqualityOperation(SyntaxKind.GreaterThanExpression, visitor, children) },
-            { "<=", (visitor, children) => EqualityOperation(SyntaxKind.LessThanOrEqualExpression, visitor, children) },
-            { ">=", (visitor, children) => EqualityOperation(SyntaxKind.GreaterThanOrEqualExpression, visitor, children) },
-            { "=", (visitor, children) => EqualityOperation(SyntaxKind.EqualsExpression, visitor, children) },
+            { "def", new Def() },
+            { "defn", new Defn() },
+            { "defmacro", new DefMacro() },
+            { "fn", new Fn() },
+            { "if", new If() },
+            { "let", new Let() },
+            { "use", new Use() },
+            { "usemacro", new UseMacro() },
+            { "instance", new Instance() },
+            { "new", new New() },
+            { "pipe", new Pipe(Enumerable.Append) },
+            { "pipel", new Pipe(Enumerable.Append) },
+            { "pipef", new Pipe(Enumerable.Prepend) },
+            { "+", new MathOperation(SyntaxKind.AddExpression) },
+            { "-", new MathOperation(SyntaxKind.SubtractExpression) },
+            { "*", new MathOperation(SyntaxKind.MultiplyExpression) },
+            { "/", new MathOperation(SyntaxKind.DivideExpression) },
+            { "<", new EqualityOperation(SyntaxKind.LessThanExpression) },
+            { ">", new EqualityOperation(SyntaxKind.GreaterThanExpression) },
+            { "<=", new EqualityOperation(SyntaxKind.LessThanOrEqualExpression) },
+            { ">=", new EqualityOperation(SyntaxKind.GreaterThanOrEqualExpression) },
+            { "=", new EqualityOperation(SyntaxKind.EqualsExpression) },
         };
 
-        private static CSharpSyntaxNode Pipe(ParseExpressionVisitor visitor, IList<IParseTree> children)
-        {
-            return CreatePipe(visitor, children, Enumerable.Append);
-        }
-
-        private static CSharpSyntaxNode PipeFirst(ParseExpressionVisitor visitor, IList<IParseTree> children)
-        {
-            return CreatePipe(visitor, children, Enumerable.Prepend);
-        }
-
-        private static CSharpSyntaxNode CreatePipe(ParseExpressionVisitor visitor, IList<IParseTree> children,
-            Func<IEnumerable<FormContext>, FormContext, IEnumerable<FormContext>> insertOperation)
-        {
-            var piped = children
-                .Skip(2).Cast<FormContext>() // skip 'pipe' and input argument
-                .Aggregate(
-                    children.ElementAt(1) as FormContext, // initial seed is the input argument
-                    (previousOutput, partialFunction) =>
-                        // create a new list that is the partialFunction with the previousOutput appended.
-                        NewList(insertOperation(partialFunction.list().form(), previousOutput).ToArray())
-                );
-
-            var result = visitor.Visit(piped);
-            return result;
-        }
-
-        private static FormContext NewList(params FormContext[] forms)
-        {
-            var list = new ListContext(null, 0);
-            foreach (var element in forms)
-            {
-                list.AddChild(element);
-                element.Parent = list;
-            }
-            var form = new FormContext(null, 0);
-            form.AddChild(list);
-            return form;
-        }
-
-        internal static CSharpSyntaxNode Run(
-            ParseExpressionVisitor visitor,
-            IList<IParseTree> children)
+        internal static CSharpSyntaxNode Run(ParseExpressionVisitor visitor, IList<IParseTree> children)
         {
             string name = children[0].GetText();
             if (!BuiltIns.TryGetValue(name, out var builtIn))
             {
                 return null;
             }
-            return builtIn(visitor, children);
-        }
-
-        private static CSharpSyntaxNode New(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var type = children[1].GetText();
-            var constructorParameters = children
-                .Skip(2)
-                .Select(child => Argument(visitor.Visit(child) as ExpressionSyntax));
-            return ObjectCreationExpression(ParseTypeName(type))
-                .WithArgumentList(ArgumentList(SeparatedList(constructorParameters)));
-        }
-
-        private static CSharpSyntaxNode Instance(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var baseTypesAndInterfaces = children
-                .Skip(1)
-                .Select(child => SimpleBaseType(ParseTypeName(child.GetText())))
-                .ToArray();
-            return BaseList(SeparatedList<BaseTypeSyntax>(baseTypesAndInterfaces));
-        }
-
-        private static CSharpSyntaxNode Fn(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            /*
-                (fn [a b] (+ a b))
-             */
-
-            var bindings = children[1].GetChild(0).Children().ToList();
-            var parameters = bindings.Skip(1).Take(bindings.Count - 2)
-                                    .Select(var => Parameter(Identifier(var.GetText())));
-            var expressions = children.Skip(2).Select(statement => visitor.Visit(statement)).ToArray();
-            int finalElement = expressions.Length - 1;
-            var statements = expressions
-                .Select((expression, index) =>
-                            index == finalElement ?
-                            ReturnStatement(expression as ExpressionSyntax) :
-                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
-                .ToArray();
-            return ParenthesizedLambdaExpression(Block(statements))
-                    .WithParameterList(ParameterList(SeparatedList(parameters)));
-        }
-
-        private static CSharpSyntaxNode Let(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var bindings = children[1].GetChild(0);
-            var expressions = children.Skip(2).Select(statement => visitor.Visit(statement)).ToArray();
-            int finalElement = expressions.Length - 1;
-
-            var variables = bindings.As<VectorContext>().form().InPairs((name, value) =>
-            {
-                return LocalDeclarationStatement(
-                        VariableDeclaration(IdentifierName("var"))
-                        .WithVariables(SingletonSeparatedList(
-                            VariableDeclarator(Identifier(name.GetText()))
-                            .WithInitializer(EqualsValueClause(visitor.Visit(value) as ExpressionSyntax)))));
-            });
-
-            var statements = expressions
-                .Select((expression, index) =>
-                            index == finalElement ?
-                            ReturnStatement(expression as ExpressionSyntax) :
-                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax);
-
-            var lambda = ParenthesizedLambdaExpression(Block(variables.Union(statements)));
-
-            return InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(nameof(Constructors)),
-                        IdentifierName(nameof(Constructors.CreateLet))))
-                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))));
-        }
-
-        private static CSharpSyntaxNode Use(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var target = children[1].GetText().Split('.');
-            if(target.Last() == "*")
-            {
-                return UsingDirective(
-                    Token(SyntaxKind.StaticKeyword),
-                    null,
-                    ParseName(string.Join(".", target.Take(target.Length - 1))));
-            }
-            return UsingDirective(ParseName(string.Join(".", target)));
-        }
-
-        private static CSharpSyntaxNode Defn(
-            IParseTreeVisitor<CSharpSyntaxNode> visitor,
-            IList<IParseTree> children)
-        {
-            var methodName = children[1].GetText();
-            var parameters = children[2].GetChild(0);
-
-            var parameterList = parameters.As<VectorContext>().form().InPairs((name, type) =>
-            {
-                return Parameter(Identifier(name.GetText()))
-                    .WithType(visitor.Visit(type) as TypeSyntax);
-            });
-
-            var returnType = visitor.Visit(children[3]) as TypeSyntax;
-            var statements = children.Skip(4).Select(statement => visitor.Visit(statement)).ToArray();
-            int finalElement = statements.Length - 1;
-            var body = statements
-                .Select((expression, index) =>
-                            index == finalElement && !IsVoid(returnType) ?
-                            ReturnStatement(expression as ExpressionSyntax) :
-                            ExpressionStatement(expression as ExpressionSyntax) as StatementSyntax)
-                .ToArray();
-            return MethodDeclaration(returnType, methodName)
-                    .WithParameterList(ParameterList(SeparatedList(parameterList)))
-                    .WithBody(Block(body));
-        }
-
-        private static bool IsVoid(TypeSyntax returnType)
-        {
-            var voidType = returnType as PredefinedTypeSyntax;
-            return voidType != null && voidType.Keyword.Kind() == SyntaxKind.VoidKeyword;
-        }
-
-        private static CSharpSyntaxNode If(
-            IParseTreeVisitor<CSharpSyntaxNode> visitor,
-            IList<IParseTree> children)
-        {
-            // (if condition then-statement else-statement)
-            var condition = visitor.Visit(children[1]) as ExpressionSyntax;
-            var thenStatement = visitor.Visit(children[2]) as ExpressionSyntax;
-            var elseStatement = visitor.Visit(children[3]) as ExpressionSyntax;
-            return ParenthesizedExpression(
-                ConditionalExpression(condition, thenStatement, elseStatement)
-            );
-        }
-
-        private static CSharpSyntaxNode Def(
-            IParseTreeVisitor<CSharpSyntaxNode> visitor,
-            IList<IParseTree> children)
-        {
-            // (def a:int 5)
-            var name = children[1].GetText();
-            var type = visitor.Visit(children[2]) as TypeSyntax;
-            var value = visitor.Visit(children[3]) as ExpressionSyntax;
-            return FieldDeclaration(
-                VariableDeclaration(type, SingletonSeparatedList(
-                    VariableDeclarator(name).WithInitializer(EqualsValueClause(value)))));
-        }
-
-        private static CSharpSyntaxNode MathOperation(SyntaxKind operation, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var values = children.Skip(1).Select(child => visitor.Visit(child) as ExpressionSyntax);
-            return ParenthesizedExpression(
-                values.Aggregate((a, b) => BinaryExpression(operation, a, b))
-            );
-        }
-
-        private static CSharpSyntaxNode EqualityOperation(SyntaxKind equalityExpression, IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var values = children
-                .Skip(1)
-                .Select(child => visitor.Visit(child) as ExpressionSyntax)
-                .ToArray();
-
-            // optimize for common scenario
-            if(values.Length == 2)
-            {
-                return ParenthesizedExpression(
-                    BinaryExpression(equalityExpression, values[0], values[1])
-                );
-            }
-
-            // create a var declaration for each operand.
-            var variableNames = Enumerable.Range(1, int.MaxValue)
-                                 .Select(n => "operand" + n)
-                                 .Take(values.Length)
-                                 .ToArray();
-            StatementSyntax[] variableDeclarations = variableNames
-                .Zip(values, (variable, value) =>
-                    LocalDeclarationStatement(
-                        VariableDeclaration(IdentifierName("var"))
-                            .WithVariables(SingletonSeparatedList(
-                                VariableDeclarator(Identifier(variable))
-                                .WithInitializer(EqualsValueClause(value))))))
-                .ToArray();
-
-            StatementSyntax andStatement = ReturnStatement(
-                // pairwise list visit to create [operand1 < operand2, operand2 < operand3, operand3 < operand4]
-                variableNames.Zip(variableNames.Skip(1),
-                    (a, b) => BinaryExpression(equalityExpression, IdentifierName(a), IdentifierName(b)))
-                // 'and' the comparisons together
-                .Aggregate((a, b) => BinaryExpression(SyntaxKind.LogicalAndExpression, a, b)));
-
-            // execute let expression
-            var lambda = ParenthesizedLambdaExpression(Block(variableDeclarations.Union(new[] { andStatement })));
-            return ParenthesizedExpression(
-                InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        IdentifierName(nameof(Constructors)),
-                        IdentifierName(nameof(Constructors.CreateLet))))
-                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(lambda))))
-            );
-        }
-
-        private static CSharpSyntaxNode UseMacro(IParseTreeVisitor<CSharpSyntaxNode> visitor, IList<IParseTree> children)
-        {
-            var path = children[1].GetText();
-            Macros.ResolveMacro(path);
-            return EmptyStatement();
-        }
-
-        private static CSharpSyntaxNode DefMacro(ParseExpressionVisitor visitor, IList<IParseTree> children)
-        {
-            var result = Defn(visitor, children) as MethodDeclarationSyntax;
-            Macros.AddMacro(result, visitor.NamespaceName, visitor.ClassName);
-            return result; // return the macro as a function so other programs can reference it.
+            return builtIn.Invoke(visitor, children);
         }
     }
 }
