@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26606.0
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello", "Donatello\Donatello.csproj", "{6CDF7232-2681-47B3-852A-6B0782D4CFE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello", "src\Donatello\Donatello.csproj", "{6CDF7232-2681-47B3-852A-6B0782D4CFE6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.Services", "Donatello.Services\Donatello.Services.csproj", "{FCFB0966-F989-438C-8169-AFB97E20CA19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.Services", "src\Donatello.Services\Donatello.Services.csproj", "{FCFB0966-F989-438C-8169-AFB97E20CA19}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.StandardLibrary", "Donatello.StandardLibrary\Donatello.StandardLibrary.csproj", "{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.StandardLibrary", "src\Donatello.StandardLibrary\Donatello.StandardLibrary.csproj", "{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.Tests", "Donatello.Tests\Donatello.Tests.csproj", "{BD551235-0E63-4A82-89BF-6D75A6D78851}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.Tests", "test\Donatello.Tests\Donatello.Tests.csproj", "{BD551235-0E63-4A82-89BF-6D75A6D78851}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +36,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6CDF7232-2681-47B3-852A-6B0782D4CFE6} = {352A1194-95C2-4F8E-A731-B41FBC9348A3}
+		{FCFB0966-F989-438C-8169-AFB97E20CA19} = {352A1194-95C2-4F8E-A731-B41FBC9348A3}
+		{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739} = {352A1194-95C2-4F8E-A731-B41FBC9348A3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D724ACBF-1457-42D3-8524-397931E17F6E}
 	EndGlobalSection
 EndGlobal
