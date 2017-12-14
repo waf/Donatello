@@ -3,18 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello", "src\Donatello\Donatello.csproj", "{6CDF7232-2681-47B3-852A-6B0782D4CFE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello", "Donatello\Donatello.csproj", "{869B4713-FC9A-4753-BBC9-AE270F5164B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.Services", "src\Donatello.Services\Donatello.Services.csproj", "{FCFB0966-F989-438C-8169-AFB97E20CA19}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.StandardLibrary", "src\Donatello.StandardLibrary\Donatello.StandardLibrary.csproj", "{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Donatello.Tests", "test\Donatello.Tests\Donatello.Tests.csproj", "{BD551235-0E63-4A82-89BF-6D75A6D78851}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{43C38D1D-B173-4880-95B7-1A17618FCD4F}"
-	ProjectSection(SolutionItems) = preProject
-		Readme.md = Readme.md
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Donatello.Tests", "Donatello.Tests\Donatello.Tests.csproj", "{6058C18A-FFAC-44BF-BFDD-47CA93083353}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,27 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6CDF7232-2681-47B3-852A-6B0782D4CFE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CDF7232-2681-47B3-852A-6B0782D4CFE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CDF7232-2681-47B3-852A-6B0782D4CFE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CDF7232-2681-47B3-852A-6B0782D4CFE6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FCFB0966-F989-438C-8169-AFB97E20CA19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FCFB0966-F989-438C-8169-AFB97E20CA19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FCFB0966-F989-438C-8169-AFB97E20CA19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FCFB0966-F989-438C-8169-AFB97E20CA19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{838DBD80-1CD9-49C0-91B0-A0ECA4BAC739}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BD551235-0E63-4A82-89BF-6D75A6D78851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD551235-0E63-4A82-89BF-6D75A6D78851}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BD551235-0E63-4A82-89BF-6D75A6D78851}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BD551235-0E63-4A82-89BF-6D75A6D78851}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869B4713-FC9A-4753-BBC9-AE270F5164B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869B4713-FC9A-4753-BBC9-AE270F5164B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869B4713-FC9A-4753-BBC9-AE270F5164B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869B4713-FC9A-4753-BBC9-AE270F5164B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6058C18A-FFAC-44BF-BFDD-47CA93083353}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6058C18A-FFAC-44BF-BFDD-47CA93083353}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6058C18A-FFAC-44BF-BFDD-47CA93083353}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6058C18A-FFAC-44BF-BFDD-47CA93083353}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D724ACBF-1457-42D3-8524-397931E17F6E}
+		SolutionGuid = {B04B0FC6-6280-4EE3-9018-749256C99FD1}
 	EndGlobalSection
 EndGlobal

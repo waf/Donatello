@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{869B4713-FC9A-4753-BBC9-AE270F5164B2}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Donatello</RootNamespace>
+    <AssemblyName>Donatello</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr4.Runtime.Standard, Version=4.7.0.0, Culture=neutral, PublicKeyToken=e78b2c5abd1fcb3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr4.Runtime.Standard.4.7.1\lib\net35\Antlr4.Runtime.Standard.dll</HintPath>
+    </Reference>
+    <Reference Include="Sigil, Version=4.7.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sigil.4.7.0\lib\net45\Sigil.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Ast\DefExpression.cs" />
+    <Compile Include="Ast\DefUntypedExpression.cs" />
+    <Compile Include="Ast\FileUntypedExpression.cs" />
+    <Compile Include="Ast\FunctionExpression.cs" />
+    <Compile Include="Ast\ITypedExpression.cs" />
+    <Compile Include="Ast\SymbolUntypedExpression.cs" />
+    <Compile Include="Ast\SymbolExpression.cs" />
+    <Compile Include="Ast\DoubleExpression.cs" />
+    <Compile Include="Ast\IExpression.cs" />
+    <Compile Include="Ast\FileExpression.cs" />
+    <Compile Include="Ast\BooleanExpression.cs" />
+    <Compile Include="Ast\LongExpression.cs" />
+    <Compile Include="Ast\IVisitor.cs" />
+    <Compile Include="Ast\ListExpression.cs" />
+    <Compile Include="Ast\StringExpression.cs" />
+    <Compile Include="Emitter\ClassEmitter.cs" />
+    <Compile Include="Extensions\LinqExtensions.cs" />
+    <Compile Include="Parser\AstProducer.cs" />
+    <Compile Include="Ast\FunctionUntypedExpression.cs" />
+    <Compile Include="Parser\Generated\DonatelloBaseVisitor.cs" />
+    <Compile Include="Parser\Generated\DonatelloLexer.cs" />
+    <Compile Include="Parser\Generated\DonatelloParser.cs" />
+    <Compile Include="Parser\Generated\DonatelloVisitor.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AstOperation.cs" />
+    <Compile Include="TypeInference\Annotator.cs" />
+    <Compile Include="TypeInference\ConstraintCollector.cs" />
+    <Compile Include="TypeInference\Environment.cs" />
+    <Compile Include="TypeInference\HindleyMilner.cs" />
+    <Compile Include="TypeInference\TypeUnifier.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="Parser\Donatello.g4" />
+    <None Include="Parser\Generated\Donatello.tokens" />
+    <None Include="Parser\Generated\DonatelloLexer.tokens" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
