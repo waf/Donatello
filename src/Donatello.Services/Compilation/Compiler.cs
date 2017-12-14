@@ -30,7 +30,7 @@ namespace Donatello.Services.Compilation
             { "System.Linq", typeof(Enumerable).GetTypeInfo().Assembly },
             { "System.Collections.Immutable", typeof(ImmutableArray).GetTypeInfo().Assembly },
             { "System.Collections.Generic", typeof(IEnumerable<>).GetTypeInfo().Assembly },
-            { "Donatello.StandardLibrary", typeof(Constructors).GetTypeInfo().Assembly }
+            { "Donatello.StandardLibrary", typeof(Constructors).GetTypeInfo().Assembly },
         };
         public static Lazy<IReadOnlyCollection<string>> DotNetCoreAssemblies = 
             new Lazy<IReadOnlyCollection<string>>(GetDotNetCoreAssemblies);

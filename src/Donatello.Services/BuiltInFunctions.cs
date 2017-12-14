@@ -29,6 +29,7 @@ namespace Donatello.Services
             { "-", new MathOperation(SyntaxKind.SubtractExpression) },
             { "*", new MathOperation(SyntaxKind.MultiplyExpression) },
             { "/", new MathOperation(SyntaxKind.DivideExpression) },
+            { "%", new MathOperation(SyntaxKind.ModuloExpression) },
             { "<", new EqualityOperation(SyntaxKind.LessThanExpression) },
             { ">", new EqualityOperation(SyntaxKind.GreaterThanExpression) },
             { "<=", new EqualityOperation(SyntaxKind.LessThanOrEqualExpression) },
