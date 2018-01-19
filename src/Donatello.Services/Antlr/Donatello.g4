@@ -5,9 +5,9 @@ file: form*;
 form: literal
     | list
     | lambda
-	| vector
-	| set
-	| dictionary
+    | vector
+    | set
+    | dictionary
     ;
 
 list: '(' form* ')' ;
@@ -28,7 +28,7 @@ literal
     | fieldAccess
     | symbol
     | lambdaParameter
-	| type
+    | type
     ;
 
 string: STRING;
