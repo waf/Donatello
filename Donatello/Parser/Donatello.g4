@@ -7,19 +7,33 @@ form: literal
     | list
 	| def
 	| function
+	| defType
 	| let
     | vector
     | map
     ;
 
+
 list: '(' form* ')' ;
 vector: '[' form* ']' ;
 map: '{' (form form)* '}' ;
 set: '|' form* '|' ;
-functionArgs: '[' symbol* ']' ;
-def: '(' 'def' name=symbol form ')' ;
-function: '(' 'defn' name=symbol functionArgs form* ')' ;
-let: '(' 'let' '[' (symbol form)* ']' form* ')' ;
+functionArgs: '[' identifier* ']' ;
+def: '(' 'def' identifier form ')' ;
+function: '(' 'defn' identifier functionArgs form* ')' ;
+binding: (identifier form);
+let: '(' 'let' '[' binding* ']' form* ')' ;
+
+propertyDeclaration: (property type);
+defType: '(' 'deftype' identifier propertyDeclaration+ ')' ;
+
+
+symbol: PROPERTY | METHOD | NAME | QUALIFIED_NAME | MATH;
+property: PROPERTY;
+type: NAME;
+identifier: NAME;
+PROPERTY: '-' NAME;
+METHOD: '.' NAME;
 
 literal
     : string
@@ -58,11 +72,9 @@ BOOLEAN
 	| 'false'
 	;
 
-symbol: NAME | MATH;
-
+NAME: (LETTER | '_') (LETTER | DIGIT | '_')*;
+QUALIFIED_NAME: (LETTER | '_') (LETTER | DIGIT | '_' | '.')*;
 MATH: '+' | '-' | '/' | '*' | '%';
-
-NAME: LETTER (LETTER | DIGIT | '_')*;
 
 fragment LETTER : LOWER | UPPER;
 fragment LOWER  : 'a'..'z';

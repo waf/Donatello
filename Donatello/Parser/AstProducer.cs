@@ -43,8 +43,9 @@ namespace Donatello.Parser
 
         public override IExpression VisitFunction([NotNull] DonatelloParser.FunctionContext context)
         {
-            var name = context.name.GetText();
-            var args = context.functionArgs().symbol().Select(Visit).Cast<SymbolUntypedExpression>();
+            //TODO: get rid of symbol here? it can just be a string.
+            var name = new SymbolUntypedExpression(context.identifier().GetText());
+            var args = context.functionArgs().identifier().Select(Visit).Cast<SymbolUntypedExpression>();
             var body = context.form().Select(Visit);
 
             return new FunctionUntypedExpression(name, args, body);
@@ -52,7 +53,8 @@ namespace Donatello.Parser
 
         public override IExpression VisitDef([NotNull] DonatelloParser.DefContext context)
         {
-            var name = Visit(context.name) as SymbolUntypedExpression;
+            //TODO: get rid of symbol here? it can just be a string.
+            var name = new SymbolUntypedExpression(context.identifier().GetText());
             var body = Visit(context.form());
             return new DefUntypedExpression(name, body);
         }
@@ -117,6 +119,16 @@ namespace Donatello.Parser
         {
             var elements = context.form().Select(form => Visit(form));
             return new VectorUntypedExpression(elements);
+        }
+
+        public override IExpression VisitDefType([NotNull] DonatelloParser.DefTypeContext context)
+        {
+            var name = context.identifier().GetText();
+            var declarations = context
+                .propertyDeclaration()
+                .Select(prop => new Property(prop.property().GetText(), prop.type().GetText()))
+                .ToArray();
+            return new DefTypeExpression(name, declarations);
         }
     }
 }

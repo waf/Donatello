@@ -9,6 +9,7 @@ namespace Donatello.Ast
     interface IVisitor
     {
         void Visit(FloatExpression expr);
+        void Visit(DefTypeExpression expr);
         void Visit(LongExpression expr);
         void Visit(BooleanExpression expr);
         void Visit(StringExpression expr);
@@ -21,18 +22,19 @@ namespace Donatello.Ast
         void Visit(FileExpression expr);
     }
 
-    interface IVisitor<T>
+    interface IVisitor<TReturn>
     {
-        T Visit(FloatExpression expr);
-        T Visit(LongExpression expr);
-        T Visit(BooleanExpression expr);
-        T Visit(StringExpression expr);
-        T Visit(SymbolExpression expr);
-        T Visit(ListExpression expr);
-        T Visit(VectorExpression expr);
-        T Visit(SetExpression expr);
-        T Visit(DefExpression expr);
-        T Visit(FunctionExpression expr);
-        T Visit(FileExpression expr);
+        TReturn Visit(FloatExpression expr);
+        TReturn Visit(LongExpression expr);
+        TReturn Visit(BooleanExpression expr);
+        TReturn Visit(StringExpression expr);
+        TReturn Visit(SymbolExpression expr);
+        TReturn Visit(ListExpression expr);
+        TReturn Visit(VectorExpression expr);
+        TReturn Visit(SetExpression expr);
+        TReturn Visit(DefExpression expr);
+        TReturn Visit(DefTypeExpression expr);
+        TReturn Visit(FunctionExpression expr);
+        TReturn Visit(FileExpression expr);
     }
 }

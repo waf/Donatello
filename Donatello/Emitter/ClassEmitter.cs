@@ -6,6 +6,9 @@ using Sigil;
 using Donatello.Ast;
 using Sigil.NonGeneric;
 using Donatello.TypeInference;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace Donatello.Emitter
 {
@@ -34,10 +37,16 @@ namespace Donatello.Emitter
 
         public void Visit(FileExpression file)
         {
+            var functions = file.Statements.OfType<FunctionExpression>().ToList();
+            foreach (var function in functions)
+            {
+                Visit(function);
+            }
+
             // TODO: now, we only support one method per file, since we don't actually have a way to declare methods
             Emitter = Emit.BuildStaticMethod(typeof(void), new[] { typeof(string[]) }, TypeBuilder, "Main", PublicStatic);
 
-            foreach (var elem in file.Statements)
+            foreach (var elem in file.Statements.Except(functions))
             {
                 this.Visit(elem);
             }
@@ -71,7 +80,7 @@ namespace Donatello.Emitter
 
         public void Visit(ListExpression list)
         {
-            var function = list.Elements[0] as SymbolUntypedExpression;
+            var function = list.Elements[0] as SymbolExpression;
             var arguments = list.Elements.Skip(1).ToList();
 
             foreach (var elem in arguments)
@@ -80,12 +89,25 @@ namespace Donatello.Emitter
             }
 
             // find method and emit 'call' instruction
+            if(Functions.TryGetValue(function.Name, out var localMethod))
+            {
+                Emitter.Call(localMethod);
+            }
+            else
+            {
+                var externalMethod = GetExternalMethod(function, arguments);
+                Emitter.Call(externalMethod);
+            }
+        }
+
+        private static MethodInfo GetExternalMethod(SymbolExpression function, List<ITypedExpression> arguments)
+        {
             var functionNameIndex = function.Name.LastIndexOf('.');
-            var method = Type
+            return Type
                 .GetType(function.Name.Substring(0, functionNameIndex))
                 .GetMethod(
                     function.Name.Substring(functionNameIndex + 1),
-                    arguments.Select(arg => 
+                    arguments.Select(arg =>
                         arg.Type is TypeVariable t ?
                             throw new InvalidOperationException("unresolved type") :
                         arg.Type is ConcreteType c ?
@@ -93,7 +115,6 @@ namespace Donatello.Emitter
                         throw new ArgumentException("unknown class " + arg.Type.GetType().Name)
                     ).ToArray()
                 );
-            Emitter.Call(method);
         }
 
         public void Visit(BooleanExpression expr)
@@ -118,7 +139,35 @@ namespace Donatello.Emitter
 
         public void Visit(FunctionExpression expr)
         {
-            throw new NotImplementedException();
+            Emitter = Emit.BuildStaticMethod(
+                ConcreteType(expr.Type.ReturnType),
+                expr.Type.ArgumentTypes.Select(ConcreteType).ToArray(),
+                TypeBuilder,
+                expr.Symbol.Name,
+                PublicStatic);
+
+            foreach (var elem in expr.Body)
+            {
+                this.Visit(elem);
+            }
+
+            Emitter.Return();
+            var method = Emitter.CreateMethod();
+            var instrs = Emitter.Instructions();
+            Functions.Add(expr.Symbol.Name, Emitter);
         }
+
+        IDictionary<string, Emit> Functions = new Dictionary<string, Emit>();
+
+        public Type ConcreteType(IType type)
+        {
+            return ((ConcreteType)type).Type;
+        }
+
+        public void Visit(DefTypeExpression expr)
+        {
+            var type = Record.CreateRecord(ModuleBuilder, expr);
+        }
+
     }
 }

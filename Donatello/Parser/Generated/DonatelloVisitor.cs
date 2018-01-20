@@ -87,11 +87,53 @@ public interface IDonatelloVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitFunction([NotNull] DonatelloParser.FunctionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.binding"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBinding([NotNull] DonatelloParser.BindingContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="DonatelloParser.let"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitLet([NotNull] DonatelloParser.LetContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.propertyDeclaration"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPropertyDeclaration([NotNull] DonatelloParser.PropertyDeclarationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.defType"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDefType([NotNull] DonatelloParser.DefTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.symbol"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSymbol([NotNull] DonatelloParser.SymbolContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.property"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitProperty([NotNull] DonatelloParser.PropertyContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.type"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitType([NotNull] DonatelloParser.TypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="DonatelloParser.identifier"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIdentifier([NotNull] DonatelloParser.IdentifierContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="DonatelloParser.literal"/>.
 	/// </summary>
@@ -116,11 +158,5 @@ public interface IDonatelloVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNumber([NotNull] DonatelloParser.NumberContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="DonatelloParser.symbol"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitSymbol([NotNull] DonatelloParser.SymbolContext context);
 }
 } // namespace Donatello.Parser.Generated

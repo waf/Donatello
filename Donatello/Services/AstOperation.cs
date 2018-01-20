@@ -19,6 +19,7 @@ namespace Donatello.Services
                 case StringExpression stringLiteral: return StringLiteral(stringLiteral);
                 case FileExpression file: return File(file);
                 case DefExpression def: return Def(def);
+                case DefTypeExpression defType: return DefType(defType);
                 case SymbolExpression symbol: return Symbol(symbol);
                 case FunctionExpression function: return Function(function);
                 case ListExpression list: return List(list);
@@ -28,6 +29,7 @@ namespace Donatello.Services
             }
         }
 
+        protected abstract TReturn DefType(DefTypeExpression defType);
         protected abstract TReturn Set(SetExpression set);
         protected abstract TReturn Vector(VectorExpression vector);
         protected abstract TReturn List(ListExpression list);
@@ -53,7 +55,8 @@ namespace Donatello.Services
                 case StringExpression stringLiteral: return StringLiteral(stringLiteral);
                 case FileUntypedExpression file: return File(file);
                 case DefUntypedExpression def: return Def(def);
-                case SymbolUntypedExpression symbol: return Symbol(symbol);
+                case DefTypeExpression defType: return DefType(defType);
+                case SymbolUntypedExpression identifier: return Identifier(identifier);
                 case FunctionUntypedExpression function: return Function(function);
                 case ListUntypedExpression list: return List(list);
                 case VectorUntypedExpression vector: return Vector(vector);
@@ -62,11 +65,12 @@ namespace Donatello.Services
             }
         }
 
+        protected abstract TReturn DefType(DefTypeExpression defType);
         protected abstract TReturn Set(SetUntypedExpression set);
         protected abstract TReturn Vector(VectorUntypedExpression vector);
         protected abstract TReturn List(ListUntypedExpression list);
         protected abstract TReturn Function(FunctionUntypedExpression function);
-        protected abstract TReturn Symbol(SymbolUntypedExpression symbol);
+        protected abstract TReturn Identifier(SymbolUntypedExpression symbol);
         protected abstract TReturn Def(DefUntypedExpression def);
         protected abstract TReturn File(FileUntypedExpression file);
         protected abstract TReturn StringLiteral(StringExpression stringLiteral);

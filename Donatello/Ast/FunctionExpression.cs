@@ -9,18 +9,20 @@ namespace Donatello.Ast
 {
     class FunctionExpression : ITypedExpression
     {
-        public FunctionExpression(string name, IReadOnlyList<SymbolExpression> arguments, IReadOnlyList<ITypedExpression> body, IType type)
+        public FunctionExpression(SymbolExpression symbol, IReadOnlyList<SymbolExpression> arguments, IReadOnlyList<ITypedExpression> body, IType type)
         {
-            Name = name;
+            Symbol = symbol;
             Arguments = arguments;
             Body = body;
-            Type = type;
+            Type = (FunctionType)type;
         }
 
-        public string Name { get; set; }
+        public SymbolExpression Symbol { get; set; }
         public IReadOnlyList<SymbolExpression> Arguments { get; set; }
         public IReadOnlyList<ITypedExpression> Body { get; set; }
-        public IType Type { get; set; }
+
+        public FunctionType Type { get; set; }
+        IType ITypedExpression.Type => this.Type;
 
         public void Accept(IVisitor visitor) => visitor.Visit(this);
         public T Accept<T>(IVisitor<T> visitor) => visitor.Visit(this);

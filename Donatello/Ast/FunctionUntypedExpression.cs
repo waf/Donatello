@@ -9,13 +9,13 @@ namespace Donatello.Ast
 {
     class FunctionUntypedExpression : IExpression
     {
-        public string Name { get; set; }
+        public SymbolUntypedExpression Symbol { get; set; }
         public IReadOnlyList<SymbolUntypedExpression> Arguments { get; set; }
         public IReadOnlyList<IExpression> Body { get; set; }
 
-        public FunctionUntypedExpression(string name, IEnumerable<SymbolUntypedExpression> arguments, IEnumerable<IExpression> body)
+        public FunctionUntypedExpression(SymbolUntypedExpression symbol, IEnumerable<SymbolUntypedExpression> arguments, IEnumerable<IExpression> body)
         {
-            this.Name = name;
+            this.Symbol = symbol;
             this.Arguments = arguments.ToArray();
             this.Body = body.ToArray();
         }

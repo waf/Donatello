@@ -90,6 +90,7 @@ namespace Donatello.TypeInference
                 case LongExpression longLiteral: return longLiteral;
                 case FloatExpression floatLiteral: return floatLiteral;
                 case StringExpression stringLiteral: return stringLiteral;
+                case DefTypeExpression defType: return defType;
                 case FileExpression file:
                     return new FileExpression(file.Statements.Select(expr => Apply(substitutions, expr)));
                 case DefExpression def:
@@ -100,7 +101,7 @@ namespace Donatello.TypeInference
                 case SymbolExpression symbol:
                     return new SymbolExpression(symbol.Name, Apply(substitutions, symbol.Type));
                 case FunctionExpression function:
-                    return new FunctionExpression(function.Name,
+                    return new FunctionExpression(function.Symbol,
                         function.Arguments.Select(arg => Apply(substitutions, arg) as SymbolExpression).ToList(),
                         function.Body.Select(expr => Apply(substitutions, expr)).ToList(),
                         Apply(substitutions, function.Type));

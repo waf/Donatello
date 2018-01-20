@@ -20,6 +20,8 @@ namespace Donatello.TypeInference
 
         public IType First { get; }
         public IType Second { get; }
+
+        public override string ToString() => $"{First}, {Second}";
     }
 
     internal class ConstraintCollector : AstOperation<IImmutableList<Constraint>>
@@ -37,6 +39,7 @@ namespace Donatello.TypeInference
         protected override IImmutableList<Constraint> LongLiteral(LongExpression expr) => NoConstraints;
         protected override IImmutableList<Constraint> BooleanLiteral(BooleanExpression expr) => NoConstraints;
         protected override IImmutableList<Constraint> StringLiteral(StringExpression expr) => NoConstraints;
+        protected override IImmutableList<Constraint> DefType(DefTypeExpression defType) => NoConstraints;
 
         // a single symbol gives us no information
         protected override IImmutableList<Constraint> Symbol(SymbolExpression expr) => NoConstraints;
@@ -92,7 +95,11 @@ namespace Donatello.TypeInference
 
         protected override IImmutableList<Constraint> Function(FunctionExpression expr)
         {
-            throw new NotImplementedException();
+            return ImmutableList.Create(
+                // the function's return type is the same as the type of the last statement in the body.
+                new Constraint(expr.Type.ReturnType, expr.Body.Last().Type),
+                new Constraint(expr.Symbol.Type, new FunctionType(expr.Arguments.Select(arg => arg.Type), expr.Body.Last().Type))
+            );
         }
 
         protected override IImmutableList<Constraint> File(FileExpression expr)

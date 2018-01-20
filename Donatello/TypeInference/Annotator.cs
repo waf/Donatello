@@ -43,16 +43,17 @@ namespace Donatello.TypeInference
 
         protected override ITypedExpression Function(FunctionUntypedExpression function)
         {
-            var arguments = function.Arguments.Select(arg => (SymbolExpression)Symbol(arg)).ToList();
+            var symbol = (SymbolExpression)Identifier(function.Symbol);
+            var arguments = function.Arguments.Select(arg => (SymbolExpression)Identifier(arg)).ToList();
             var body = function.Body.Select(Apply).ToList();
             var type = new FunctionType(
                 arguments.Select(a => a.Type),
                 body.Last().Type);
 
-            return new FunctionExpression(function.Name, arguments, body, type);
+            return new FunctionExpression(symbol, arguments, body, type);
         }
 
-        protected override ITypedExpression Symbol(SymbolUntypedExpression symbol)
+        protected override ITypedExpression Identifier(SymbolUntypedExpression symbol)
         {
             IType type = TypeEnvironment.GetTypeForName(symbol.Name);
             return new SymbolExpression(symbol.Name, type);
@@ -60,7 +61,7 @@ namespace Donatello.TypeInference
 
         protected override ITypedExpression Def(DefUntypedExpression def)
         {
-            var symbol = (SymbolExpression)Symbol(def.Symbol);
+            var symbol = (SymbolExpression)Identifier(def.Symbol);
             var body = Apply(def.Body);
             return new DefExpression(symbol, body, body.Type);
         }
@@ -89,6 +90,11 @@ namespace Donatello.TypeInference
         protected override ITypedExpression BooleanLiteral(BooleanExpression booleanLiteral)
         {
             return booleanLiteral;
+        }
+
+        protected override ITypedExpression DefType(DefTypeExpression defType)
+        {
+            return defType;
         }
     }
 }
