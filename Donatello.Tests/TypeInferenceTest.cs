@@ -36,6 +36,7 @@ namespace Donatello.Tests
             var tast = Annotator.Annotate(ast);
             var constraints = ConstraintCollector.Collect(tast);
             var result = TypeUnifier.Unify(constraints);
+            var typed = HindleyMilner.Infer(ast);
             return;
         }
 

@@ -2,13 +2,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Sigil;
 using Donatello.Ast;
 using Sigil.NonGeneric;
 using Donatello.TypeInference;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
 
 namespace Donatello.Emitter
 {
@@ -19,6 +16,12 @@ namespace Donatello.Emitter
         readonly AssemblyBuilder AssemblyBuilder;
         readonly ModuleBuilder ModuleBuilder;
         readonly TypeBuilder TypeBuilder;
+
+        IDictionary<string, Emit> Functions = new Dictionary<string, Emit>();
+        IDictionary<string, FieldInfo> Fields = new Dictionary<string, FieldInfo>();
+        IDictionary<string, ITypedExpression> Constants = new Dictionary<string, ITypedExpression>();
+        IDictionary<string, Type> Types = new Dictionary<string, Type>();
+        private Emit staticConstructor;
 
         // Emit API is stateful, so this field mutates as the AST is traversed.
         Emit Emitter;
@@ -37,22 +40,29 @@ namespace Donatello.Emitter
 
         public void Visit(FileExpression file)
         {
+            var fields = file.Statements.OfType<DefExpression>().ToList();
+            Emitter = Emit.BuildTypeInitializer(TypeBuilder);
+            foreach (var field in fields)
+            {
+                Visit(field);
+            }
+            Emitter.Return();
+            Emitter.CreateTypeInitializer();
+
             var functions = file.Statements.OfType<FunctionExpression>().ToList();
             foreach (var function in functions)
             {
                 Visit(function);
             }
 
-            // TODO: now, we only support one method per file, since we don't actually have a way to declare methods
             Emitter = Emit.BuildStaticMethod(typeof(void), new[] { typeof(string[]) }, TypeBuilder, "Main", PublicStatic);
-
-            foreach (var elem in file.Statements.Except(functions))
+            foreach (var elem in file.Statements.Except(fields).Except(functions))
             {
                 this.Visit(elem);
             }
-
             Emitter.Return();
             var method = Emitter.CreateMethod();
+
             TypeBuilder.CreateType();
             AssemblyBuilder.SetEntryPoint(method);
         }
@@ -70,7 +80,15 @@ namespace Donatello.Emitter
         public void Visit(SymbolExpression expr)
         {
             //TODO: the hard stuff
-            throw new NotImplementedException();
+
+            if(Fields.TryGetValue(expr.Name, out var field))
+            {
+                Emitter.LoadField(field);
+            }
+            else if(Constants.TryGetValue(expr.Name, out var constantExpression))
+            {
+                Visit(constantExpression);
+            }
         }
 
         public void Visit(StringExpression expr)
@@ -83,18 +101,35 @@ namespace Donatello.Emitter
             var function = list.Elements[0] as SymbolExpression;
             var arguments = list.Elements.Skip(1).ToList();
 
-            foreach (var elem in arguments)
-            {
-                this.Visit(elem);
-            }
-
             // find method and emit 'call' instruction
-            if(Functions.TryGetValue(function.Name, out var localMethod))
+            if(function.Name == "new")
             {
+                var typeName = arguments[0];
+                var constructorParameters = arguments.Skip(1).ToArray();
+                foreach (var param in constructorParameters)
+                {
+                    this.Visit(param);
+                }
+
+                var typeToInstantiate = Types[typeName.ToString()];
+                var constructorParameterTypes = arguments.Select(arg => ConcreteType(arg.Type)).ToArray();
+                var constructor = typeToInstantiate.GetConstructor(constructorParameterTypes);
+                Emitter.NewObject(constructor);
+            }
+            else if(Functions.TryGetValue(function.Name, out var localMethod))
+            {
+                foreach (var elem in arguments)
+                {
+                    this.Visit(elem);
+                }
                 Emitter.Call(localMethod);
             }
             else
             {
+                foreach (var elem in arguments)
+                {
+                    this.Visit(elem);
+                }
                 var externalMethod = GetExternalMethod(function, arguments);
                 Emitter.Call(externalMethod);
             }
@@ -107,14 +142,15 @@ namespace Donatello.Emitter
                 .GetType(function.Name.Substring(0, functionNameIndex))
                 .GetMethod(
                     function.Name.Substring(functionNameIndex + 1),
-                    arguments.Select(arg =>
-                        arg.Type is TypeVariable t ?
-                            throw new InvalidOperationException("unresolved type") :
-                        arg.Type is ConcreteType c ?
-                            c.Type :
-                        throw new ArgumentException("unknown class " + arg.Type.GetType().Name)
-                    ).ToArray()
+                    arguments.Select(ResolveType).ToArray()
                 );
+        }
+
+        private static Type ResolveType(ITypedExpression arg)
+        {
+            return arg.Type is TypeVariable t ? throw new InvalidOperationException("unresolved type") :
+                   arg.Type is ConcreteType c ? c.Type :
+                   throw new ArgumentException("unknown class " + arg.Type.GetType().Name);
         }
 
         public void Visit(BooleanExpression expr)
@@ -134,7 +170,23 @@ namespace Donatello.Emitter
 
         public void Visit(DefExpression expr)
         {
-            throw new NotImplementedException();
+            var type = ResolveType(expr.Symbol);
+            // literal == const, initonly == readonly
+            var literalOrInitOnly = expr.Body is ILiteralExpression ? FieldAttributes.Literal : FieldAttributes.InitOnly;
+            var fieldBuilder = TypeBuilder.DefineField(expr.Symbol.Name, type,
+                FieldAttributes.Public | FieldAttributes.Static | literalOrInitOnly);
+
+            if(expr.Body is ILiteralExpression literal)
+            {
+                fieldBuilder.SetConstant(literal.Value);
+                Constants.Add(expr.Symbol.Name, expr.Body);
+            }
+            else
+            {
+                Visit(expr.Body);
+                Emitter.StoreField(fieldBuilder);
+                Fields.Add(expr.Symbol.Name, fieldBuilder);
+            }
         }
 
         public void Visit(FunctionExpression expr)
@@ -153,11 +205,8 @@ namespace Donatello.Emitter
 
             Emitter.Return();
             var method = Emitter.CreateMethod();
-            var instrs = Emitter.Instructions();
             Functions.Add(expr.Symbol.Name, Emitter);
         }
-
-        IDictionary<string, Emit> Functions = new Dictionary<string, Emit>();
 
         public Type ConcreteType(IType type)
         {
@@ -167,7 +216,7 @@ namespace Donatello.Emitter
         public void Visit(DefTypeExpression expr)
         {
             var type = Record.CreateRecord(ModuleBuilder, expr);
+            Types.Add(expr.Identifier, type);
         }
-
     }
 }

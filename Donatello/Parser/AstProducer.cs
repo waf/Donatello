@@ -51,6 +51,11 @@ namespace Donatello.Parser
             return new FunctionUntypedExpression(name, args, body);
         }
 
+        public override IExpression VisitIdentifier([NotNull] DonatelloParser.IdentifierContext context)
+        {
+            return new SymbolUntypedExpression(context.GetText());
+        }
+
         public override IExpression VisitDef([NotNull] DonatelloParser.DefContext context)
         {
             //TODO: get rid of symbol here? it can just be a string.

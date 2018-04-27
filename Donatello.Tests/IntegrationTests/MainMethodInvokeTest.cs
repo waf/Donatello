@@ -14,9 +14,17 @@ namespace Donatello.Tests.IntegrationTests
     public class MainMethodInvokeTest
     {
         [TestMethod]
-        public void InvokeWithFunction()
+        public void InvokeFunction()
         {
             const string program = @"(defn getOne [] 1) (System.Console.WriteLine (getOne))";
+            string result = RunProgramAndCaptureOutput(program);
+            Assert.AreEqual("1\r\n", result);
+        }
+
+        [TestMethod]
+        public void ReferenceVariable()
+        {
+            const string program = @"(def one 1) (System.Console.WriteLine one)";
             string result = RunProgramAndCaptureOutput(program);
             Assert.AreEqual("1\r\n", result);
         }
@@ -28,6 +36,7 @@ namespace Donatello.Tests.IntegrationTests
             var ast = AstProducer.Parse(program);
             var typedAst = HindleyMilner.Infer(ast);
             var assembly = Compiler.BuildAssembly(typedAst, assemblyName, className);
+            assembly.Save("output.exe");
 
             using (var writer = new StringWriter())
             {

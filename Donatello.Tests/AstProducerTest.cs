@@ -28,7 +28,7 @@ namespace Donatello.Tests
             var line = (ast as FileUntypedExpression).Statements.Single();
 
             var fn = AssertIsType<FunctionUntypedExpression>(line);
-            Assert.AreEqual("add", fn.Symbol);
+            Assert.AreEqual("add", fn.Symbol.Name);
             Assert.AreEqual(2, fn.Arguments.Count);
             Assert.AreEqual("a", fn.Arguments[0].Name);
             Assert.AreEqual("b", fn.Arguments[1].Name);

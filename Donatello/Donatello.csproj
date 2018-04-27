@@ -64,7 +64,7 @@
     <Compile Include="Ast\SymbolExpression.cs" />
     <Compile Include="Ast\ITypedExpression.cs" />
     <Compile Include="Ast\SymbolUntypedExpression.cs" />
-    <Compile Include="Ast\DoubleExpression.cs" />
+    <Compile Include="Ast\FloatExpression.cs" />
     <Compile Include="Ast\IExpression.cs" />
     <Compile Include="Ast\FileExpression.cs" />
     <Compile Include="Ast\BooleanExpression.cs" />
