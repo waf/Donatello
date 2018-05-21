@@ -8,9 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Donatello</RootNamespace>
     <AssemblyName>Donatello</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -75,7 +76,6 @@
     <Compile Include="Compiler.cs" />
     <Compile Include="Emitter\ClassEmitter.cs" />
     <Compile Include="Emitter\Record.cs" />
-    <Compile Include="Extensions\LinqExtensions.cs" />
     <Compile Include="Parser\AstProducer.cs" />
     <Compile Include="Ast\FunctionUntypedExpression.cs" />
     <Compile Include="Parser\Generated\DonatelloBaseVisitor.cs" />

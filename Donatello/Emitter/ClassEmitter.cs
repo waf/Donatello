@@ -21,7 +21,6 @@ namespace Donatello.Emitter
         IDictionary<string, FieldInfo> Fields = new Dictionary<string, FieldInfo>();
         IDictionary<string, ITypedExpression> Constants = new Dictionary<string, ITypedExpression>();
         IDictionary<string, Type> Types = new Dictionary<string, Type>();
-        private Emit staticConstructor;
 
         // Emit API is stateful, so this field mutates as the AST is traversed.
         Emit Emitter;

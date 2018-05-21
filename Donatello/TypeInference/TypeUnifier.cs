@@ -1,5 +1,4 @@
 ﻿using Donatello.Ast;
-using Donatello.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

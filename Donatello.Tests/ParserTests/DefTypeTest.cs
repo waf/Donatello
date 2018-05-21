@@ -45,9 +45,9 @@ namespace Donatello.Tests.ParserTests
 
             Assert.AreEqual("Cat", defType.Identifier);
             Assert.AreEqual(2, defType.Properties.Count);
-            Assert.AreEqual("-color", defType.Properties[0].Identifier);
+            Assert.AreEqual("color", defType.Properties[0].Identifier);
             Assert.AreEqual("string", defType.Properties[0].Type);
-            Assert.AreEqual("-name", defType.Properties[1].Identifier);
+            Assert.AreEqual("name", defType.Properties[1].Identifier);
             Assert.AreEqual("string", defType.Properties[1].Type);
         }
 
