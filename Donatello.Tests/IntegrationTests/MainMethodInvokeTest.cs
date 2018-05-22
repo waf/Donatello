@@ -1,12 +1,5 @@
-﻿using Donatello.Parser;
-using Donatello.TypeInference;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Donatello.Tests.TestHelpers;
 
 namespace Donatello.Tests.IntegrationTests
 {
@@ -27,35 +20,6 @@ namespace Donatello.Tests.IntegrationTests
             const string program = @"(def one 1) (System.Console.WriteLine one)";
             string result = RunProgramAndCaptureOutput(program);
             Assert.AreEqual("1\r\n", result);
-        }
-
-        private static string RunProgramAndCaptureOutput(string program, string entryPointMethod = "Main")
-        {
-            const string assemblyName = "Output";
-            const string className = "Program";
-            var ast = AstProducer.Parse(program);
-            var typedAst = HindleyMilner.Infer(ast);
-            var assembly = Compiler.BuildAssembly(typedAst, assemblyName, className);
-            assembly.Save("output.exe");
-
-            using (var writer = new StringWriter())
-            {
-                var originalOut = Console.Out;
-                Console.SetOut(writer);
-                try
-                {
-                    assembly
-                        .GetType(className)
-                        .GetMethod(entryPointMethod)
-                        .Invoke(null, new object[] { new string[0] });
-                }
-                finally
-                {
-                    Console.SetOut(originalOut);
-                }
-                writer.Flush();
-                return writer.GetStringBuilder().ToString();
-            }
         }
     }
 }

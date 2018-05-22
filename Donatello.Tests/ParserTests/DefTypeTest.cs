@@ -6,9 +6,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using static Donatello.Parser.Generated.DonatelloParser;
+using static Donatello.Tests.TestHelpers;
 
 namespace Donatello.Tests.ParserTests
 {
@@ -51,20 +53,32 @@ namespace Donatello.Tests.ParserTests
             Assert.AreEqual("string", defType.Properties[1].Type);
         }
 
-        private static T Parse<T>(string program)
-            where T : ParserRuleContext
+        [TestMethod]
+        public void DefType_Compiled_ProducesType()
         {
-            AntlrInputStream inputStream = new AntlrInputStream(program);
-            DonatelloLexer lexer = new DonatelloLexer(inputStream);
-            CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-            DonatelloParser parser = new DonatelloParser(tokenStream);
-            var parsed = parser.file()
-                .GetChild(0)  // first line of file
-                .GetChild(0); // child of Form
+            var assembly = CompileProgram("(deftype Cat -color String -name String)");
+            var cat = assembly.GetType("Cat");
 
-            Assert.IsInstanceOfType(parsed, typeof(T));
+            Assert.IsNotNull(cat);
+            var properties = cat.GetProperties();
+            Assert.AreEqual(2, properties.Length);
+            AssertProperty("String", "color", properties[0]);
+            AssertProperty("String", "name", properties[1]);
 
-            return (T)parsed;
+            void AssertProperty(string type, string name, PropertyInfo property)
+            {
+                Assert.AreEqual(type, property.PropertyType.Name);
+                Assert.AreEqual(name, property.Name);
+            }
+        }
+
+        [TestMethod]
+        public void DefType_TypeProduced_CanBeInstantiated()
+        {
+            var assembly = CompileProgram("(deftype Cat -color String -name String)");
+            var catType = assembly.GetType("Cat");
+
+            var cat = Activator.CreateInstance(catType, "white", "Fluffy");
         }
     }
 }

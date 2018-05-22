@@ -60,6 +60,7 @@
     <Compile Include="IntegrationTests\MainMethodInvokeTest.cs" />
     <Compile Include="ParserTests\DefTypeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelpers.cs" />
     <Compile Include="TypeInferenceTest.cs" />
   </ItemGroup>
   <ItemGroup>
