@@ -3,19 +3,15 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using Donatello.Ast;
 using Donatello.Parser.Generated;
-using Donatello.TypeInference;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.Parser
 {
-    /// <summary>
-    /// Traverses the ANTLR parse tree to create our Donatello.Ast tree
-    /// </summary>
-    internal class AstProducer : DonatelloBaseVisitor<IExpression>
+	/// <summary>
+	/// Traverses the ANTLR parse tree to create our Donatello.Ast tree
+	/// </summary>
+	internal class AstProducer : DonatelloBaseVisitor<IExpression>
     {
         public static FileUntypedExpression Parse(string text)
         {

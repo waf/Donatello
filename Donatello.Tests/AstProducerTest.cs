@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Donatello.Parser;
 using Donatello.Ast;
 using System.Linq;
 
 namespace Donatello.Tests
 {
-    [TestClass]
+	[TestClass]
     public class AstProducerTest
     {
         [TestMethod]

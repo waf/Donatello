@@ -136,13 +136,35 @@ namespace Donatello.Emitter
 
         private static MethodInfo GetExternalMethod(SymbolExpression function, List<ITypedExpression> arguments)
         {
+			// TODO: This method resolution should be moved to the type inference SymbolLinker ?
+
+			if(!(function.Type is FunctionType functionType))
+			{
+				throw new InvalidOperationException($"Expected {function.Name} to be a function, but it was {function.Type}");
+			}
+
             var functionNameIndex = function.Name.LastIndexOf('.');
-            return Type
+			var argumentTypes = arguments.Select(ResolveType).ToArray();
+            var method = Type
                 .GetType(function.Name.Substring(0, functionNameIndex))
                 .GetMethod(
                     function.Name.Substring(functionNameIndex + 1),
-                    arguments.Select(ResolveType).ToArray()
+					argumentTypes
                 );
+
+			if(method == null)
+			{
+				var formattedArguments = string.Join(", ", argumentTypes.Select(t => t.ToString()));
+				throw new InvalidOperationException($"Could not find function {function.Name} with arguments {formattedArguments}");
+			}
+
+			// we discovered the concrete function type, set the discovered return type
+			function.Type = new FunctionType(
+				argumentTypes.Select(t => new ConcreteType(t)),
+				new ConcreteType(method.ReturnType)
+			);
+
+			return method;
         }
 
         private static Type ResolveType(ITypedExpression arg)

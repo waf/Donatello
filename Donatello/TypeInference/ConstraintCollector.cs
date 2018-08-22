@@ -1,15 +1,12 @@
 ﻿using Donatello.Ast;
 using Donatello.Services;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.TypeInference
 {
-    class Constraint
+	class Constraint
     {
         public Constraint(IType first, IType second)
         {
@@ -22,6 +19,10 @@ namespace Donatello.TypeInference
 
         public override string ToString() => $"{First}, {Second}";
     }
+	class FunctionConstraint
+	{
+
+	}
 
     internal class ConstraintCollector : AstOperation<IImmutableList<Constraint>>
     {
@@ -40,8 +41,11 @@ namespace Donatello.TypeInference
         protected override IImmutableList<Constraint> StringLiteral(StringExpression expr) => NoConstraints;
         protected override IImmutableList<Constraint> DefType(DefTypeExpression defType) => NoConstraints;
 
-        // a single symbol gives us no information
-        protected override IImmutableList<Constraint> Symbol(SymbolExpression expr) => NoConstraints;
+		// a single symbol gives us no information
+		protected override IImmutableList<Constraint> Symbol(SymbolExpression expr)
+		{
+			return NoConstraints;
+		}
 
         protected override IImmutableList<Constraint> List(ListExpression list)
         {

@@ -1,14 +1,11 @@
 ﻿using Donatello.Ast;
 using Donatello.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.TypeInference
 {
-    class Annotator : UntypedAstOperation<ITypedExpression>
+	class Annotator : UntypedAstOperation<ITypedExpression>
     {
         /// <summary>
         /// Converts an AST of untyped expressions to the corresponding AST

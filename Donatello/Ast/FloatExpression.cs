@@ -1,14 +1,9 @@
 ﻿
 using Donatello.TypeInference;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.Ast
 {
-    class FloatExpression : ITypedExpression, ILiteralExpression
+	class FloatExpression : ITypedExpression, ILiteralExpression
     {
         public FloatExpression(string value) =>
             Value = float.Parse(value);

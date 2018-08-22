@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Donatello.Ast;
+﻿using System.Collections.Generic;
 
 using System.Linq;
-using Donatello.TypeInference;
 
 namespace Donatello.Ast
 {
-    class FunctionUntypedExpression : IExpression
+	class FunctionUntypedExpression : IExpression
     {
         public SymbolUntypedExpression Symbol { get; set; }
         public IReadOnlyList<SymbolUntypedExpression> Arguments { get; set; }

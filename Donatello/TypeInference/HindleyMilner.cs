@@ -1,14 +1,8 @@
 ﻿using Donatello.Ast;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.TypeInference
 {
-    class HindleyMilner
+    static class HindleyMilner
     {
         public static ITypedExpression Infer(IExpression tree)
         {

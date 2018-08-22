@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Donatello.Emitter
 {
-    class Record
+    static class Record
     {
         private static CustomAttributeBuilder compilerGeneratedAttribute;
         private static CustomAttributeBuilder debuggerBrowsableAttribute;

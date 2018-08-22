@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Donatello.Ast
+﻿namespace Donatello.Ast
 {
-    interface IVisitor
+	interface IVisitor
     {
         void Visit(FloatExpression expr);
         void Visit(DefTypeExpression expr);

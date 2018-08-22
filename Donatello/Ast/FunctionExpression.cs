@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Donatello.Ast;
-
-using System.Linq;
+﻿using System.Collections.Generic;
 using Donatello.TypeInference;
 
 namespace Donatello.Ast
 {
-    class FunctionExpression : ITypedExpression
+	class FunctionExpression : ITypedExpression
     {
         public FunctionExpression(SymbolExpression symbol, IReadOnlyList<SymbolExpression> arguments, IReadOnlyList<ITypedExpression> body, IType type)
         {

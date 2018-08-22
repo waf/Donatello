@@ -1,16 +1,13 @@
 ﻿using Donatello.Ast;
 using Donatello.Parser;
+using Donatello.Services;
 using Donatello.TypeInference;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.Tests
 {
-    [TestClass]
+	[TestClass]
     public class TypeInferenceTest
     {
         [TestMethod]
@@ -73,10 +70,8 @@ namespace Donatello.Tests
         private static Ast.ITypedExpression InferTypes(string source)
         {
             var ast = AstProducer.Parse(source);
-            var tast = Annotator.Annotate(ast);
-            var constraints = ConstraintCollector.Collect(tast);
-            var result = TypeUnifier.Unify(constraints);
             var typed = HindleyMilner.Infer(ast);
+            var linked = SymbolLinker.Link(typed);
             return typed;
         }
     }

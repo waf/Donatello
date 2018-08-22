@@ -1,14 +1,9 @@
 ﻿
 using Donatello.TypeInference;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.Ast
 {
-    class BooleanExpression : ITypedExpression, ILiteralExpression
+	class BooleanExpression : ITypedExpression, ILiteralExpression
     {
         public BooleanExpression(string value) =>
             Value = bool.Parse(value);

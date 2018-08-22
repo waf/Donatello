@@ -1,14 +1,6 @@
-﻿
-using Donatello.TypeInference;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Donatello.Ast
+﻿namespace Donatello.Ast
 {
-    class SymbolUntypedExpression : IExpression
+	class SymbolUntypedExpression : IExpression
     {
         public SymbolUntypedExpression(string name)
         {

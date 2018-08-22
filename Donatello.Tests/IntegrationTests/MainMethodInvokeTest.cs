@@ -21,5 +21,13 @@ namespace Donatello.Tests.IntegrationTests
             string result = RunProgramAndCaptureOutput(program);
             Assert.AreEqual("1\r\n", result);
         }
+
+        [TestMethod]
+        public void InvokeMathMax()
+        {
+            const string program = @"(System.Console.WriteLine (System.Math.Max 5 3))";
+            string result = RunProgramAndCaptureOutput(program);
+            Assert.AreEqual("5\r\n", result);
+        }
     }
 }

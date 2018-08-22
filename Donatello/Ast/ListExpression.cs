@@ -1,14 +1,11 @@
 ﻿
 using Donatello.TypeInference;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.Ast
 {
-    class ListUntypedExpression : IExpression
+	class ListUntypedExpression : IExpression
     {
         public ListUntypedExpression(IEnumerable<IExpression> elements)
         {

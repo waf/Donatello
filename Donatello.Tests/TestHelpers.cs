@@ -2,6 +2,7 @@
 using Donatello.Ast;
 using Donatello.Parser;
 using Donatello.Parser.Generated;
+using Donatello.Services;
 using Donatello.TypeInference;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -9,12 +10,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Donatello.Tests
 {
-    static class TestHelpers
+	static class TestHelpers
     {
         const string assemblyName = "Output";
         const string className = "Program";
@@ -42,6 +41,7 @@ namespace Donatello.Tests
         {
             var ast = AstProducer.Parse(program);
             var typedAst = HindleyMilner.Infer(ast);
+            var linked = SymbolLinker.Link(typedAst);
             var assembly = Compiler.BuildAssembly(typedAst, assemblyName, className);
             assembly.Save("output.exe");
             return assembly;

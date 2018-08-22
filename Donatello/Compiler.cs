@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 
 namespace Donatello
 {
-    class Compiler
+    static class Compiler
     {
         public static AssemblyBuilder BuildAssembly(ITypedExpression result, string assemblyName, string className)
         {

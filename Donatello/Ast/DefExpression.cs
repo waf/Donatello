@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Donatello.Ast;
-
-using System.Linq;
-using Donatello.TypeInference;
+﻿using Donatello.TypeInference;
 
 namespace Donatello.Ast
 {
-    class DefExpression : ITypedExpression
+	class DefExpression : ITypedExpression
     {
         public DefExpression(SymbolExpression symbol, ITypedExpression body, IType type)
         {

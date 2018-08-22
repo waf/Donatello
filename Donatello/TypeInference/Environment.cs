@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Donatello.TypeInference
 {
-    public interface IType { }
+	public interface IType { }
     public class TypeVariable : IType
     {
         public TypeVariable(string name)
@@ -96,7 +94,7 @@ namespace Donatello.TypeInference
             string.Join(" → ", ArgumentTypes.Select(t => t.ToString()).Append(ReturnType.ToString()));
     }
 
-    class TypeEnvironment
+    static class TypeEnvironment
     {
         public static Dictionary<string, IType> Current = new Dictionary<string, IType>();
 
