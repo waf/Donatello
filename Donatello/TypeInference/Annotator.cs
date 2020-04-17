@@ -35,6 +35,12 @@ namespace Donatello.TypeInference
             // we don't know what the return type of this function invocation will be, so just set
             // it to a type variable
             var returnType = TypeVariable.Next();
+            //var functionType = new FunctionType(
+            //    elements.Skip(1).Select(e => e.Type),
+            //    returnType);
+            //var functionExpr = new FunctionExpression(
+            //    elements[0].sy
+            //)
             return new ListExpression(elements, returnType);
         }
 

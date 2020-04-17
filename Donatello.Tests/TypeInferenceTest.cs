@@ -71,7 +71,6 @@ namespace Donatello.Tests
         {
             var ast = AstProducer.Parse(source);
             var typed = HindleyMilner.Infer(ast);
-            var linked = SymbolLinker.Link(typed);
             return typed;
         }
     }

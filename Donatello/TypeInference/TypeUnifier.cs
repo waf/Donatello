@@ -1,39 +1,141 @@
 ﻿using Donatello.Ast;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Donatello.TypeInference
 {
 	internal static class TypeUnifier
     {
-        public static IDictionary<string, IType> Unify(IImmutableList<Constraint> constraints)
+        public static IDictionary<string, IType> UnifyAll(IImmutableList<IConstraint> constraints)
         {
-			Console.WriteLine(Indent() + "Unify: " + string.Join("; ", constraints));
+            //var unions = constraints.OfType<UnionConstraint>().ToList();
+            //var concretes = constraints.OfType<Constraint>().ToList();
+
+            //// TODO: this is terrible! 
+            //var product = CartesianProduct(unions.Select(u => u.Constraints));
+            //var possibilities = from possibility in product
+            //                    select concretes.Concat(possibility).ToImmutableList();
+
+            //var results = possibilities.Select(Unify).ToList();
+
+            //return results.Single(r => r != null);
+            var result = Unify(constraints);
+            return result.Single();
+        }
+
+        //static IEnumerable<IEnumerable<T>> CartesianProduct<T>(IEnumerable<IEnumerable<T>> sequences)
+        //{
+        //    IEnumerable<IEnumerable<T>> emptyProduct =
+        //      new[] { Enumerable.Empty<T>() };
+        //    return sequences.Aggregate(
+        //      emptyProduct,
+        //      (accumulator, sequence) =>
+        //        from accseq in accumulator
+        //        from item in sequence
+        //        select accseq.Concat(new[] { item }));
+        //}
+
+        public static IEnumerable<IDictionary<string, IType>> Unify(IImmutableList<IConstraint> constraints)
+        {
+            Console.WriteLine(Indent() + "Unify: " + string.Join("; ", constraints));
 
             if (!constraints.Any())
-                return new Dictionary<string, IType>();
+                return new[] { new Dictionary<string, IType>() };
 
             var head = constraints.First();
             var tail = constraints.Skip(1).ToImmutableList();
-            var t2 = Unify(tail);
-            var t1 = UnifyOne(
-                Apply(t2, head.First),
-                Apply(t2, head.Second)
-            );
-            var result = t1.Concat(t2)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            IEnumerable<IDictionary<string, IType>> t2Solutions = Unify(tail);
+            if (t2Solutions == null) // no solution
+                return null;
 
-			Console.WriteLine(Indent() + $"Unify returned: {{{string.Join("; ", result.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}}}");
-			return result;
+            IEnumerable<IDictionary<string, IType>> t1Solutions = null;
+            if(head is Constraint constraint)
+            {
+                t1Solutions = t2Solutions.Select(t2 =>
+                {
+                    var unified = Unify(t2, constraint);
+                    if (unified == null)
+                    {
+                        return null;
+                    }
+                    return unified.Concat(t2).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                });
+            }
+            else if(head is UnionConstraint union)
+            {
+                t1Solutions = t2Solutions.SelectMany(t2 =>
+                {
+                    var unified = Unify(t2, union);
+                    if (unified == null)
+                    {
+                        return null;
+                    }
+                    return unified.Select(u => u.Concat(t2).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+                });
+            }
+
+            /*
+              
+            string -> void
+            char[] -> void
+
+            int -> string
+            int -> int
+             */
+            //var result = t1Solutions
+            //    .Select(t1 => t1.Concat(t2Solutions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+            var result = t1Solutions.Where(u => u != null);
+
+            if (!t1Solutions.Any()) // no solution
+                return null;
+
+            //Console.WriteLine(Indent() + $"Unify returned: {{{string.Join("; ", result.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}}}");
+            return result;
         }
+
+        private static IEnumerable<IDictionary<string, IType>> Unify(IDictionary<string, IType> t2, UnionConstraint union)
+        {
+            foreach (var constraint in union.Constraints)
+            {
+                var result = UnifyOne(
+                    Apply(t2, constraint.First),
+                    Apply(t2, constraint.Second)
+                );
+
+                if(result != null)
+                {
+                    yield return result;
+                }
+            }
+        }
+
+        private static IDictionary<string, IType> Unify(IDictionary<string, IType> t2, Constraint constraint)
+        {
+            return UnifyOne(
+                Apply(t2, constraint.First),
+                Apply(t2, constraint.Second)
+            );
+        }
+
+        //private static IDictionary<string, IType> ExpandUnionConstraint(IImmutableList<IConstraint> existing, UnionConstraint union)
+        //{
+        //    var results = union.potentialConstraints
+        //        .SelectMany(argumentConstraints => Unify(argumentConstraints.Concat(existing).ToImmutableList()));
+
+        //    return results
+        //        .ToLookup(kvp => kvp.Key, kvp => kvp.Value);
+
+        //}
 
         private static IDictionary<string, IType> UnifyOne(IType type1, IType type2)
         {
 			Console.WriteLine(Indent() + $"UnifyOne: {type1}; {type2}");
 
-			IDictionary<string, IType> result = null;
+            IDictionary<string, IType> result = null;
 			if (type1 is ConcreteType c1 && type2 is ConcreteType c2 && c1.Equals(c2))
                 result = new Dictionary<string, IType>();
             if (type1 is TypeVariable v1)
@@ -51,10 +153,10 @@ namespace Donatello.TypeInference
                     f1.ArgumentTypes
                         .Zip(f2.ArgumentTypes, (arg1, arg2) => new Constraint(arg1, arg2))
                         .Append(new Constraint(f1.ReturnType, f2.ReturnType))
-                        .ToImmutableList()
-                );
+                        .ToImmutableList<IConstraint>()
+                )?.SingleOrDefault();
 
-			Console.WriteLine(Indent() + $"UnifyOne returned: {{{string.Join("; ", result.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}}}");
+			//Console.WriteLine(Indent() + $"UnifyOne returned: {{{string.Join("; ", result.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}}}");
 			return result;
         }
 
@@ -63,7 +165,7 @@ namespace Donatello.TypeInference
 			Console.WriteLine(Indent() + $"Apply: {{{string.Join("; ", substitutions.Select(kvp => $"{kvp.Key}: {kvp.Value}"))}}} to {targetType}");
 
             var result = substitutions
-                .Reverse() // fold right, todo: needed? if so, make this more efficient
+                //.Reverse() // fold right, todo: needed? if so, make this more efficient
                 .Aggregate(
                     targetType,
                     (t, kvp) => Substitute(t, kvp.Key, kvp.Value)

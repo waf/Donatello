@@ -12,10 +12,10 @@ namespace Donatello
 
         public static void Main(String[] args)
         {
-            var ast = AstProducer.Parse("(add 5 3)");
+            var ast = AstProducer.Parse("(def a 3) (def b 5) (System.Math.Max a b)");
             var tast = Annotator.Annotate(ast);
             var constraints = ConstraintCollector.Collect(tast);
-            var unified = TypeUnifier.Unify(constraints);
+            var unified = TypeUnifier.UnifyAll(constraints);
             var typed = TypeUnifier.Apply(unified, tast);
 			return;
 

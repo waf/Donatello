@@ -41,7 +41,6 @@ namespace Donatello.Tests
         {
             var ast = AstProducer.Parse(program);
             var typedAst = HindleyMilner.Infer(ast);
-            var linked = SymbolLinker.Link(typedAst);
             var assembly = Compiler.BuildAssembly(typedAst, assemblyName, className);
             assembly.Save("output.exe");
             return assembly;

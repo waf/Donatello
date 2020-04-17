@@ -25,7 +25,7 @@ namespace Donatello.Tests.IntegrationTests
         [TestMethod]
         public void InvokeMathMax()
         {
-            const string program = @"(System.Console.WriteLine (System.Math.Max 5 3))";
+            const string program = @"(def five 5) (def three 3) (System.Console.WriteLine (System.Math.Max five three))";
             string result = RunProgramAndCaptureOutput(program);
             Assert.AreEqual("5\r\n", result);
         }
